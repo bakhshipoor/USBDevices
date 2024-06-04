@@ -133,7 +133,7 @@ public class USBDevice
         bResponse.Add(new PropertiesToList() { Name = "Speed: ", Value = Speed.ToString() });
         bResponse.Add(new PropertiesToList() { Name = "Supported USB 1.10 Protocol: ", Value = SupportedUsb_110_Protocol });
         bResponse.Add(new PropertiesToList() { Name = "Supported USB 2.00 Protocol: ", Value = SupportedUsb_200_Protocol });
-        bResponse.Add(new PropertiesToList() { Name = "Supported USB 3.100 Protocol: ", Value = SupportedUsb_300_Protocol });
+        bResponse.Add(new PropertiesToList() { Name = "Supported USB 3.00 Protocol: ", Value = SupportedUsb_300_Protocol });
         bResponse.Add(new PropertiesToList() { Name = "Device Is Operating At Super Speed Or Higher: ", Value = DeviceIsOperatingAtSuperSpeedOrHigher });
         bResponse.Add(new PropertiesToList() { Name = "Device Is Super Speed Capable Or Higher: ", Value = DeviceIsSuperSpeedCapableOrHigher });
         bResponse.Add(new PropertiesToList() { Name = "Device Is Operating At Super Speed Plus Or Higher: ", Value = DeviceIsOperatingAtSuperSpeedPlusOrHigher });
