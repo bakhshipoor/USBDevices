@@ -119,6 +119,7 @@ public class USBDevicesEventManager
         usbDevices.USBDevices.Clear();
         USBDevicesListHelpers.UpdateUSBDevicesFromSetupAPICollection(usbDevices.USBDevicesFromSetupAPI);
         USBDevicesListHelpers.UpdateHubCollection(usbDevices.USBHubs);
+        // To Do : Update Only Changes
         USBDevicesListHelpers.UpdateUSBDevicesCollection(usbDevices.USBHubs, usbDevices.USBDevicesFromSetupAPI, usbDevices.USBDevices);
         foreach (USBDevice itemUSBDevice in usbDevices.USBDevices)
         {

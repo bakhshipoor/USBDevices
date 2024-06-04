@@ -116,4 +116,44 @@ public class USBDevice
     public string DevicePath_ParentHub { get; set; }
     public uint PortIndex { get; set; }
 
+    public List<PropertiesToList> PropertiesToList()
+    {
+        List<PropertiesToList> bResponse = [];
+        bResponse.Add(new PropertiesToList(){ Name = "USB Revision: " , Value = Rev_USB});
+        bResponse.Add(new PropertiesToList() { Name = "Device Class: ", Value = ClassCode_DeviceClass });
+        bResponse.Add(new PropertiesToList() { Name = "Device Sub Class: ", Value = ClassCode_DeviceSubClass });
+        bResponse.Add(new PropertiesToList() { Name = "Device Protocol: ", Value = ClassCode_DeviceProtocol });
+        bResponse.Add(new PropertiesToList() { Name = "Max Packet Size: ", Value = MaxPacketSize0 });
+        bResponse.Add(new PropertiesToList() { Name = "Vendor ID (VID): ", Value = string.Format("{0:X4}",IDVendor) });
+        bResponse.Add(new PropertiesToList() { Name = "Product ID (PID): ", Value = string.Format("{0:X4}", IDProduct) });
+        bResponse.Add(new PropertiesToList() { Name = "Device Revision: ", Value = Rev_Device });
+        bResponse.Add(new PropertiesToList() { Name = "Number Of Configurations: ", Value = NumberOfConfigurations });
+        bResponse.Add(new PropertiesToList() { Name = "Number Of Open Pipes: ", Value = NumberOfOpenPipes });
+        bResponse.Add(new PropertiesToList() { Name = "Device Address: ", Value = DeviceAddress });
+        bResponse.Add(new PropertiesToList() { Name = "Speed: ", Value = Speed.ToString() });
+        bResponse.Add(new PropertiesToList() { Name = "Supported USB 1.10 Protocol: ", Value = SupportedUsb_110_Protocol });
+        bResponse.Add(new PropertiesToList() { Name = "Supported USB 2.00 Protocol: ", Value = SupportedUsb_200_Protocol });
+        bResponse.Add(new PropertiesToList() { Name = "Supported USB 3.100 Protocol: ", Value = SupportedUsb_300_Protocol });
+        bResponse.Add(new PropertiesToList() { Name = "Device Is Operating At Super Speed Or Higher: ", Value = DeviceIsOperatingAtSuperSpeedOrHigher });
+        bResponse.Add(new PropertiesToList() { Name = "Device Is Super Speed Capable Or Higher: ", Value = DeviceIsSuperSpeedCapableOrHigher });
+        bResponse.Add(new PropertiesToList() { Name = "Device Is Operating At Super Speed Plus Or Higher: ", Value = DeviceIsOperatingAtSuperSpeedPlusOrHigher });
+        bResponse.Add(new PropertiesToList() { Name = "Device Is Super Speed Plus Capable Or Higher: ", Value = DeviceIsSuperSpeedPlusCapableOrHigher });
+        bResponse.Add(new PropertiesToList() { Name = "Manufacturer Name: ", Value = StringDescriptor_Manufacturer });
+        bResponse.Add(new PropertiesToList() { Name = "Manufacurer Name Buffer Count: ", Value = StringDescriptor_Manufacturer_Length });
+        bResponse.Add(new PropertiesToList() { Name = "Product Name: ", Value = StringDescriptor_Product });
+        bResponse.Add(new PropertiesToList() { Name = "Product Name Buffer Count: ", Value = StringDescriptor_Product_Length });
+        bResponse.Add(new PropertiesToList() { Name = "Serial Number: ", Value = StringDescriptor_SerialNumber });
+        bResponse.Add(new PropertiesToList() { Name = "Serial Number Buffer Count: ", Value = StringDescriptor_SerialNumber_Length });
+        bResponse.Add(new PropertiesToList() { Name = "Hub Port Index: ", Value = PortIndex });
+
+        bResponse.Add(new PropertiesToList() { Name = "Number Of Interfaces: ", Value = ConfigurationDescriptors.FirstOrDefault().NumberOfInterfaces });
+        bResponse.Add(new PropertiesToList() { Name = "Configuration Value: ", Value = ConfigurationDescriptors.FirstOrDefault().ConfigurationValue });
+        bResponse.Add(new PropertiesToList() { Name = "Self Powered: ", Value = ConfigurationDescriptors.FirstOrDefault().SelfPowered });
+        bResponse.Add(new PropertiesToList() { Name = "Remote Wakeup: ", Value = ConfigurationDescriptors.FirstOrDefault().RemoteWakeup });
+        bResponse.Add(new PropertiesToList() { Name = "Max Power (Milliampere): ", Value = ConfigurationDescriptors.FirstOrDefault().MaxPower });
+        bResponse.Add(new PropertiesToList() { Name = "Configuration Description: ", Value = ConfigurationDescriptors.FirstOrDefault().StringDescriptor_Configuration });
+
+        return bResponse;
+    }
+
 }

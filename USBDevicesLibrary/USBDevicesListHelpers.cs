@@ -413,19 +413,22 @@ internal static class USBDevicesListHelpers
             if (usbDevice.IndexOfManufacturer > 0)
             {
                 string[] strManufacturer = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfManufacturer);
-                usbDevice.StringDescriptor_Manufacturer_Length = Convert.ToUInt32(strManufacturer[0]);
+                if (!string.IsNullOrEmpty(strManufacturer[0]))
+                    usbDevice.StringDescriptor_Manufacturer_Length = Convert.ToUInt32(strManufacturer[0]);
                 usbDevice.StringDescriptor_Manufacturer = strManufacturer[1];
             }
             if (usbDevice.IndexOfProduct > 0)
             {
                 string[] strProduct = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfProduct);
-                usbDevice.StringDescriptor_Product_Length = Convert.ToUInt32(strProduct[0]);
+                if (!string.IsNullOrEmpty(strProduct[0]))
+                    usbDevice.StringDescriptor_Product_Length = Convert.ToUInt32(strProduct[0]);
                 usbDevice.StringDescriptor_Product = strProduct[1];
             }
             if (usbDevice.IndexOfSerialNumber > 0)
             {
                 string[] strSerialNumber = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfSerialNumber);
-                usbDevice.StringDescriptor_SerialNumber_Length = Convert.ToUInt32(strSerialNumber[0]);
+                if (!string.IsNullOrEmpty(strSerialNumber[0]))
+                    usbDevice.StringDescriptor_SerialNumber_Length = Convert.ToUInt32(strSerialNumber[0]);
                 usbDevice.StringDescriptor_SerialNumber = strSerialNumber[1];
             }
 
