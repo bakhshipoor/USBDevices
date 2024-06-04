@@ -1,26 +1,48 @@
 ﻿using System.Collections.ObjectModel;
 using USBDevicesLibrary.Devices;
+using USBDevicesLibrary.Events;
 using USBDevicesLibrary.USBDevices;
 
 namespace USBDevicesLibrary;
 
 public class USBDevicesList 
 {
-    private ObservableCollection<USBHub> _USBHubs { get; set; }
-    private ObservableCollection<Device> _USBDevicesFromSetupAPI { get; set; }
+    public event EventHandler<USBDevicesEventArgs>? DeviceChanged;
+    public event EventHandler? InitialCollectionsComplete;
+
+    public ObservableCollection<USBHub> USBHubs { get; set; }
+    public ObservableCollection<Device> USBDevicesFromSetupAPI { get; set; }
     public ObservableCollection<USBDevice> USBDevices { get; set; }
-    
+
+    private USBDevicesEventManager eventMnager;
+
+    public bool InitialCompleted;
+
     public USBDevicesList()
     {
-        _USBHubs = new();
-        _USBDevicesFromSetupAPI = new();
+        USBHubs = new();
+        USBDevicesFromSetupAPI = new();
         USBDevices = new();
+        eventMnager = new(this);
+        InitialCompleted = false;
     }
 
     public void Start()
     {
-        USBDevicesListHelpers.UpdateHubCollection(_USBHubs);
-        USBDevicesListHelpers.UpdateUSBDevicesFromSetupAPICollection(_USBDevicesFromSetupAPI);
-        USBDevicesListHelpers.UpdateUSBDevicesCollection(_USBHubs, _USBDevicesFromSetupAPI, USBDevices);
+        USBDevicesListHelpers.UpdateHubCollection(USBHubs);
+        USBDevicesListHelpers.UpdateUSBDevicesFromSetupAPICollection(USBDevicesFromSetupAPI);
+        USBDevicesListHelpers.UpdateUSBDevicesCollection(USBHubs, USBDevicesFromSetupAPI, USBDevices);
+        InitialCompleted = true;
+        OnInitialCollectionsComplete(EventArgs.Empty);
+    }
+
+    protected virtual void OnInitialCollectionsComplete(EventArgs e)
+    {
+        InitialCollectionsComplete?.Invoke(this, e);
+    }
+
+    internal virtual void OnDeviceChanged(USBDevicesEventArgs e)
+    {
+        DeviceChanged?.Invoke(this, e);
     }
 }
