@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using static USBDevicesLibrary.Win32API.USBSpec;
 using static USBDevicesLibrary.Win32API.WinUSBData;
@@ -20,9 +21,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "WinUsb_Initialize";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_Initialize [{interfaceHandle}]";
         }
         return bResponse;
     }
@@ -41,9 +41,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "WinUsb_GetDescriptor [Device Descriptor]";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_GetDescriptor [{DescriptorTypes.USB_DEVICE_DESCRIPTOR_TYPE}]";
         }
         return bResponse;
     }
@@ -62,9 +61,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "WinUsb_GetDescriptor [Configuration Descriptor]";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_GetDescriptor [{DescriptorTypes.USB_CONFIGURATION_DESCRIPTOR_TYPE}]";
         }
         return bResponse;
     }
@@ -84,9 +82,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "WinUsb_GetDescriptor [String Descriptor]";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_GetDescriptor [{DescriptorTypes.USB_STRING_DESCRIPTOR_TYPE}]";
         }
         return bResponse;
     }
@@ -104,9 +101,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "WinUsb_QueryDeviceInformation";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_QueryDeviceInformation [{nameof(DEVICE_SPEED)}]";
         }
         return bResponse;
     }
@@ -185,9 +181,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = $"WinUsb_SetPipePolicy [{policyType}]";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_GetPipePolicy [{policyType}]";
         }
         return bResponse;
     }
@@ -299,8 +294,7 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
             bResponse.ErrorFunctionName = $"WinUsb_SetPipePolicy [{policyType}]";
         }
         return bResponse;
@@ -353,9 +347,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "WinUsb_ControlTransfer";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_ControlTransfer [{interfaceHandle}]";
         }
 
         return bResponse;
@@ -376,9 +369,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "WinUsb_WritePipe";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_WritePipe [{pipeID}]";
         }
         return bResponse;
     }
@@ -401,9 +393,8 @@ public static partial class WinUSBFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "WinUsb_WritePipe";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"WinUsb_ReadPipe [{pipeID}]";
         }
         return bResponse;
     }

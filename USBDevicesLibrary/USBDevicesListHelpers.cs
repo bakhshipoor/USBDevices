@@ -357,94 +357,99 @@ internal static class USBDevicesListHelpers
     {
         foreach (Device itemDevice in usbDevicesFromSetupAPI)
         {
-            USBDevice usbDevice = new(itemDevice);
-            if (!string.IsNullOrEmpty(usbDevice.BaseDeviceProperties.Device_LocationInfo))
-            {
-                string[] location = usbDevice.BaseDeviceProperties.Device_LocationInfo.Split(".");
-                if (location.Length > 0 && !string.IsNullOrEmpty(location[0]))
-                {
-                    if (location[0].Contains("port_#", StringComparison.OrdinalIgnoreCase))
-                    {
-                        usbDevice.PortIndex = Convert.ToUInt32(location[0].Replace("port_#", "", StringComparison.OrdinalIgnoreCase));
-                    }
-                }
-            }
-            foreach (USBHub itemUSBHUB in usbHubs)
-            {
-                if (usbDevice.BaseDeviceProperties.Device_Parent.Equals(itemUSBHUB.DeviceID, StringComparison.OrdinalIgnoreCase))
-                {
-                    usbDevice.DevicePath_ParentHub = itemUSBHUB.DevicePath;
-                }
-            }
-            uint connectionIndex = usbDevice.PortIndex;
-            string devicePath = usbDevice.DevicePath_ParentHub;
-
-            // Fill Data From USB_NODE_CONNECTION_INFORMATION_EX
-            USB_NODE_CONNECTION_INFORMATION_EX nodeConnectionInformation = GetNodeConnectionInformation(devicePath, connectionIndex);
-            {
-                usbDevice.Rev_USB = string.Format("{0:X4}", nodeConnectionInformation.DeviceDescriptor.bcdUSB);
-                usbDevice.ClassCode_DeviceClass = nodeConnectionInformation.DeviceDescriptor.bDeviceClass;
-                usbDevice.ClassCode_DeviceSubClass = nodeConnectionInformation.DeviceDescriptor.bDeviceSubClass;
-                usbDevice.ClassCode_DeviceProtocol = nodeConnectionInformation.DeviceDescriptor.bDeviceProtocol;
-                usbDevice.MaxPacketSize0 = nodeConnectionInformation.DeviceDescriptor.bMaxPacketSize0;
-                usbDevice.IDVendor = nodeConnectionInformation.DeviceDescriptor.idVendor;
-                usbDevice.IDProduct = nodeConnectionInformation.DeviceDescriptor.idProduct;
-                usbDevice.Rev_Device = string.Format("{0:X4}", nodeConnectionInformation.DeviceDescriptor.bcdDevice);
-                usbDevice.IndexOfManufacturer = nodeConnectionInformation.DeviceDescriptor.iManufacturer;
-                usbDevice.IndexOfProduct = nodeConnectionInformation.DeviceDescriptor.iProduct;
-                usbDevice.IndexOfSerialNumber = nodeConnectionInformation.DeviceDescriptor.iSerialNumber;
-                usbDevice.NumberOfConfigurations = nodeConnectionInformation.DeviceDescriptor.bNumConfigurations;
-                usbDevice.DeviceAddress = nodeConnectionInformation.DeviceAddress;
-                usbDevice.NumberOfOpenPipes = nodeConnectionInformation.NumberOfOpenPipes;
-                usbDevice.Speed = nodeConnectionInformation.Speed;
-            }
-
-            USB_NODE_CONNECTION_INFORMATION_EX_V2 nodeConnectionInformationV2 = GetNodeConnectionInformationV2(devicePath, connectionIndex);
-            {
-                if ((nodeConnectionInformationV2.SupportedUsbProtocols & USB_PROTOCOLS.Usb110) != 0) usbDevice.SupportedUsb_110_Protocol = true;
-                if ((nodeConnectionInformationV2.SupportedUsbProtocols & USB_PROTOCOLS.Usb200) != 0) usbDevice.SupportedUsb_200_Protocol = true;
-                if ((nodeConnectionInformationV2.SupportedUsbProtocols & USB_PROTOCOLS.Usb300) != 0) usbDevice.SupportedUsb_300_Protocol = true;
-                if ((nodeConnectionInformationV2.Flags & USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS.DeviceIsOperatingAtSuperSpeedOrHigher) != 0) usbDevice.DeviceIsOperatingAtSuperSpeedOrHigher = true;
-                if ((nodeConnectionInformationV2.Flags & USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS.DeviceIsSuperSpeedCapableOrHigher) != 0) usbDevice.DeviceIsSuperSpeedCapableOrHigher = true;
-                if ((nodeConnectionInformationV2.Flags & USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS.DeviceIsOperatingAtSuperSpeedPlusOrHigher) != 0) usbDevice.DeviceIsOperatingAtSuperSpeedPlusOrHigher = true;
-                if ((nodeConnectionInformationV2.Flags & USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS.DeviceIsSuperSpeedPlusCapableOrHigher) != 0) usbDevice.DeviceIsSuperSpeedPlusCapableOrHigher = true;
-            }
-
-            if (usbDevice.IndexOfManufacturer > 0)
-            {
-                string[] strManufacturer = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfManufacturer);
-                if (!string.IsNullOrEmpty(strManufacturer[0]))
-                    usbDevice.StringDescriptor_Manufacturer_Length = Convert.ToUInt32(strManufacturer[0]);
-                usbDevice.StringDescriptor_Manufacturer = strManufacturer[1];
-            }
-            if (usbDevice.IndexOfProduct > 0)
-            {
-                string[] strProduct = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfProduct);
-                if (!string.IsNullOrEmpty(strProduct[0]))
-                    usbDevice.StringDescriptor_Product_Length = Convert.ToUInt32(strProduct[0]);
-                usbDevice.StringDescriptor_Product = strProduct[1];
-            }
-            if (usbDevice.IndexOfSerialNumber > 0)
-            {
-                string[] strSerialNumber = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfSerialNumber);
-                if (!string.IsNullOrEmpty(strSerialNumber[0]))
-                    usbDevice.StringDescriptor_SerialNumber_Length = Convert.ToUInt32(strSerialNumber[0]);
-                usbDevice.StringDescriptor_SerialNumber = strSerialNumber[1];
-            }
-
-            for (byte indexofConfiguration = 0; indexofConfiguration < usbDevice.NumberOfConfigurations; indexofConfiguration++)
-            {
-                USBConfigurationDescriptor configurationDescriptor = new(GetNodeConnectionConfigurationDescriptor(devicePath, connectionIndex, indexofConfiguration));
-                if (configurationDescriptor.IndexOfConfiguration > 0)
-                {
-                    string[] strConfigDescription = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, configurationDescriptor.IndexOfConfiguration);
-                    configurationDescriptor.StringDescriptor_Configuration = strConfigDescription[1];
-                }
-                usbDevice.ConfigurationDescriptors.Add(configurationDescriptor);
-            }
-
-            usbDevices.Add(usbDevice);
+            usbDevices.Add(CreateUSBDevice(usbHubs, itemDevice));
         }
+    }
+
+    public static USBDevice CreateUSBDevice(ObservableCollection<USBHub> usbHubs, Device device)
+    {
+        USBDevice usbDevice = new(device);
+        if (!string.IsNullOrEmpty(usbDevice.BaseDeviceProperties.Device_LocationInfo))
+        {
+            string[] location = usbDevice.BaseDeviceProperties.Device_LocationInfo.Split(".");
+            if (location.Length > 0 && !string.IsNullOrEmpty(location[0]))
+            {
+                if (location[0].Contains("port_#", StringComparison.OrdinalIgnoreCase))
+                {
+                    usbDevice.PortIndex = Convert.ToUInt32(location[0].Replace("port_#", "", StringComparison.OrdinalIgnoreCase));
+                }
+            }
+        }
+        foreach (USBHub itemUSBHUB in usbHubs)
+        {
+            if (usbDevice.BaseDeviceProperties.Device_Parent.Equals(itemUSBHUB.DeviceID, StringComparison.OrdinalIgnoreCase))
+            {
+                usbDevice.DevicePath_ParentHub = itemUSBHUB.DevicePath;
+            }
+        }
+        uint connectionIndex = usbDevice.PortIndex;
+        string devicePath = usbDevice.DevicePath_ParentHub;
+
+        // Fill Data From USB_NODE_CONNECTION_INFORMATION_EX
+        USB_NODE_CONNECTION_INFORMATION_EX nodeConnectionInformation = GetNodeConnectionInformation(devicePath, connectionIndex);
+        {
+            usbDevice.Rev_USB = string.Format("{0:X4}", nodeConnectionInformation.DeviceDescriptor.bcdUSB);
+            usbDevice.ClassCode_DeviceClass = nodeConnectionInformation.DeviceDescriptor.bDeviceClass;
+            usbDevice.ClassCode_DeviceSubClass = nodeConnectionInformation.DeviceDescriptor.bDeviceSubClass;
+            usbDevice.ClassCode_DeviceProtocol = nodeConnectionInformation.DeviceDescriptor.bDeviceProtocol;
+            usbDevice.MaxPacketSize0 = nodeConnectionInformation.DeviceDescriptor.bMaxPacketSize0;
+            usbDevice.IDVendor = nodeConnectionInformation.DeviceDescriptor.idVendor;
+            usbDevice.IDProduct = nodeConnectionInformation.DeviceDescriptor.idProduct;
+            usbDevice.Rev_Device = string.Format("{0:X4}", nodeConnectionInformation.DeviceDescriptor.bcdDevice);
+            usbDevice.IndexOfManufacturer = nodeConnectionInformation.DeviceDescriptor.iManufacturer;
+            usbDevice.IndexOfProduct = nodeConnectionInformation.DeviceDescriptor.iProduct;
+            usbDevice.IndexOfSerialNumber = nodeConnectionInformation.DeviceDescriptor.iSerialNumber;
+            usbDevice.NumberOfConfigurations = nodeConnectionInformation.DeviceDescriptor.bNumConfigurations;
+            usbDevice.DeviceAddress = nodeConnectionInformation.DeviceAddress;
+            usbDevice.NumberOfOpenPipes = nodeConnectionInformation.NumberOfOpenPipes;
+            usbDevice.Speed = nodeConnectionInformation.Speed;
+        }
+
+        USB_NODE_CONNECTION_INFORMATION_EX_V2 nodeConnectionInformationV2 = GetNodeConnectionInformationV2(devicePath, connectionIndex);
+        {
+            if ((nodeConnectionInformationV2.SupportedUsbProtocols & USB_PROTOCOLS.Usb110) != 0) usbDevice.SupportedUsb_110_Protocol = true;
+            if ((nodeConnectionInformationV2.SupportedUsbProtocols & USB_PROTOCOLS.Usb200) != 0) usbDevice.SupportedUsb_200_Protocol = true;
+            if ((nodeConnectionInformationV2.SupportedUsbProtocols & USB_PROTOCOLS.Usb300) != 0) usbDevice.SupportedUsb_300_Protocol = true;
+            if ((nodeConnectionInformationV2.Flags & USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS.DeviceIsOperatingAtSuperSpeedOrHigher) != 0) usbDevice.DeviceIsOperatingAtSuperSpeedOrHigher = true;
+            if ((nodeConnectionInformationV2.Flags & USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS.DeviceIsSuperSpeedCapableOrHigher) != 0) usbDevice.DeviceIsSuperSpeedCapableOrHigher = true;
+            if ((nodeConnectionInformationV2.Flags & USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS.DeviceIsOperatingAtSuperSpeedPlusOrHigher) != 0) usbDevice.DeviceIsOperatingAtSuperSpeedPlusOrHigher = true;
+            if ((nodeConnectionInformationV2.Flags & USB_NODE_CONNECTION_INFORMATION_EX_V2_FLAGS.DeviceIsSuperSpeedPlusCapableOrHigher) != 0) usbDevice.DeviceIsSuperSpeedPlusCapableOrHigher = true;
+        }
+
+        if (usbDevice.IndexOfManufacturer > 0)
+        {
+            string[] strManufacturer = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfManufacturer);
+            if (!string.IsNullOrEmpty(strManufacturer[0]))
+                usbDevice.StringDescriptor_Manufacturer_Length = Convert.ToUInt32(strManufacturer[0]);
+            usbDevice.StringDescriptor_Manufacturer = strManufacturer[1];
+        }
+        if (usbDevice.IndexOfProduct > 0)
+        {
+            string[] strProduct = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfProduct);
+            if (!string.IsNullOrEmpty(strProduct[0]))
+                usbDevice.StringDescriptor_Product_Length = Convert.ToUInt32(strProduct[0]);
+            usbDevice.StringDescriptor_Product = strProduct[1];
+        }
+        if (usbDevice.IndexOfSerialNumber > 0)
+        {
+            string[] strSerialNumber = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, usbDevice.IndexOfSerialNumber);
+            if (!string.IsNullOrEmpty(strSerialNumber[0]))
+                usbDevice.StringDescriptor_SerialNumber_Length = Convert.ToUInt32(strSerialNumber[0]);
+            usbDevice.StringDescriptor_SerialNumber = strSerialNumber[1];
+        }
+
+        for (byte indexofConfiguration = 0; indexofConfiguration < usbDevice.NumberOfConfigurations; indexofConfiguration++)
+        {
+            USBConfigurationDescriptor configurationDescriptor = new(GetNodeConnectionConfigurationDescriptor(devicePath, connectionIndex, indexofConfiguration));
+            if (configurationDescriptor.IndexOfConfiguration > 0)
+            {
+                string[] strConfigDescription = GetNodeConnectionStringDescriptor(devicePath, connectionIndex, configurationDescriptor.IndexOfConfiguration);
+                configurationDescriptor.StringDescriptor_Configuration = strConfigDescription[1];
+            }
+            usbDevice.ConfigurationDescriptors.Add(configurationDescriptor);
+        }
+
+        return usbDevice;
     }
 
     public static void UpdateUSBDevicesFromSetupAPICollection(ObservableCollection<Device> usbDevicesFromSetupAPI)

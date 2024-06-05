@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Text;
 using static USBDevicesLibrary.Win32API.SetupAPIData;
@@ -19,9 +20,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiGetClassDevs";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiGetClassDevs [{classGuid} <> {Enum} <> {flags}]";
         }
         return bResponse;
     }
@@ -96,9 +96,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiEnumDeviceInfo";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiEnumDeviceInfo [{hDevInfo}]";
         }
         return bResponse;
     }
@@ -118,9 +117,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiEnumDeviceInterfaces";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiEnumDeviceInterfaces [{interfaceClassGuid}]";
         }
         return bResponse;
     }
@@ -143,9 +141,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiGetClassDevs";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiGetDevicePropertyKeys [{DeviceInfoData.ClassGuid}]";
         }
         return bResponse;
     }
@@ -172,9 +169,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiGetClassDevs";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"GetPropertyValueByType [{PropertyKey}]";
         }
 
         return bResponse;
@@ -198,12 +194,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            if (WindowsSystemErrorCodes.Win32Error.ContainsKey(bResponse.ErrorCode))
-                bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            else
-                bResponse.ErrorDescription ="Unknown Error Code!";
-            bResponse.ErrorFunctionName = "SetupDiGetClassDevs";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiGetClassPropertyKeys [{prePropertyKeyArray}]";
         }
         return bResponse;
     }
@@ -230,9 +222,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiGetClassDevs";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiGetClassPropertyW [{PropertyKey}]";
         }
 
         return bResponse;
@@ -256,12 +247,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            if (WindowsSystemErrorCodes.Win32Error.ContainsKey(bResponse.ErrorCode))
-                bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            else
-                bResponse.ErrorDescription = "Unknown Error Code!";
-            bResponse.ErrorFunctionName = "SetupDiGetDeviceInterfacePropertyKeys";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiGetDeviceInterfacePropertyKeys [{interfaceData.InterfaceClassGuid}]";
         }
         return bResponse;
     }
@@ -288,9 +275,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiGetDeviceInterfacePropertyW";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiGetDeviceInterfacePropertyW [{PropertyKey}]";
         }
 
         return bResponse;
@@ -486,9 +472,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiGetDeviceInterfaceDetail";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiGetDeviceInterfaceDetail [{interfaceData.InterfaceClassGuid}]";
         }
 
         return bResponse;
@@ -509,9 +494,8 @@ public static partial class SetupAPIFunctions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "SetupDiEnumDeviceInterfaces";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiEnumDriverInfoW [{deviceInfoData.ClassGuid}]";
         }
         return bResponse;
     }

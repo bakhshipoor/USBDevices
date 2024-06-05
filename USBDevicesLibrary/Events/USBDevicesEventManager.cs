@@ -88,13 +88,12 @@ public class USBDevicesEventManager
 
     private void OnDevicesDisconnected(ObservableCollection<Device> disconnectedDevices)
     {
-        usbDevices.USBDevicesFromSetupAPI.Clear();
         usbDevices.USBHubs.Clear();
-        USBDevicesListHelpers.UpdateUSBDevicesFromSetupAPICollection(usbDevices.USBDevicesFromSetupAPI);
         USBDevicesListHelpers.UpdateHubCollection(usbDevices.USBHubs);
         ObservableCollection<USBDevice> disconnectedUSBDevices = new();
         foreach (Device itemDisconnectedDevice in disconnectedDevices)
         {
+            usbDevices.USBDevicesFromSetupAPI.Remove(itemDisconnectedDevice);
             foreach (USBDevice itemUSBDevice in usbDevices.USBDevices)
             {
                 if (itemDisconnectedDevice.DeviceProperties.Device_InstanceId.Equals(itemUSBDevice.BaseDeviceProperties.Device_InstanceId, StringComparison.OrdinalIgnoreCase))
@@ -114,23 +113,15 @@ public class USBDevicesEventManager
 
     private void OnDevicesConnected(ObservableCollection<Device> connectedDevices)
     {
-        usbDevices.USBDevicesFromSetupAPI.Clear();
         usbDevices.USBHubs.Clear();
-        usbDevices.USBDevices.Clear();
-        USBDevicesListHelpers.UpdateUSBDevicesFromSetupAPICollection(usbDevices.USBDevicesFromSetupAPI);
         USBDevicesListHelpers.UpdateHubCollection(usbDevices.USBHubs);
-        // To Do : Update Only Changes
-        USBDevicesListHelpers.UpdateUSBDevicesCollection(usbDevices.USBHubs, usbDevices.USBDevicesFromSetupAPI, usbDevices.USBDevices);
-        foreach (USBDevice itemUSBDevice in usbDevices.USBDevices)
+        foreach (Device itemDevice in connectedDevices)
         {
-            foreach (Device itemDevice in connectedDevices)
-            {
-                if (itemUSBDevice.BaseDeviceProperties.Device_InstanceId.Equals(itemDevice.DeviceProperties.Device_InstanceId,StringComparison.OrdinalIgnoreCase))
-                {
-                    // Trigger Event
-                    usbDevices.OnDeviceChanged(new USBDevicesEventArgs(itemUSBDevice, EventTypeEnum.Connected));
-                }
-            }
+            usbDevices.USBDevicesFromSetupAPI.Add(itemDevice);
+            USBDevice newUSBDevice = USBDevicesListHelpers.CreateUSBDevice(usbDevices.USBHubs, itemDevice);
+            usbDevices.USBDevices.Add(newUSBDevice);
+            // Trigger Event
+            usbDevices.OnDeviceChanged(new USBDevicesEventArgs(newUSBDevice, EventTypeEnum.Connected));
         }
     }
 }

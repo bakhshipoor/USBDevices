@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using static USBDevicesLibrary.Win32API.Kernel32Data;
@@ -20,9 +21,8 @@ public static partial class Kernel32Functions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "CreateFile [Device Handle]";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"CreateFile [{devicePath}]";
         }
         return bResponse;
     }
@@ -58,9 +58,8 @@ public static partial class Kernel32Functions
         else
         {
             bResponse.Status = false;
-            bResponse.ErrorCode = Marshal.GetLastWin32Error();
-            bResponse.ErrorDescription = WindowsSystemErrorCodes.Win32Error[bResponse.ErrorCode];
-            bResponse.ErrorFunctionName = "CreateFile [Device Handle]";
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"DeviceIoControl [{structure.GetType().Name}]";
         }
         return bResponse;
     }

@@ -38,7 +38,6 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="{Binding Name}" Background="AliceBlue" Padding="10 2" Margin="1" />
                             <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" Background="LightBlue" Padding="10 2"  Margin="0 1 1 1" TextWrapping="WrapWithOverflow" IsReadOnly="True"/>
-
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

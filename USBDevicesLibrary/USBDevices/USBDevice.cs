@@ -145,13 +145,15 @@ public class USBDevice
         bResponse.Add(new PropertiesToList() { Name = "Serial Number: ", Value = StringDescriptor_SerialNumber });
         bResponse.Add(new PropertiesToList() { Name = "Serial Number Buffer Count: ", Value = StringDescriptor_SerialNumber_Length });
         bResponse.Add(new PropertiesToList() { Name = "Hub Port Index: ", Value = PortIndex });
+        bResponse.Add(new PropertiesToList() { Name = "Device Path: ", Value = DevicePath });
+        bResponse.Add(new PropertiesToList() { Name = "Hub Path: ", Value = DevicePath_ParentHub });
 
-        bResponse.Add(new PropertiesToList() { Name = "Number Of Interfaces: ", Value = ConfigurationDescriptors.FirstOrDefault().NumberOfInterfaces });
-        bResponse.Add(new PropertiesToList() { Name = "Configuration Value: ", Value = ConfigurationDescriptors.FirstOrDefault().ConfigurationValue });
-        bResponse.Add(new PropertiesToList() { Name = "Self Powered: ", Value = ConfigurationDescriptors.FirstOrDefault().SelfPowered });
-        bResponse.Add(new PropertiesToList() { Name = "Remote Wakeup: ", Value = ConfigurationDescriptors.FirstOrDefault().RemoteWakeup });
-        bResponse.Add(new PropertiesToList() { Name = "Max Power (Milliampere): ", Value = ConfigurationDescriptors.FirstOrDefault().MaxPower });
-        bResponse.Add(new PropertiesToList() { Name = "Configuration Description: ", Value = ConfigurationDescriptors.FirstOrDefault().StringDescriptor_Configuration });
+        bResponse.Add(new PropertiesToList() { Name = "Number Of Interfaces: ", Value = ConfigurationDescriptors.FirstOrDefault()?.NumberOfInterfaces });
+        bResponse.Add(new PropertiesToList() { Name = "Configuration Value: ", Value = ConfigurationDescriptors.FirstOrDefault()?.ConfigurationValue });
+        bResponse.Add(new PropertiesToList() { Name = "Self Powered: ", Value = ConfigurationDescriptors.FirstOrDefault()?.SelfPowered });
+        bResponse.Add(new PropertiesToList() { Name = "Remote Wakeup: ", Value = ConfigurationDescriptors.FirstOrDefault()?.RemoteWakeup });
+        bResponse.Add(new PropertiesToList() { Name = "Max Power (Milliampere): ", Value = ConfigurationDescriptors.FirstOrDefault()?.MaxPower });
+        bResponse.Add(new PropertiesToList() { Name = "Configuration Description: ", Value = ConfigurationDescriptors.FirstOrDefault()?.StringDescriptor_Configuration });
 
         return bResponse;
     }
