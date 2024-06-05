@@ -19,86 +19,94 @@ public static partial class SetupAPIFunctions
     private const bool _LastErrorStatus = true;
     private const CharSet _CharSet= CharSet.Unicode;
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern IntPtr
-        SetupDiGetClassDevs
+    [LibraryImport(_DLLName, SetLastError = _LastErrorStatus, StringMarshalling = StringMarshalling.Utf16)]
+    public static partial IntPtr
+        SetupDiGetClassDevsW
         (
-        [In, Optional] Guid ClassGuid,
-        [In, Optional] string Enumerator,
-        [In, Optional] IntPtr hwndParent,
-        [In] uint Flags
+        Guid ClassGuid,
+        string Enumerator,
+        IntPtr hwndParent,
+        uint Flags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool 
+    [LibraryImport( _DLLName, SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool 
         SetupDiEnumDeviceInfo
         (
-        [In] IntPtr hDevInfo,
-        [In] uint memberIndex,
-        [Out] out SP_DEVINFO_DATA deviceInfoData
+        IntPtr hDevInfo,
+        uint memberIndex,
+        out SP_DEVINFO_DATA deviceInfoData
         );
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
     public static extern int 
         CM_Get_Device_ID
         (
-        [In] uint dnDevInst,
-        [Out] IntPtr DeviceID,
-        [In] int BufferLen,
-        [In] uint ulFlags
+        uint dnDevInst,
+        IntPtr DeviceID,
+        int BufferLen,
+        uint ulFlags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool 
+    [LibraryImport(_DLLName, EntryPoint = "SetupDiEnumDeviceInterfaces", SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool 
         SetupDiEnumDeviceInterfaces
         (
-        [In] IntPtr hDevInfo,
-        [In, Optional] SP_DEVINFO_DATA deviceInfoData,
-        [In] Guid interfaceClassGuid,
-        [In] uint memberIndex,
-        [Out] out SpDeviceInterfaceData deviceInterfaceData
+        IntPtr hDevInfo,
+        SP_DEVINFO_DATA deviceInfoData,
+        Guid interfaceClassGuid,
+        uint memberIndex,
+        out SpDeviceInterfaceData deviceInterfaceData
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool 
+    [LibraryImportAttribute(_DLLName, EntryPoint = "SetupDiGetDeviceInterfaceDetailW", SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool 
         SetupDiGetDeviceInterfaceDetail
         (
-        [In] IntPtr hDevInfo,
-        [In] SpDeviceInterfaceData deviceInterfaceData,
+        IntPtr hDevInfo,
+        SpDeviceInterfaceData deviceInterfaceData,
+#pragma warning disable SYSLIB1051 // Specified type is not supported by source-generated P/Invokes
         ref SpDeviceInterfaceDetailData deviceInterfaceDetailData,
-        [In] uint deviceInterfaceDetailDataSize,
-        [Out] out uint requiredSize,
-        [Out] out SP_DEVINFO_DATA deviceInfoData
+#pragma warning restore SYSLIB1051 // Specified type is not supported by source-generated P/Invokes
+        uint deviceInterfaceDetailDataSize,
+        out uint requiredSize,
+        out SP_DEVINFO_DATA deviceInfoData
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool 
+    [LibraryImport(_DLLName, EntryPoint = "SetupDiGetDeviceRegistryPropertyW", SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool 
         SetupDiGetDeviceRegistryProperty
         (
-        [In] IntPtr hDevInfo,
-        [In] ref SP_DEVINFO_DATA devInfoData,
-        [In] uint Property,
-        [Out, Optional] out uint PropertyRegDataType,
+        IntPtr hDevInfo,
+        ref SP_DEVINFO_DATA devInfoData,
+        uint Property,
+        out uint PropertyRegDataType,
         [Out] byte[] PropertyBuffer,
-        [In] uint PropertyBufferSize,
-        [Out, Optional] out uint RequiredSize 
+        uint PropertyBufferSize,
+        out uint RequiredSize 
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool 
+    [LibraryImport(_DLLName, SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool 
         SetupDiDestroyDeviceInfoList
         (
-        [In] IntPtr hDevInfo
+        IntPtr hDevInfo
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
+    [LibraryImport(_DLLName, EntryPoint = "SetupDiGetClassDescriptionW", SetLastError = _LastErrorStatus, StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
         SetupDiGetClassDescriptionW
         (
-        [In] Guid ClassGuid,
-        [Out] out string ClassDescription,
-        [In] ref uint ClassDescriptionSize,
-        [Out, Optional] out uint RequiredSize
+        Guid ClassGuid,
+        out string ClassDescription,
+        ref uint ClassDescriptionSize,
+        out uint RequiredSize
         );
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
@@ -113,124 +121,113 @@ public static partial class SetupAPIFunctions
         [In] uint Flags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
+    [LibraryImport(_DLLName, SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
         SetupDiGetDevicePropertyKeys
         (
-        [In] IntPtr hDevInfo,
+        IntPtr hDevInfo,
         ref SP_DEVINFO_DATA devInfoData,
         [Out] DEVPROPKEY[] PropertyKeyArray,
-        [In] uint PropertyKeyCount,
+        uint PropertyKeyCount,
         ref uint RequiredPropertyKeyCount,
-        [In] uint Flags
+        uint Flags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
+    [LibraryImport(_DLLName, EntryPoint = "SetupDiGetDevicePropertyW", SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
         SetupDiGetDevicePropertyW
         (
-        [In] IntPtr hDevInfo,
-        [In] SP_DEVINFO_DATA DeviceInfoData,
-        [In] DEVPROPKEY PropertyKey,
-        [Out] out DevPropType PropertyType,
-        [Out, Optional] byte[] PropertyBuffer,
-        [In] uint PropertyBufferSize,
-        [Out, Optional] out uint RequiredSize,
-        [In] uint Flags
+        IntPtr hDevInfo,
+        SP_DEVINFO_DATA DeviceInfoData,
+        DEVPROPKEY PropertyKey,
+        out DevPropType PropertyType,
+        [Out] byte[] PropertyBuffer,
+        uint PropertyBufferSize,
+        out uint RequiredSize,
+        uint Flags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
+    [LibraryImport(_DLLName, SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
         SetupDiGetDeviceInterfacePropertyKeys
         (
-        [In] IntPtr hDevInfo,
-        [In] SpDeviceInterfaceData deviceInterfaceData,
+        IntPtr hDevInfo,
+        SpDeviceInterfaceData deviceInterfaceData,
         [Out] DEVPROPKEY[] PropertyKeyArray,
-        [In] uint PropertyKeyCount,
+        uint PropertyKeyCount,
         ref uint RequiredPropertyKeyCount,
-        [In] uint Flags
+        uint Flags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
+    [LibraryImport(_DLLName, EntryPoint = "SetupDiGetDeviceInterfacePropertyW", SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
         SetupDiGetDeviceInterfacePropertyW
         (
-        [In] IntPtr hDevInfo,
-        [In] SpDeviceInterfaceData DeviceInfoData,
-        [In] DEVPROPKEY PropertyKey,
-        [Out] out DevPropType PropertyType,
-        [Out, Optional] byte[] PropertyBuffer,
-        [In] uint PropertyBufferSize,
-        [Out, Optional] out uint RequiredSize,
-        [In] uint Flags
+        IntPtr hDevInfo,
+        SpDeviceInterfaceData DeviceInfoData,
+        DEVPROPKEY PropertyKey,
+        out DevPropType PropertyType,
+        [Out] byte[] PropertyBuffer,
+        uint PropertyBufferSize,
+        out uint RequiredSize,
+        uint Flags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
+    [LibraryImport(_DLLName, SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
         SetupDiGetClassPropertyKeys
         (
-        [In] Guid ClassGuid,
+        Guid ClassGuid,
         [Out] DEVPROPKEY[] PropertyKeyArray,
-        [In] uint PropertyKeyCount,
+        uint PropertyKeyCount,
         ref uint RequiredPropertyKeyCount,
-        [In] DICLASSPROP Flags
+        DICLASSPROP Flags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
+    [LibraryImport(_DLLName, EntryPoint = "SetupDiGetClassPropertyKeysExW", SetLastError = _LastErrorStatus, StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
         SetupDiGetClassPropertyKeysExW
         (
-        [In] Guid ClassGuid,
+        Guid ClassGuid,
         [Out] DEVPROPKEY[] PropertyKeyArray,
-        [In] uint PropertyKeyCount,
+        uint PropertyKeyCount,
         ref uint RequiredPropertyKeyCount,
-        [In] DICLASSPROP Flags,
-        [In, Optional] string MachineName,
+        DICLASSPROP Flags,
+        string MachineName,
         IntPtr Reserved
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool SetupDiGetClassPropertyW
+    [LibraryImport(_DLLName, EntryPoint = "SetupDiGetClassPropertyW", SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool 
+        SetupDiGetClassPropertyW
         (
-        [In] Guid ClassGuid,
-        [In] DEVPROPKEY PropertyKey,
-        [Out] out DevPropType PropertyType,
-        [Out, Optional] byte[] PropertyBuffer,
-        [In] uint PropertyBufferSize,
-        [Out, Optional] out uint RequiredSize,
-        [In] DICLASSPROP Flags
+        Guid ClassGuid,
+        DEVPROPKEY PropertyKey,
+        out DevPropType PropertyType,
+        [Out] byte[] PropertyBuffer,
+        uint PropertyBufferSize,
+        out uint RequiredSize,
+        DICLASSPROP Flags
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
+    [LibraryImport(_DLLName, SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
         SetupDiEnumDriverInfoW
         (
-        [In] IntPtr hDevInfo,
-        [In] SP_DEVINFO_DATA DeviceInfoData,
-        [In, Optional] SPDIT DriverType,
-        [In] uint MemberIndex,
-        [Out] out PSP_DRVINFO_DATA_W DriverInfoData
+        IntPtr hDevInfo,
+        SP_DEVINFO_DATA DeviceInfoData,
+        SPDIT DriverType,
+        uint MemberIndex,
+#pragma warning disable SYSLIB1051 // Specified type is not supported by source-generated P/Invokes
+        out SP_DRVINFO_DATA_W DriverInfoData
+#pragma warning restore SYSLIB1051 // Specified type is not supported by source-generated P/Invokes
         );
 }
-
-public class SafeMemoryBuffer : SafeHandleMinusOneIsInvalid
-{
-    public SafeMemoryBuffer() : base(true) { }
-    public SafeMemoryBuffer(int cb) : base(true)
-    {
-        base.SetHandle(Marshal.AllocHGlobal(cb));
-    }
-    public SafeMemoryBuffer(IntPtr ptr) : base(true)
-    {
-        base.SetHandle(ptr);
-    }
-
-    [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-    protected override bool ReleaseHandle()
-    {
-        if (handle != IntPtr.Zero)
-            Marshal.FreeHGlobal(handle);
-        return true;
-    }
-}
-

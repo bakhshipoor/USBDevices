@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Runtime.InteropServices;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/setupapi/
@@ -72,39 +73,39 @@ public static partial class SetupAPIData
         public Guid fmtid;
         public uint pid;
 
-        public new bool Equals(object? x, object? y)
+        public new readonly bool Equals(object? x, object? y)
         {
             if (ReferenceEquals(x, y)) return true;
             return false;
         }
 
-        public override bool Equals(object? o)
+        public override readonly bool Equals(object? o)
         {
             if (o is null) return false;
             if (GetType() != o.GetType()) return false;
             return (fmtid == ((DEVPROPKEY)o).fmtid) && (pid == ((DEVPROPKEY)o).pid);
         }
 
-        public override int GetHashCode() => (fmtid, pid).GetHashCode();
+        public override readonly int GetHashCode() => (fmtid, pid).GetHashCode();
 
-        public int GetHashCode(object obj) => GetHashCode();
+        public readonly int GetHashCode(object obj) => GetHashCode();
 
         public static bool operator ==(DEVPROPKEY lhs, DEVPROPKEY rhs) => (lhs.fmtid == rhs.fmtid) && (lhs.pid == rhs.pid);
 
         public static bool operator !=(DEVPROPKEY lhs, DEVPROPKEY rhs) => !(lhs == rhs);
 
-        public override string ToString()
+        public override readonly string ToString()
         {
             return string.Format("{{{0}}}[{1}]", fmtid.ToString(), pid);
         }
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    public struct PSP_DRVINFO_DATA_W // _SP_DRVINFO_DATA_V2_W
+    public struct SP_DRVINFO_DATA_W // _SP_DRVINFO_DATA_V2_W
     {
         public uint cbSize;
         public SPDIT DriverType;
-        public ulong Reserved;
+        public UIntPtr Reserved;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
         public string Description;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
@@ -113,5 +114,19 @@ public static partial class SetupAPIData
         public string ProviderName;
         public long DriverDate;
         public ulong DriverVersion;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct SP_DRVINFO_DATA_V1_W
+    {
+        public uint cbSize;
+        public uint DriverType;
+        public UIntPtr Reserved;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string Description;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string MfgName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string ProviderName;
     }
 }

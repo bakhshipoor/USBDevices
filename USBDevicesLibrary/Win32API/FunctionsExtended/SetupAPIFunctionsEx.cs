@@ -11,7 +11,7 @@ public static partial class SetupAPIFunctions
     public static Win32ResponseDataStruct GetClassDevices(Guid classGuid, string Enum, IntPtr hwndParent, uint flags)
     {
         Win32ResponseDataStruct bResponse = new();
-        IntPtr devicesHandle = SetupDiGetClassDevs(classGuid, Enum, hwndParent, flags);
+        IntPtr devicesHandle = SetupDiGetClassDevsW(classGuid, Enum, hwndParent, flags);
         if (devicesHandle != -1)
         {
             bResponse.Status = true;
@@ -58,13 +58,13 @@ public static partial class SetupAPIFunctions
             {
                 byte[] busTypeGuidByte = new byte[16];
                 Array.Copy(PropertyBuffer, busTypeGuidByte, 16);
-                Guid busTypeGuid = new Guid(busTypeGuidByte);
+                Guid busTypeGuid = new(busTypeGuidByte);
                 deviceProperty.Add(busTypeGuid.ToString());
             }
             else
             {
-                List<char> data = new();
-                char[] dataBuffer = Encoding.UTF8.GetString(PropertyBuffer, 0, (int)requiredSize).ToArray();
+                List<char> data = [];
+                char[] dataBuffer = [.. Encoding.UTF8.GetString(PropertyBuffer, 0, (int)requiredSize)];
                 for (int i = 0; i < dataBuffer.Length; i++)
                 {
                     if (i % 2 == 0)
@@ -84,8 +84,10 @@ public static partial class SetupAPIFunctions
     public static Win32ResponseDataStruct EnumDeviceInfo(IntPtr hDevInfo, uint memberIndex)
     {
         Win32ResponseDataStruct bResponse = new();
-        SP_DEVINFO_DATA DeviceInfoData = new();
-        DeviceInfoData.CbSize = (uint)Marshal.SizeOf(typeof(SP_DEVINFO_DATA));
+        SP_DEVINFO_DATA DeviceInfoData = new()
+        {
+            CbSize = (uint)Marshal.SizeOf(typeof(SP_DEVINFO_DATA))
+        };
 
         bool isSuccess = SetupDiEnumDeviceInfo(hDevInfo, memberIndex, out DeviceInfoData);
         if (isSuccess)
@@ -105,8 +107,10 @@ public static partial class SetupAPIFunctions
     public static Win32ResponseDataStruct EnumDeviceInterfaces(IntPtr hDevInfo, SP_DEVINFO_DATA deviceInfoData, Guid interfaceClassGuid, uint memberIndexInterfaces)
     {
         Win32ResponseDataStruct bResponse = new();
-        SpDeviceInterfaceData spDeviceInterfaceData = new SpDeviceInterfaceData();
-        spDeviceInterfaceData.CbSize = (uint)Marshal.SizeOf(typeof(SpDeviceInterfaceData));
+        SpDeviceInterfaceData spDeviceInterfaceData = new()
+        {
+            CbSize = (uint)Marshal.SizeOf(typeof(SpDeviceInterfaceData))
+        };
 
         bool isSuccess = SetupDiEnumDeviceInterfaces(hDevInfo, deviceInfoData, interfaceClassGuid, memberIndexInterfaces, out spDeviceInterfaceData);
         if (isSuccess)
@@ -380,7 +384,7 @@ public static partial class SetupAPIFunctions
                 }
             case DevPropType.DEVPROP_TYPE_GUID:
                 {
-                    Guid guid = new Guid(prePropertyBuffer);
+                    Guid guid = new(prePropertyBuffer);
                     bResponse.Data = guid;
                     bResponse.DataType = typeof(Guid);
                     break;
@@ -420,7 +424,7 @@ public static partial class SetupAPIFunctions
             case DevPropType.DEVPROP_TYPE_STRING_LIST:
                 {
                     string[] strings = Encoding.Unicode.GetString(prePropertyBuffer).Split("\0");
-                    List<string> liststr = new List<string>();
+                    List<string> liststr = [];
                     foreach (string str in strings)
                     {
                         if (!string.IsNullOrEmpty(str))
@@ -432,7 +436,7 @@ public static partial class SetupAPIFunctions
                 }
             case DevPropType.DEVPROP_TYPE_SECURITY_DESCRIPTOR:
                 {
-                    RawSecurityDescriptor securityDescriptor = new RawSecurityDescriptor(prePropertyBuffer, 0);
+                    RawSecurityDescriptor securityDescriptor = new(prePropertyBuffer, 0);
                     bResponse.Data = securityDescriptor;
                     bResponse.DataType = typeof(RawSecurityDescriptor);
                     break;
@@ -458,10 +462,9 @@ public static partial class SetupAPIFunctions
         Win32ResponseDataStruct bResponse = new();
         SP_DEVINFO_DATA deviceInfoData;
         deviceInfoData.CbSize = (uint)Marshal.SizeOf(typeof(SP_DEVINFO_DATA));
-        SpDeviceInterfaceDetailData spDeviceInterfaceDetailData = new SpDeviceInterfaceDetailData();
+        SpDeviceInterfaceDetailData spDeviceInterfaceDetailData = new();
         uint deviceInterfaceDetailDataSize = 1024;
-        uint requiredSize = 0;
-        bool isSuccess = SetupDiGetDeviceInterfaceDetail(hDevInfo, interfaceData, ref spDeviceInterfaceDetailData, deviceInterfaceDetailDataSize, out requiredSize, out deviceInfoData);
+        bool isSuccess = SetupDiGetDeviceInterfaceDetail(hDevInfo, interfaceData, ref spDeviceInterfaceDetailData, deviceInterfaceDetailDataSize, out uint requiredSize, out deviceInfoData);
         if (isSuccess)
         {
             bResponse.Status = true;
@@ -482,8 +485,10 @@ public static partial class SetupAPIFunctions
     public static Win32ResponseDataStruct EnumDriverInfo(IntPtr hDevInfo, SP_DEVINFO_DATA deviceInfoData, SPDIT driverType, uint memberIndexDriverInfo)
     {
         Win32ResponseDataStruct bResponse = new();
-        PSP_DRVINFO_DATA_W driverInfoData = new PSP_DRVINFO_DATA_W();
-        driverInfoData.cbSize = (uint)Marshal.SizeOf(typeof(PSP_DRVINFO_DATA_W));
+        SP_DRVINFO_DATA_W driverInfoData = new()
+        {
+            cbSize = (uint)Marshal.SizeOf(typeof(SP_DRVINFO_DATA_W))
+        };
 
         bool isSuccess = SetupDiEnumDriverInfoW(hDevInfo, deviceInfoData, driverType, memberIndexDriverInfo, out driverInfoData);
         if (isSuccess)

@@ -52,8 +52,10 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct deviceCharacteristicsHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (deviceCharacteristicsHandle.Status)
         {
-            USB_DEVICE_CHARACTERISTICS deviceCharacteristics = new USB_DEVICE_CHARACTERISTICS();
-            deviceCharacteristics.Version = 0x01; // USB_DEVICE_CHARACTERISTICS_VERSION_1
+            USB_DEVICE_CHARACTERISTICS deviceCharacteristics = new()
+            {
+                Version = 0x01 // USB_DEVICE_CHARACTERISTICS_VERSION_1
+            };
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)deviceCharacteristicsHandle.Data, deviceCharacteristics, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_DEVICE_CHARACTERISTICS]);
             if (decviceIOControl.Status)
             {
@@ -70,7 +72,7 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct controllerHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (controllerHandle.Status)
         {
-            USB_HUB_CAPABILITIES_EX rootHubName = new USB_HUB_CAPABILITIES_EX();
+            USB_HUB_CAPABILITIES_EX rootHubName = new();
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)controllerHandle.Data, rootHubName, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_HUB_CAPABILITIES_EX]);
             if (decviceIOControl.Status)
             {
@@ -87,8 +89,10 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct nodeConnectionNameHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (nodeConnectionNameHandle.Status)
         {
-            USB_NODE_CONNECTION_NAME nodeConnectionName = new USB_NODE_CONNECTION_NAME();
-            nodeConnectionName.ConnectionIndex = connectionIndex;
+            USB_NODE_CONNECTION_NAME nodeConnectionName = new()
+            {
+                ConnectionIndex = connectionIndex
+            };
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)nodeConnectionNameHandle.Data,
                 nodeConnectionName, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_NODE_CONNECTION_NAME]);
             if (decviceIOControl.Status)
@@ -106,8 +110,10 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct nodeConnectionAttributesHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (nodeConnectionAttributesHandle.Status)
         {
-            USB_NODE_CONNECTION_ATTRIBUTES nodeConnectionAttributes = new USB_NODE_CONNECTION_ATTRIBUTES();
-            nodeConnectionAttributes.ConnectionIndex = connectionIndex;
+            USB_NODE_CONNECTION_ATTRIBUTES nodeConnectionAttributes = new()
+            {
+                ConnectionIndex = connectionIndex
+            };
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)nodeConnectionAttributesHandle.Data,
                 nodeConnectionAttributes, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_NODE_CONNECTION_ATTRIBUTES]);
             if (decviceIOControl.Status)
@@ -145,9 +151,11 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct nodeConnectionDescriptorHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (nodeConnectionDescriptorHandle.Status)
         {
-            USB_DESCRIPTOR_REQUEST nodeConnectionDescriptor = new USB_DESCRIPTOR_REQUEST();
-            nodeConnectionDescriptor.ConnectionIndex = connectionIndex;
-            nodeConnectionDescriptor.SetupPacket = setupPaccket;
+            USB_DESCRIPTOR_REQUEST nodeConnectionDescriptor = new()
+            {
+                ConnectionIndex = connectionIndex,
+                SetupPacket = setupPaccket
+            };
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)nodeConnectionDescriptorHandle.Data,
                 nodeConnectionDescriptor, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION]);
             if (decviceIOControl.Status)
@@ -165,8 +173,10 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct nodeConnectionInformationHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (nodeConnectionInformationHandle.Status)
         {
-            USB_NODE_CONNECTION_INFORMATION_EX nodeConnectionInformation = new USB_NODE_CONNECTION_INFORMATION_EX();
-            nodeConnectionInformation.ConnectionIndex = connectionIndex;
+            USB_NODE_CONNECTION_INFORMATION_EX nodeConnectionInformation = new()
+            {
+                ConnectionIndex = connectionIndex
+            };
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)nodeConnectionInformationHandle.Data,
                 nodeConnectionInformation, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX]);
             if (decviceIOControl.Status)
@@ -184,10 +194,12 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct nodeConnectionInformationV2Handle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (nodeConnectionInformationV2Handle.Status)
         {
-            USB_NODE_CONNECTION_INFORMATION_EX_V2 nodeConnectionInformationV2 = new USB_NODE_CONNECTION_INFORMATION_EX_V2();
-            // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/usbioctl/ni-usbioctl-ioctl_usb_get_node_connection_information_ex_v2
-            nodeConnectionInformationV2.ConnectionIndex = connectionIndex;
-            nodeConnectionInformationV2.SupportedUsbProtocols = USB_PROTOCOLS.Usb300;
+            USB_NODE_CONNECTION_INFORMATION_EX_V2 nodeConnectionInformationV2 = new()
+            {
+                // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/usbioctl/ni-usbioctl-ioctl_usb_get_node_connection_information_ex_v2
+                ConnectionIndex = connectionIndex,
+                SupportedUsbProtocols = USB_PROTOCOLS.Usb300
+            };
             nodeConnectionInformationV2.Length = (uint)Marshal.SizeOf(nodeConnectionInformationV2);
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)nodeConnectionInformationV2Handle.Data,
                 nodeConnectionInformationV2, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX_V2]);
@@ -280,8 +292,10 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct nodeInformationHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (nodeInformationHandle.Status)
         {
-            USB_NODE_INFORMATION usbNodeInfo = new USB_NODE_INFORMATION();
-            usbNodeInfo.NodeType = USB_HUB_NODE.UsbHub;
+            USB_NODE_INFORMATION usbNodeInfo = new()
+            {
+                NodeType = USB_HUB_NODE.UsbHub
+            };
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)nodeInformationHandle.Data, usbNodeInfo, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_NODE_INFORMATION]);
             if (decviceIOControl.Status)
             {
@@ -297,7 +311,7 @@ internal static class USBDevicesListHelpers
         Win32ResponseDataStruct controllerHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
         if (controllerHandle.Status)
         {
-            USB_ROOT_HUB_NAME rootHubName = new USB_ROOT_HUB_NAME();
+            USB_ROOT_HUB_NAME rootHubName = new();
             Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)controllerHandle.Data, rootHubName, USB_IOCTL[USB_IOCTL_Enum.IOCTL_USB_GET_ROOT_HUB_NAME]);
             if (decviceIOControl.Status)
             {
@@ -315,8 +329,10 @@ internal static class USBDevicesListHelpers
         ObservableCollection<Device> usbControllersFromSetupAPI = DeviceHelpers.GetClassDevices(deviceClassGuid, string.Empty, flags);
         foreach (Device itemDevice in usbControllersFromSetupAPI)
         {
-            USBController controller = new(/*itemDevice*/);
-            controller.DevicePath = itemDevice.DevicePath;
+            USBController controller = new(/*itemDevice*/)
+            {
+                DevicePath = itemDevice.DevicePath
+            };
             // Get Root Hub Name
             controller.RootHubName = GetRootHubName(controller.DevicePath);
             usbControllers.Add(controller);
@@ -330,9 +346,11 @@ internal static class USBDevicesListHelpers
         ObservableCollection<Device> usbHubsFromSetupAPI = DeviceHelpers.GetClassDevices(deviceClassGuid, string.Empty, flags);
         foreach (Device itemDevice in usbHubsFromSetupAPI)
         {
-            USBHub hub = new();
-            hub.DevicePath = itemDevice.DevicePath;
-            hub.DeviceID = itemDevice.DeviceProperties.Device_InstanceId;
+            USBHub hub = new()
+            {
+                DevicePath = itemDevice.DevicePath,
+                DeviceID = itemDevice.DeviceProperties.Device_InstanceId
+            };
             // Node Information
             USB_NODE_INFORMATION nodeInfo = GetNodeInformation(hub.DevicePath);
             hub.HubCharacteristics = ExtractHubCharachteristics(nodeInfo.u.HubInformation.HubDescriptor.wHubCharacteristics);

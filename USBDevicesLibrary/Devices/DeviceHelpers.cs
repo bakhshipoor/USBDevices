@@ -13,7 +13,7 @@ public static class DeviceHelpers
 {
     public static ObservableCollection<Device> GetClassDevicesWithProperties(Guid classGuid, string enumString, uint flags)
     {
-        ObservableCollection<Device> devices = new();
+        ObservableCollection<Device> devices = [];
         Win32ResponseDataStruct devicesHandle = SetupAPIFunctions.GetClassDevices(classGuid, enumString, IntPtr.Zero, flags);
         if (devicesHandle.Status) // INVALID_HANDLE_VALUE = -1
         {
@@ -113,7 +113,7 @@ public static class DeviceHelpers
 
     public static ObservableCollection<Device> GetClassDevices(Guid classGuid, string enumString, uint flags)
     {
-        ObservableCollection<Device> devices = new();
+        ObservableCollection<Device> devices = [];
         Win32ResponseDataStruct devicesHandle = SetupAPIFunctions.GetClassDevices(classGuid, enumString, IntPtr.Zero, flags);
         if (devicesHandle.Status) 
         {
@@ -196,9 +196,9 @@ public static class DeviceHelpers
         //}
         else return;
 
-        if (DEVPKEY.ContainsKey(itemPropKey))
+        if (DEVPKEY.TryGetValue(itemPropKey, out DEVPKEY_ENUM value))
         {
-            string propertyName = DEVPKEY[itemPropKey].ToString().Remove(0, 8);
+            string propertyName = value.ToString().Remove(0, 8);
             foreach (PropertyInfo property in properties)
             {
                 if (

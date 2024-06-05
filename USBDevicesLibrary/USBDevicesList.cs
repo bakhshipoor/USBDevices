@@ -14,15 +14,15 @@ public class USBDevicesList
     public ObservableCollection<Device> USBDevicesFromSetupAPI { get; set; }
     public ObservableCollection<USBDevice> USBDevices { get; set; }
 
-    private USBDevicesEventManager eventMnager;
+    private readonly USBDevicesEventManager eventMnager;
 
     public bool InitialCompleted;
 
     public USBDevicesList()
     {
-        USBHubs = new();
-        USBDevicesFromSetupAPI = new();
-        USBDevices = new();
+        USBHubs = [];
+        USBDevicesFromSetupAPI = [];
+        USBDevices = [];
         eventMnager = new(this);
         InitialCompleted = false;
     }

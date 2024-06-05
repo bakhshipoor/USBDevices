@@ -21,7 +21,6 @@ public class Win32ResponseDataStruct
 
     public override string ToString()
     {
-        string status = string.Empty;
         if (Status)
         {
             return Exception.ToString();

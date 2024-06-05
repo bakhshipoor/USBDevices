@@ -71,8 +71,7 @@ public static partial class WinUSBFunctions
     {
         Win32ResponseDataStruct bResponse = new();
         uint bufferLength = 256;
-        USB_STRING_DESCRIPTOR usbStringDescriptor = new();
-        bool isSuccess = WinUSBFunctions.WinUsb_GetDescriptor(interfaceHandle, (byte)DescriptorTypes.USB_STRING_DESCRIPTOR_TYPE, index, languageID, out usbStringDescriptor, bufferLength, out uint lengthTransferred);
+        bool isSuccess = WinUsb_GetDescriptor(interfaceHandle, (byte)DescriptorTypes.USB_STRING_DESCRIPTOR_TYPE, index, languageID, out USB_STRING_DESCRIPTOR usbStringDescriptor, bufferLength, out uint lengthTransferred);
         if (isSuccess)
         {
             bResponse.Status = true;
@@ -306,7 +305,6 @@ public static partial class WinUSBFunctions
 
         byte[] data = new byte[length];
         WINUSB_SETUP_PACKET SetupPacket;
-        uint lengthTransferred = 0;
 
         //Create the setup packet
         // http://www.poweredusb.org/pdf/usb20.pdf
@@ -337,7 +335,7 @@ public static partial class WinUSBFunctions
         // Number of bytes to transfer if there is a Data stage
         SetupPacket.Length = length;
 
-        bool isSuccess = WinUsb_ControlTransfer(interfaceHandle, SetupPacket, data, length, out lengthTransferred, 0);
+        bool isSuccess = WinUsb_ControlTransfer(interfaceHandle, SetupPacket, data, length, out uint lengthTransferred, 0);
         if (isSuccess)
         {
             bResponse.Status = true;
@@ -357,9 +355,8 @@ public static partial class WinUSBFunctions
     public static Win32ResponseDataStruct WriteToBulkEndpoint(SafeFileHandle winUSBInterfaceHandle, byte pipeID, byte[] data, uint bufferSize)
     {
         Win32ResponseDataStruct bResponse = new();
-        uint lengthTransferred = 0;
         byte[] txData = data;
-        bool isSuccess = WinUsb_WritePipe(winUSBInterfaceHandle, pipeID, txData, bufferSize, out lengthTransferred, IntPtr.Zero);
+        bool isSuccess = WinUsb_WritePipe(winUSBInterfaceHandle, pipeID, txData, bufferSize, out uint lengthTransferred, IntPtr.Zero);
         if (isSuccess)
         {
             bResponse.Status = true;
@@ -382,8 +379,7 @@ public static partial class WinUSBFunctions
         for (int i = 0; i < data.Length; i++)
             data[i] = 0;
 
-        uint lengthTransferred;
-        bool isSuccess = WinUsb_ReadPipe(winUSBInterfaceHandle, pipeID, data, bufferSize, out lengthTransferred, 0);
+        bool isSuccess = WinUsb_ReadPipe(winUSBInterfaceHandle, pipeID, data, bufferSize, out uint lengthTransferred, 0);
         if (isSuccess)
         {
             bResponse.Status = true;

@@ -9,14 +9,14 @@ using static USBDevicesLibrary.Win32API.WinUSBIO;
 
 namespace USBDevicesLibrary.USBDevices;
 
-public class USBPipe
+public class USBPipeDescriptor
 {
-    public USBPipe()
+    public USBPipeDescriptor()
     {
         PipePolicies = new();
     }
 
-    public USBPipe(WINUSB_PIPE_INFORMATION pipeInformation) : this()
+    public USBPipeDescriptor(WINUSB_PIPE_INFORMATION pipeInformation) : this()
     {
         PipeType = pipeInformation.PipeType;
         PipeId = pipeInformation.PipeId;

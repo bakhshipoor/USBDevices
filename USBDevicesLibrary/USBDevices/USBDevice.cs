@@ -22,7 +22,7 @@ public class USBDevice
         StringDescriptor_Product = string.Empty;
         StringDescriptor_SerialNumber = string.Empty;
 
-        ConfigurationDescriptors = new();
+        ConfigurationDescriptors = [];
         //Interfaces = new();
 
         DevicePath = string.Empty;

@@ -9,15 +9,15 @@ using USBDevicesLibrary.Devices;
 
 namespace USBDevicesLibrary.USBDevices;
 
-public class USBInterface
+public class USBInterfaceDescriptor
 {
-    public USBInterface()
+    public USBInterfaceDescriptor()
     {
         Description = string.Empty;
-        Pipes = new();
+        Pipes = [];
     }
 
-    public USBInterface(USB_INTERFACE_DESCRIPTOR usbInterfaceDescriptor) : this()
+    public USBInterfaceDescriptor(USB_INTERFACE_DESCRIPTOR usbInterfaceDescriptor) : this()
     {
         InterfaceNumber = usbInterfaceDescriptor.bInterfaceNumber;
         AlternateSetting = usbInterfaceDescriptor.bAlternateSetting;
@@ -53,6 +53,6 @@ public class USBInterface
 
     public string  Description {  get; set; }
 
-    public ObservableCollection<USBPipe> Pipes {  get; set; }
+    public ObservableCollection<USBPipeDescriptor> Pipes {  get; set; }
 
 }

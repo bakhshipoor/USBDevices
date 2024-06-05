@@ -23,9 +23,9 @@ public class USBDevicesEventManager
     }
     private readonly USBDevicesList usbDevices;
     private readonly DispatcherTimer dispatcherTimer;
-    private bool isProcessingConnectedDevices = false;
-    private bool isProcessingDisconnectedDevices = false;
-    private bool isProcessingModifiedDevices = false;
+    //private bool isProcessingConnectedDevices = false;
+    //private bool isProcessingDisconnectedDevices = false;
+    //private bool isProcessingModifiedDevices = false;
 
     private void DispatcherTimer_Tick(object? sender, EventArgs e)
     {
@@ -34,11 +34,11 @@ public class USBDevicesEventManager
         {
             dispatcherTimer.Stop();
 
-            ObservableCollection<Device> usbDevicesFromSetupAPI = new();
+            ObservableCollection<Device> usbDevicesFromSetupAPI = [];
             USBDevicesListHelpers.UpdateUSBDevicesFromSetupAPICollection(usbDevicesFromSetupAPI);
 
-            ObservableCollection<Device> disconnectedDevices = new();
-            ObservableCollection<Device> connectedDevices = new();
+            ObservableCollection<Device> disconnectedDevices = [];
+            ObservableCollection<Device> connectedDevices = [];
 
             // Check for disconnected devices
             foreach (Device itemOldDevice in usbDevices.USBDevicesFromSetupAPI)
@@ -90,7 +90,7 @@ public class USBDevicesEventManager
     {
         usbDevices.USBHubs.Clear();
         USBDevicesListHelpers.UpdateHubCollection(usbDevices.USBHubs);
-        ObservableCollection<USBDevice> disconnectedUSBDevices = new();
+        ObservableCollection<USBDevice> disconnectedUSBDevices = [];
         foreach (Device itemDisconnectedDevice in disconnectedDevices)
         {
             usbDevices.USBDevicesFromSetupAPI.Remove(itemDisconnectedDevice);

@@ -30,22 +30,20 @@ public static partial class Kernel32Functions
     public static Win32ResponseDataStruct GetDeviceIoControl<T>(SafeFileHandle fileHandle, [DisallowNull] T structure, uint ctlCode)
     {
         Win32ResponseDataStruct bResponse = new();
-        bool isSuccess = false;
-        uint returnedSize=0;
         uint structureSize = (uint)Marshal.SizeOf(structure);
         IntPtr structurePtr = Marshal.AllocHGlobal((int)structureSize);
         Marshal.StructureToPtr(structure, structurePtr, true);
-        isSuccess = DeviceIoControl
-            (
-            fileHandle,
-            ctlCode,
-            structurePtr,
-            structureSize,
-            structurePtr,
-            structureSize, 
-            out returnedSize, 
-            IntPtr.Zero
-            );
+        bool isSuccess = DeviceIoControl
+    (
+    fileHandle,
+    ctlCode,
+    structurePtr,
+    structureSize,
+    structurePtr,
+    structureSize,
+    out uint returnedSize,
+    nint.Zero
+    );
         if (isSuccess)
         {
             T? st = Marshal.PtrToStructure<T>(structurePtr);
