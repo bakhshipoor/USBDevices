@@ -39,14 +39,16 @@ public static partial class SetupAPIFunctions
         out SP_DEVINFO_DATA deviceInfoData
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern int 
-        CM_Get_Device_ID
+    [LibraryImport(_DLLName, EntryPoint = "SetupDiGetDeviceInstanceIdW", SetLastError = _LastErrorStatus)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool
+        SetupDiGetDeviceInstanceIdW
         (
-        uint dnDevInst,
-        IntPtr DeviceID,
-        int BufferLen,
-        uint ulFlags
+        IntPtr DeviceInfoSet,
+        SP_DEVINFO_DATA DeviceInfoData,
+        IntPtr DeviceInstanceId,
+        uint DeviceInstanceIdSize,
+        out uint RequiredSize
         );
 
     [LibraryImport(_DLLName, EntryPoint = "SetupDiEnumDeviceInterfaces", SetLastError = _LastErrorStatus)]
@@ -107,18 +109,6 @@ public static partial class SetupAPIFunctions
         out string ClassDescription,
         ref uint ClassDescriptionSize,
         out uint RequiredSize
-        );
-
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    public static extern bool
-        CM_Get_DevNode_Property
-        (
-        [In] IntPtr hDevInfo,
-        ref SP_DEVINFO_DATA devInfoData,
-        [Out] DEVPROPKEY[] PropertyKeyArray,
-        [In] uint PropertyKeyCount,
-        ref uint RequiredPropertyKeyCount,
-        [In] uint Flags
         );
 
     [LibraryImport(_DLLName, SetLastError = _LastErrorStatus)]

@@ -134,9 +134,9 @@ public static class DeviceHelpers
 
                 SP_DEVINFO_DATA deviceInfoData = (SP_DEVINFO_DATA)enumDeviceInfo.Data;
 
-                string deviceID = SetupAPIFunctions.GetDeviceId(deviceInfoData.DevInst);
-                if (!string.IsNullOrEmpty(deviceID))
-                    device.DeviceProperties.Device_InstanceId = deviceID;
+                Win32ResponseDataStruct deviceID = SetupAPIFunctions.GetDeviceId(hDevInfo, deviceInfoData);
+                if (!string.IsNullOrEmpty((string)deviceID.Data))
+                    device.DeviceProperties.Device_InstanceId = (string)deviceID.Data;
 
                 // Device Interfaces Data
                 uint memberIndexInterfaces = 0;

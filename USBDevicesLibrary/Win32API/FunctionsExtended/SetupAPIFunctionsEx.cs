@@ -26,20 +26,30 @@ public static partial class SetupAPIFunctions
         return bResponse;
     }
 
-    public static string GetDeviceId(UInt32 devInst)
+    public static Win32ResponseDataStruct GetDeviceId(IntPtr deviceInfoSet, SP_DEVINFO_DATA DeviceInfoData)
     {
-        Int32 bufferSize = 1024;
-        IntPtr buffer = Marshal.AllocHGlobal(bufferSize);
+        Win32ResponseDataStruct bResponse = new();
+        uint bufferSize = 1024;
+        IntPtr buffer = Marshal.AllocHGlobal((int)bufferSize);
         string deviceId = string.Empty;
-        int errorCode = CM_Get_Device_ID(devInst, buffer, bufferSize, 0);
-        if (0 == errorCode)
+        bool isSuccess = SetupDiGetDeviceInstanceIdW(deviceInfoSet, DeviceInfoData, buffer, bufferSize, out uint RequiredSize);
+        if (isSuccess)
         {
-            var id = Marshal.PtrToStringAuto(buffer);
+            var id = Marshal.PtrToStringUni(buffer);
             if (id != null)
                 deviceId = id;
+            bResponse.Status = true;
+            bResponse.Data = deviceId;
+            bResponse.LengthTransferred = RequiredSize;
+        }
+        else
+        {
+            bResponse.Status = false;
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"SetupDiEnumDeviceInfo [{DeviceInfoData.ClassGuid}]";
         }
         Marshal.FreeHGlobal(buffer);
-        return deviceId;
+        return bResponse;
     }
 
     public static List<string>? GetDeviceProperty(IntPtr hDevInfo, SP_DEVINFO_DATA devInfoData, SPDRP property)
