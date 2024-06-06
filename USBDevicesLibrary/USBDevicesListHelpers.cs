@@ -236,15 +236,16 @@ internal static class USBDevicesListHelpers
         return bResponse;
     }
 
-    public static string[] GetNodeConnectionStringDescriptor(string devicePath, uint connectionIndex, byte stringIndex)
+    public static ushort GetDefaultLanguageID(string devicePath, uint connectionIndex)
     {
-        string[] bResponse = [string.Empty, string.Empty];
+        ushort bResponse = 0;
+        ushort numberOfLanguages = 0;
+        List<ushort> languageIDs = [];
         WINUSB_SETUP_PACKET setupPacket = new()
         {
             Request = (byte)RequestType_DirectionFlags.DataTransferDirectionDeviceToHost,
             RequestType = (byte)StandardRequestCodes.GET_DESCRIPTOR,
-            Value = (ushort)(((ushort)USBDescriptorTypes.STRING << 8) | stringIndex),
-            // To Do : At first should read number of languages and language ids from USB Device
+            Value = (ushort)(((ushort)USBDescriptorTypes.STRING << 8) | 0),
             // If set 'stringIndex' and 'Index' to zero (0), device returend number of languages and ids in data
             // The first two byte not a language data. first byte (index[0]) contain the lenght of descriptor. to find number of languages should 
             // minus 2 from index[0] (first two bytes)
@@ -254,19 +255,48 @@ internal static class USBDevicesListHelpers
             // Language id size is 2 bytes.
             // For example the first language id in index[2] and index[3]
             // index[2] is a low-byte and index[3] is a high-byte. 
-            // LANGID = (index[3] << 8) & index[2]
+            // LANGID = (index[3] << 8) | index[2]
             // The https://www.usb.org use Microsoft LANGID definitions
             // https://learn.microsoft.com/en-us/windows/win32/intl/language-identifier-constants-and-strings
             // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid
             // https://winprotocoldoc.blob.core.windows.net/productionwindowsarchives/MS-LCID/%5bMS-LCID%5d.pdf
             // Page 14 : 0x0409 en-US
-            Index = 0x409, // LANGID (Language Identifiers)
+            Index = 0, 
             Length = 0xFF,
         };
         byte[] requestedDescriptor = GetNodeConnectionDescriptor(devicePath, connectionIndex, setupPacket);
-        if (requestedDescriptor.Length <= 1) return bResponse;
+        if (requestedDescriptor == null || requestedDescriptor.Length < 5) return bResponse;
+        numberOfLanguages = (ushort)((requestedDescriptor[0] - 2) / 2);
+        if (numberOfLanguages<1) return bResponse;
+        for (int indexofLangID=2; indexofLangID < requestedDescriptor[0]; indexofLangID++)
+        {
+            ushort langID = requestedDescriptor[indexofLangID];
+            indexofLangID++;
+            langID |= (ushort)(requestedDescriptor[indexofLangID] << 8);
+            languageIDs.Add(langID);
+        }
+        if (languageIDs.Count > 0)
+            bResponse = languageIDs[0];
+        return bResponse;
+    }
+
+    public static string[] GetNodeConnectionStringDescriptor(string devicePath, uint connectionIndex, byte stringIndex)
+    {
+        string[] bResponse = ["0", "Unknown"];
+        ushort defaultLangID = GetDefaultLanguageID(devicePath, connectionIndex);
+        WINUSB_SETUP_PACKET setupPacket = new()
+        {
+            Request = (byte)RequestType_DirectionFlags.DataTransferDirectionDeviceToHost,
+            RequestType = (byte)StandardRequestCodes.GET_DESCRIPTOR,
+            Value = (ushort)(((ushort)USBDescriptorTypes.STRING << 8) | stringIndex),
+            Index = defaultLangID, // LANGID (Language Identifiers)
+            Length = 0xFF, // Maximum Lenght of string descriptor
+        };
+        byte[] requestedDescriptor = GetNodeConnectionDescriptor(devicePath, connectionIndex, setupPacket);
+        if (requestedDescriptor.Length < 2) return bResponse;
         // The first two byte of descriptor not a string data. the first byte (index [0]) of descriptor contain the length of a descriptor.
         // descritor[0] - 2 = string bytes count.  2 means first two bytes.
+        if (requestedDescriptor[0] < 2) return bResponse;
         bResponse[0] = (requestedDescriptor[0] - 2).ToString();
         IntPtr unmanagedPointer = Marshal.AllocHGlobal(requestedDescriptor.Length);
         Marshal.Copy(requestedDescriptor, 0, unmanagedPointer, requestedDescriptor.Length);
@@ -479,7 +509,7 @@ internal static class USBDevicesListHelpers
         uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
         Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_USB_DEVICE];
         usbDevicesFromSetupAPI.Clear();
-        foreach (Device itemDevice in DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags,FilterDeviceStatus,USBDevicesFilterList))
+        foreach (Device itemDevice in DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags, FilterDeviceStatus, USBDevicesFilterList))
         {
             usbDevicesFromSetupAPI.Add(itemDevice);
         }

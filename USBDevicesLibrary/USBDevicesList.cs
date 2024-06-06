@@ -58,9 +58,6 @@ public class USBDevicesList
         FilterDeviceStatus = false;
 
         USBDevices.CollectionChanged += USBDevices_CollectionChanged;
-
-        FilterDeviceStatus = true;
-        AddDeviceToFilter("10C4");
     }
 
     private void USBDevices_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
