@@ -500,7 +500,10 @@ internal static class USBDevicesListHelpers
             }
             usbDevice.ConfigurationDescriptors.Add(configurationDescriptor);
         }
-
+        if (usbDevice.BaseDeviceProperties.Device_Service.Contains("USBSTOR",StringComparison.OrdinalIgnoreCase))
+        {
+            GetDiskDriveInterface(usbDevice);
+        }
         return usbDevice;
     }
 
@@ -513,5 +516,10 @@ internal static class USBDevicesListHelpers
         {
             usbDevicesFromSetupAPI.Add(itemDevice);
         }
+    }
+
+    public static void GetDiskDriveInterface(USBDevice usbDevice)
+    {
+
     }
 }
