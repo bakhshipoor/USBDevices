@@ -112,8 +112,8 @@ public class USBDevicesList
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="idVendor">String just for 'Hexadecimal' value. UInt16, ushort for decimal values.</param>
-    /// <param name="idProduct">String just for 'Hexadecimal' value. UInt16, ushort for decimal values.</param>
+    /// <param name="idVendor">String just for 'Hexadecimal' value. UInt16 or ushort for decimal values.</param>
+    /// <param name="idProduct">String just for 'Hexadecimal' value. UInt16 or ushort for decimal values.</param>
     /// <returns>Return True if Add successful or False if unsuccessfull</returns>
     public static bool AddDeviceToFilter(object idVendor, object? idProduct=null)
     {
@@ -160,8 +160,8 @@ public class USBDevicesList
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="idVendor">String just for 'Hexadecimal' value. UInt16, ushort for decimal values.</param>
-    /// <param name="idProduct">String just for 'Hexadecimal' value. UInt16, ushort for decimal values.</param>
+    /// <param name="idVendor">String just for 'Hexadecimal' value. UInt16 or ushort for decimal values.</param>
+    /// <param name="idProduct">String just for 'Hexadecimal' value. UInt16 or ushort for decimal values.</param>
     /// <returns>Return True if Remove successful or False if unsuccessfull</returns>
     public static bool RemoveDeviceFromFilter(object idVendor, object? idProduct=null)
     {

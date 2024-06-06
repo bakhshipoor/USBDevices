@@ -9,6 +9,18 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="MainWindow" Height="900" Width="1000">
+    <Window.Resources>
+        <Style  TargetType="{x:Type ListBoxItem}">
+            <Style.Triggers>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                    <Setter Property="Background" Value="#CDD7CA"></Setter>
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="#ACBAC8"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.3*"/>
@@ -27,22 +39,20 @@
             </TreeView>
         </Grid>
         <GridSplitter Grid.Column="1" Width="2" HorizontalAlignment="Stretch"/>
-        <ScrollViewer Grid.Column="2" Margin="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
-            <ItemsControl x:Name="itemUSB">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="{x:Type usbDevices:PropertiesToList}">
-                        <Grid Margin="0,0,0,2" Background="SteelBlue" ClipToBounds="True" SnapsToDevicePixels="True">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="300" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{Binding Name}" Background="AliceBlue" Padding="10 2" Margin="1" />
-                            <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" Background="LightBlue" Padding="10 2"  Margin="0 1 1 1" TextWrapping="WrapWithOverflow" IsReadOnly="True"/>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+        <ListBox x:Name="itemUSB" Grid.Column="2" Margin="10" AlternationCount="2" BorderThickness="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+            <ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type usbDevices:PropertiesToList}">
+                    <Grid Margin="0,0,0,2"  ClipToBounds="True" SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="300" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding Name}"  Padding="10 2" Margin="1" />
+                        <TextBox Grid.Column="1" Text="{Binding Value, Mode=OneWay}" Background="Transparent" BorderThickness="0"  Padding="10 2"  Margin="0 1 1 1" TextWrapping="Wrap" IsReadOnly="True"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
 
 </Window>
