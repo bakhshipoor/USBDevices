@@ -1,6 +1,6 @@
 # USBDevicesLibrary
 
-## UNDER CONSTRUCTION!!! PLEASE WAIT.
+## UNDER CONSTRUCTION!!! 
 
 ![2024-06-04_18-04-36](https://github.com/bakhshipoor/USBDevices/assets/2270529/59792053-1305-45b9-ac38-27fd2cfc5304)
 
