@@ -41,9 +41,6 @@ public class USBDevicesList
         set { USBDevicesListHelpers.FilterDeviceStatus = value; }
     }
 
-
-
-
     public USBDevicesList()
     {
         USBHubs = [];
@@ -207,6 +204,7 @@ public class USBDevicesList
 
     public static List<USBDevicesFilter> GetDevicesFromFilter()
     {
+        // Create new list. If you modified this list not changes USBDevicesFilterList.
         return [.. USBDevicesListHelpers.USBDevicesFilterList];
     }
 }
