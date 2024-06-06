@@ -124,8 +124,8 @@ public class USBDevice
         bResponse.Add(new PropertiesToList() { Name = "Device Sub Class: ", Value = ClassCode_DeviceSubClass });
         bResponse.Add(new PropertiesToList() { Name = "Device Protocol: ", Value = ClassCode_DeviceProtocol });
         bResponse.Add(new PropertiesToList() { Name = "Max Packet Size: ", Value = MaxPacketSize0 });
-        bResponse.Add(new PropertiesToList() { Name = "Vendor ID (VID): ", Value = string.Format("{0:X4}",IDVendor) });
-        bResponse.Add(new PropertiesToList() { Name = "Product ID (PID): ", Value = string.Format("{0:X4}", IDProduct) });
+        bResponse.Add(new PropertiesToList() { Name = "Vendor ID (VID) (Hex): ", Value = string.Format("{0:X4}",IDVendor) });
+        bResponse.Add(new PropertiesToList() { Name = "Product ID (PID) (Hex): ", Value = string.Format("{0:X4}", IDProduct) });
         bResponse.Add(new PropertiesToList() { Name = "Device Revision: ", Value = Rev_Device });
         bResponse.Add(new PropertiesToList() { Name = "Number Of Configurations: ", Value = NumberOfConfigurations });
         bResponse.Add(new PropertiesToList() { Name = "Number Of Open Pipes: ", Value = NumberOfOpenPipes });
