@@ -479,7 +479,7 @@ internal static class USBDevicesListHelpers
         uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
         Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_USB_DEVICE];
         usbDevicesFromSetupAPI.Clear();
-        foreach (Device itemDevice in DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags))
+        foreach (Device itemDevice in DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags,FilterDeviceStatus,USBDevicesFilterList))
         {
             usbDevicesFromSetupAPI.Add(itemDevice);
         }

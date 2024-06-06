@@ -1,7 +1,10 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security.AccessControl;
+using System.Security.Cryptography;
 using USBDevicesLibrary.Devices;
+using USBDevicesLibrary.USBDevices;
 using USBDevicesLibrary.Win32API;
 using static USBDevicesLibrary.Devices.DevicePropertiesTypeHelper;
 using static USBDevicesLibrary.Win32API.DevicePropKeys;
@@ -11,7 +14,7 @@ namespace USBDevicesLibrary.Devices;
 
 public static class DeviceHelpers
 {
-    public static ObservableCollection<Device> GetClassDevicesWithProperties(Guid classGuid, string enumString, uint flags)
+    public static ObservableCollection<Device> GetClassDevicesWithProperties(Guid classGuid, string enumString, uint flags, bool filterStatus=false, [AllowNull] List<USBDevicesFilter> filterList=null)
     {
         ObservableCollection<Device> devices = [];
         Win32ResponseDataStruct devicesHandle = SetupAPIFunctions.GetClassDevices(classGuid, enumString, IntPtr.Zero, flags);
@@ -33,6 +36,60 @@ public static class DeviceHelpers
                 }
 
                 SP_DEVINFO_DATA deviceInfoData = (SP_DEVINFO_DATA)enumDeviceInfo.Data;
+
+                if (filterStatus && filterList!=null && filterList.Count>0)
+                {
+                    string strDeviceID = string.Empty;
+                    Win32ResponseDataStruct deviceID = SetupAPIFunctions.GetDeviceId(hDevInfo, deviceInfoData);
+                    if (deviceID.Status)
+                    {
+                        if (!string.IsNullOrEmpty((string)deviceID.Data))
+                            strDeviceID = (string)deviceID.Data;
+                    }
+                    if (!string.IsNullOrEmpty(strDeviceID))
+                    {
+                        int indexofVID = strDeviceID.IndexOf("VID", StringComparison.OrdinalIgnoreCase);
+                        int indexofPID = strDeviceID.IndexOf("PID", StringComparison.OrdinalIgnoreCase);
+                        string strVID = indexofVID >= 0 ? strDeviceID.Substring(indexofVID + 4, 4) : string.Empty;
+                        string strPID = indexofVID >= 0 ? strDeviceID.Substring(indexofPID + 4, 4) : string.Empty;
+                        if (!string.IsNullOrEmpty(strVID) && strVID.Length<5 && !string.IsNullOrEmpty(strPID) && strPID.Length<5)
+                        {
+                            if (strVID.ToCharArray().All(char.IsAsciiHexDigit) && strPID.ToCharArray().All(char.IsAsciiHexDigit))
+                            {
+                                ushort VID = Convert.ToUInt16(strVID, 16);
+                                ushort PID = Convert.ToUInt16(strPID, 16);
+                                bool findFilter = false;
+                                foreach (USBDevicesFilter itemFilter in filterList)
+                                {
+                                    if (itemFilter.IDVendor == VID)
+                                    {
+                                        if (itemFilter.IDProduct > 0)
+                                        {
+                                            if (itemFilter.IDProduct == PID)
+                                            {
+                                                findFilter = true;
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            findFilter = true;
+                                            break;
+                                        }
+                                    }
+                                    else
+                                        findFilter = false;
+                                }
+                                if (!findFilter)
+                                {
+                                    memberIndex++;
+                                    continue;
+                                }
+                            }
+                        }
+                        
+                    }
+                }
 
                 // Get Device Properties 
                 Win32ResponseDataStruct devicePropertyKeyArray = SetupAPIFunctions.GetDevicePropertyKeyArray(hDevInfo, deviceInfoData);
@@ -111,7 +168,7 @@ public static class DeviceHelpers
         return devices;
     }
 
-    public static ObservableCollection<Device> GetClassDevices(Guid classGuid, string enumString, uint flags)
+    public static ObservableCollection<Device> GetClassDevices(Guid classGuid, string enumString, uint flags, bool filterStatus = false, [AllowNull] List<USBDevicesFilter> filterList = null)
     {
         ObservableCollection<Device> devices = [];
         Win32ResponseDataStruct devicesHandle = SetupAPIFunctions.GetClassDevices(classGuid, enumString, IntPtr.Zero, flags);

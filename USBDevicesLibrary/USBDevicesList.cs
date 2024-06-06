@@ -1,5 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.Text;
+using System.Collections.Specialized;
 using USBDevicesLibrary.Devices;
 using USBDevicesLibrary.Events;
 using USBDevicesLibrary.USBDevices;
@@ -58,11 +58,14 @@ public class USBDevicesList
         FilterDeviceStatus = false;
 
         USBDevices.CollectionChanged += USBDevices_CollectionChanged;
+
+        FilterDeviceStatus = true;
+        AddDeviceToFilter("10C4");
     }
 
-    private void USBDevices_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    private void USBDevices_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action==System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+        if (e.Action==NotifyCollectionChangedAction.Add)
         {
             if (ConnectedEventStatus)
             {
@@ -75,7 +78,7 @@ public class USBDevicesList
                 }
             }
         }
-        else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+        else if (e.Action == NotifyCollectionChangedAction.Remove)
         {
             if (DisconnectedEventStatus)
             {
