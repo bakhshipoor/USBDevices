@@ -13,6 +13,6 @@ public class USBDevicesFilter
         
     }
 
-    public uint IDVendor { get; set; }
-    public uint IDProduct { get; set; }
+    public ushort IDVendor { get; set; }
+    public ushort IDProduct { get; set; }
 }

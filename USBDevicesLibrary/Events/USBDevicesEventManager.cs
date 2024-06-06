@@ -106,8 +106,6 @@ public class USBDevicesEventManager
         {
             // Remove Device From Collection
             usbDevices.USBDevices.Remove(itemUSBDevice);
-            // Trigger Event
-            usbDevices.OnDeviceChanged(new USBDevicesEventArgs(itemUSBDevice, EventTypeEnum.Disconnected));
         }
     }
 
@@ -120,8 +118,6 @@ public class USBDevicesEventManager
             usbDevices.USBDevicesFromSetupAPI.Add(itemDevice);
             USBDevice newUSBDevice = USBDevicesListHelpers.CreateUSBDevice(usbDevices.USBHubs, itemDevice);
             usbDevices.USBDevices.Add(newUSBDevice);
-            // Trigger Event
-            usbDevices.OnDeviceChanged(new USBDevicesEventArgs(newUSBDevice, EventTypeEnum.Connected));
         }
     }
 }

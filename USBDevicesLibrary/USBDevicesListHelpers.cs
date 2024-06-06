@@ -6,7 +6,6 @@ using USBDevicesLibrary.Devices;
 using USBDevicesLibrary.USBDevices;
 using USBDevicesLibrary.Win32API;
 using static USBDevicesLibrary.Win32API.ClassesGUID;
-using static USBDevicesLibrary.Win32API.Kernel32Data;
 using static USBDevicesLibrary.Win32API.SetupAPIData;
 using static USBDevicesLibrary.Win32API.USBIOCtl;
 using static USBDevicesLibrary.Win32API.USBSpec;
@@ -14,6 +13,11 @@ using static USBDevicesLibrary.Win32API.WinUSBData;
 
 internal static class USBDevicesListHelpers
 {
+    public static bool ConnectedEventStatus { get; set; }
+    public static bool DisconnectedEventStatus { get; set; }
+    public static bool ModifiedEventStatus { get; set; }
+    public static bool FilterDeviceStatus { get; set; }
+    public static List<USBDevicesFilter> USBDevicesFilterList { get; set; } = [];
 
     public static List<HUB_CHARACHTERISTICS> ExtractHubCharachteristics(ushort charachteristics)
     {
