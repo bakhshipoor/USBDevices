@@ -1,11 +1,14 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
 using USBDevicesLibrary.Devices;
 using USBDevicesLibrary.USBDevices;
 using USBDevicesLibrary.Win32API;
 using static USBDevicesLibrary.Win32API.ClassesGUID;
+using static USBDevicesLibrary.Win32API.Kernel32Data;
+using static USBDevicesLibrary.Win32API.NTDDDiskData;
 using static USBDevicesLibrary.Win32API.SetupAPIData;
 using static USBDevicesLibrary.Win32API.USBIOCtl;
 using static USBDevicesLibrary.Win32API.USBSpec;
@@ -520,8 +523,30 @@ internal static class USBDevicesListHelpers
 
     public static void GetDiskDriveInterface(USBDevice usbDevice)
     {
-        uint flags = (uint)(/*DIGCF.DIGCF_ALLCLASSES |*/ DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
+        uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
         Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_DISK];
-        ObservableCollection<Device> usbHubsFromSetupAPI = DeviceHelpers.GetClassDevices(deviceClassGuid, string.Empty, flags);
+        ObservableCollection<Device> usbHubsFromSetupAPI = DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags);
+
+        string devicePath = usbHubsFromSetupAPI[3].DevicePath;
+
+        SafeFileHandle deviceHandle = Kernel32Functions.CreateFile
+            (devicePath, 
+            (uint)ACCESSTYPES.STANDARD_RIGHTS_READ, 
+            (uint)FilesAccessRights.FILE_SHARE_READ | (uint)FilesAccessRights.FILE_SHARE_WRITE, 
+            IntPtr.Zero, 
+            (uint)FileConsatnts.OPEN_EXISTING,
+            (uint)FilesAccessRights.FILE_ATTRIBUTE_NORMAL | (uint)FileFlags.FILE_FLAG_OVERLAPPED, 
+            IntPtr.Zero);
+        string er = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+        //
+        //Win32ResponseDataStruct diskGeoHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
+        if (deviceHandle.DangerousGetHandle()>-1)
+        {
+            DISK_GEOMETRY_EX diskGeo = new();
+
+            Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl(deviceHandle,
+                    diskGeo, DISK_IOCTL[DISK_IOCTL_Enum.IOCTL_DISK_GET_DRIVE_GEOMETRY_EX]);
+            diskGeo = (DISK_GEOMETRY_EX)decviceIOControl.Data;
+        }
     }
 }

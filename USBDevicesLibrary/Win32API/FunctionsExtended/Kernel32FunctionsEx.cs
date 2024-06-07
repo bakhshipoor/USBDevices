@@ -12,7 +12,14 @@ public static partial class Kernel32Functions
     public static Win32ResponseDataStruct CreateDeviceHandle(string devicePath)
     {
         Win32ResponseDataStruct bResponse = new();
-        SafeFileHandle deviceHandle = CreateFile(devicePath, ((uint)ACCESSTYPES.GENERIC_WRITE | (uint)ACCESSTYPES.GENERIC_READ), (uint)FilesAccessRights.FILE_SHARE_READ | (uint)FilesAccessRights.FILE_SHARE_WRITE, IntPtr.Zero, (uint)FileConsatnts.OPEN_EXISTING, (uint)FilesAccessRights.FILE_ATTRIBUTE_NORMAL | (uint)FileFlags.FILE_FLAG_OVERLAPPED, IntPtr.Zero);
+        SafeFileHandle deviceHandle = CreateFile(
+            devicePath, 
+            (uint)ACCESSTYPES.GENERIC_WRITE | (uint)ACCESSTYPES.GENERIC_READ, 
+            (uint)FilesAccessRights.FILE_SHARE_READ | (uint)FilesAccessRights.FILE_SHARE_WRITE, 
+            IntPtr.Zero, 
+            (uint)FileConsatnts.OPEN_EXISTING, 
+            (uint)FilesAccessRights.FILE_ATTRIBUTE_NORMAL | (uint)FileFlags.FILE_FLAG_OVERLAPPED, 
+            IntPtr.Zero);
         if (deviceHandle.DangerousGetHandle()!=-1)
         {
             bResponse.Status = true;
