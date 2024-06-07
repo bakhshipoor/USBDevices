@@ -520,6 +520,8 @@ internal static class USBDevicesListHelpers
 
     public static void GetDiskDriveInterface(USBDevice usbDevice)
     {
-
+        uint flags = (uint)(/*DIGCF.DIGCF_ALLCLASSES |*/ DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
+        Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_DISK];
+        ObservableCollection<Device> usbHubsFromSetupAPI = DeviceHelpers.GetClassDevices(deviceClassGuid, string.Empty, flags);
     }
 }
