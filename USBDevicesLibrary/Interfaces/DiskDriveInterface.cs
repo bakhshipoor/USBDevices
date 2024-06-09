@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using USBDevicesLibrary.Devices;
+using static USBDevicesLibrary.Win32API.NTDDDiskData;
 
 namespace USBDevicesLibrary.Interfaces;
 
@@ -23,7 +24,6 @@ public class DiskDriveInterface : InterfaceBaseClass
         FirmwareRevision = string.Empty;
         InterfaceType = string.Empty;
         Manufacturer = string.Empty;
-        MediaType = string.Empty;
         Model = string.Empty;
         SerialNumber = string.Empty;
     }
@@ -50,26 +50,32 @@ public class DiskDriveInterface : InterfaceBaseClass
     public bool NeedsCleaning { get; set; }
     public uint NumberOfMediaSupported { get; set; }
 
-    public uint BytesPerSector { get; set; }
+    
     public string FirmwareRevision { get; set; }
     public uint Index { get; set; }
     public string InterfaceType { get; set; }
     public string Manufacturer { get; set; }
     public bool MediaLoaded { get; set; }
-    public string MediaType { get; set; }
     public string Model { get; set; }
     public uint Partitions { get; set; }
-    public uint SCSIBus { get; set; }
-    public ushort SCSILogicalUnit { get; set; }
-    public ushort SCSIPort { get; set; }
-    public ushort SCSITargetId { get; set; }
-    public uint SectorsPerTrack { get; set; }
+    //public uint SCSIBus { get; set; }
+    //public ushort SCSILogicalUnit { get; set; }
+    //public ushort SCSIPort { get; set; }
+    //public ushort SCSITargetId { get; set; }
     public string SerialNumber { get; set; }
-    public uint Signature { get; set; }
-    public ulong Size { get; set; }
+
+
+
+    // Disk Geo
+    public ulong DiskSize { get; set; }
+    public uint BytesPerSector { get; set; }
     public ulong TotalCylinders { get; set; }
+    public MEDIA_TYPE MediaType { get; set; }
+    public uint SectorsPerTrack { get; set; }
+    public uint TracksPerCylinder { get; set; }
+    public uint Signature { get; set; }
     public uint TotalHeads { get; set; }
     public ulong TotalSectors { get; set; }
     public ulong TotalTracks { get; set; }
-    public uint TracksPerCylinder { get; set; }
+
 }

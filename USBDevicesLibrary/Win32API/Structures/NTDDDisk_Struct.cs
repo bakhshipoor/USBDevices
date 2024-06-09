@@ -20,11 +20,11 @@ public static partial class NTDDDiskData
     public struct DISK_PARTITION_INFO_UNION
     {
         [FieldOffset(0)]
-        public uint Signature;
+        public uint MBR_Signature;
         [FieldOffset(4)]
-        public uint CheckSum;
+        public uint MBR_CheckSum;
         [FieldOffset(0)]
-        public Guid DiskId;
+        public Guid GPT_DiskId;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
