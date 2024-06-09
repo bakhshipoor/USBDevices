@@ -9,6 +9,7 @@ using USBDevicesLibrary.Win32API;
 using static USBDevicesLibrary.Win32API.ClassesGUID;
 using static USBDevicesLibrary.Win32API.Kernel32Data;
 using static USBDevicesLibrary.Win32API.NTDDDiskData;
+using static USBDevicesLibrary.Win32API.NTDDStorData;
 using static USBDevicesLibrary.Win32API.SetupAPIData;
 using static USBDevicesLibrary.Win32API.USBIOCtl;
 using static USBDevicesLibrary.Win32API.USBSpec;
@@ -525,28 +526,34 @@ internal static class USBDevicesListHelpers
     {
         uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
         Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_DISK];
-        ObservableCollection<Device> usbHubsFromSetupAPI = DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags);
+        ObservableCollection<Device> diskDrivesFromSetupAPI = DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags, parentID: usbDevice.BaseDeviceProperties.Device_InstanceId);
 
-        string devicePath = usbHubsFromSetupAPI[3].DevicePath;
+        if (diskDrivesFromSetupAPI.Count > 1 || diskDrivesFromSetupAPI.Count == 0) return;
 
-        SafeFileHandle deviceHandle = Kernel32Functions.CreateFile
-            (devicePath, 
-            (uint)ACCESSTYPES.STANDARD_RIGHTS_READ, 
-            (uint)FilesAccessRights.FILE_SHARE_READ | (uint)FilesAccessRights.FILE_SHARE_WRITE, 
-            IntPtr.Zero, 
-            (uint)FileConsatnts.OPEN_EXISTING,
-            (uint)FilesAccessRights.FILE_ATTRIBUTE_NORMAL | (uint)FileFlags.FILE_FLAG_OVERLAPPED, 
-            IntPtr.Zero);
-        string er = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-        //
-        //Win32ResponseDataStruct diskGeoHandle = Kernel32Functions.CreateDeviceHandle(devicePath);
-        if (deviceHandle.DangerousGetHandle()>-1)
+        string? devicePath = diskDrivesFromSetupAPI.FirstOrDefault()?.DevicePath;
+        if (string.IsNullOrEmpty(devicePath)) return;
+       
+        Win32ResponseDataStruct diskHandle = Kernel32Functions.CreateDeviceHandle(devicePath, readOnly: true);
+        if (diskHandle.Status)
         {
             DISK_GEOMETRY_EX diskGeo = new();
 
-            Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl(deviceHandle,
+            Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)diskHandle.Data,
                     diskGeo, DISK_IOCTL[DISK_IOCTL_Enum.IOCTL_DISK_GET_DRIVE_GEOMETRY_EX]);
             diskGeo = (DISK_GEOMETRY_EX)decviceIOControl.Data;
+
+            int xxxx = Marshal.SizeOf(typeof(PARTITION_INFORMATION_EX));
+
+            DRIVE_LAYOUT_INFORMATION_EX pix = new();
+            Win32ResponseDataStruct decviceIOControl2 = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)diskHandle.Data,
+                    pix, DISK_IOCTL[DISK_IOCTL_Enum.IOCTL_DISK_GET_DRIVE_LAYOUT_EX]);
+
+            pix = (DRIVE_LAYOUT_INFORMATION_EX)decviceIOControl2.Data;
+
+            STORAGE_DEVICE_NUMBER dn = new();
+            Win32ResponseDataStruct decviceIOControl3 = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)diskHandle.Data,
+                    dn, STORAGE_IOCTL[STORAGE_IOCTL_Enum.IOCTL_STORAGE_GET_DEVICE_NUMBER]);
+            dn = (STORAGE_DEVICE_NUMBER)decviceIOControl3.Data;
         }
     }
 }

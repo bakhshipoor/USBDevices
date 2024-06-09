@@ -14,7 +14,7 @@ namespace USBDevicesLibrary.Devices;
 
 public static class DeviceHelpers
 {
-    public static ObservableCollection<Device> GetClassDevicesWithProperties(Guid classGuid, string enumString, uint flags, bool filterStatus=false, [AllowNull] List<USBDevicesFilter> filterList=null)
+    public static ObservableCollection<Device> GetClassDevicesWithProperties(Guid classGuid, string enumString, uint flags, [AllowNull] bool filterStatus=false, [AllowNull] List<USBDevicesFilter> filterList=null, [AllowNull] string parentID=null)
     {
         ObservableCollection<Device> devices = [];
         Win32ResponseDataStruct devicesHandle = SetupAPIFunctions.GetClassDevices(classGuid, enumString, IntPtr.Zero, flags);
@@ -37,6 +37,7 @@ public static class DeviceHelpers
 
                 SP_DEVINFO_DATA deviceInfoData = (SP_DEVINFO_DATA)enumDeviceInfo.Data;
 
+                // Check Filter
                 if (filterStatus && filterList!=null && filterList.Count>0)
                 {
                     string strDeviceID = string.Empty;
@@ -103,6 +104,16 @@ public static class DeviceHelpers
                         {
                             SetDevicePropertiesValue(device, DevicePropertiesTtype.DeviceProperties, itemDevicePropKey, propertyValue.Data, propertyValue.DataType);
                         }
+                    }
+                }
+
+                // Check Device Parent ID
+                if (!string.IsNullOrEmpty(parentID))
+                {
+                    if (!device.DeviceProperties.Device_Parent.Equals(parentID,StringComparison.OrdinalIgnoreCase))
+                    {
+                        memberIndex++;
+                        continue;
                     }
                 }
 
