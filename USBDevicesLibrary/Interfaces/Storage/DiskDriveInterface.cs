@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using USBDevicesLibrary.Devices;
@@ -23,7 +24,7 @@ public class DiskDriveInterface : InterfaceBaseClass
 
         //CompressionMethod = string.Empty;
         //ErrorMethodology = string.Empty;
-        FirmwareRevision = string.Empty;
+        DeviceRevision = string.Empty;
         Name = string.Empty;
         SerialNumber = string.Empty;
         VendorId = string.Empty;
@@ -53,7 +54,7 @@ public class DiskDriveInterface : InterfaceBaseClass
     //public uint NumberOfMediaSupported { get; set; }
 
     
-    public uint Partitions { get; set; }
+    
 
     // Disk Geo
     public ulong DiskSize { get; set; }
@@ -65,20 +66,31 @@ public class DiskDriveInterface : InterfaceBaseClass
     public ulong TotalTracks { get; set; }
     public ulong TotalSectors { get; set; }
     public MEDIA_TYPE MediaType { get; set; }
-    public uint Signature { get; set; }
+    public PARTITION_STYLE PartitionStyle { get; set; }
     public bool MediaLoaded { get; set; }
+    // MBR
+    public uint MBR_Signature { get; set; }
+    public uint MBR_CheckSum {  get; set; }
+    // GPT
+    public Guid GPT_DiskId { get; set; }
+    public ulong GPT_StartingUsableOffset { get; set; }
+    public ulong GPT_UsableLength { get; set; }
+    public ulong GPT_MaxPartitionCount { get; set; }
 
     // Disk Number
     public uint DiskNumber { get; set; }
     public string Name { get; set; }
 
     // Disk Storage Descriptor
-    public string FirmwareRevision { get; set; }
+    public string DeviceRevision { get; set; }
     public string SerialNumber { get; set; }
     public string VendorId { get; set; }
     public string ProductId { get; set; }
     public STORAGE_BUS_TYPE BusType { get; set; }
     public bool RemovableMedia { get; set; }
+
+    // Disk Drive Layaout Information Ex
+    public uint NumberOFPartitions { get; set; }
 
     public override List<PropertiesToList> PropertiesToList()
     {
@@ -95,10 +107,16 @@ public class DiskDriveInterface : InterfaceBaseClass
         bResponse.Add(new PropertiesToList() { Name = "Total Tracks: ", Value = TotalTracks });
         bResponse.Add(new PropertiesToList() { Name = "Total Sectors: ", Value = TotalSectors });
         bResponse.Add(new PropertiesToList() { Name = "Media Type: ", Value = MediaType });
-        bResponse.Add(new PropertiesToList() { Name = "Signature: ", Value = Signature });
+        bResponse.Add(new PropertiesToList() { Name = "Partition Style: ", Value = PartitionStyle });
+        bResponse.Add(new PropertiesToList() { Name = "Signature: ", Value = MBR_Signature });
+        bResponse.Add(new PropertiesToList() { Name = "Check Sum: ", Value = MBR_CheckSum });
+        bResponse.Add(new PropertiesToList() { Name = "GPT Disk ID: ", Value = GPT_DiskId });
+        bResponse.Add(new PropertiesToList() { Name = "GPT Starting Usable Offset: ", Value = GPT_StartingUsableOffset });
+        bResponse.Add(new PropertiesToList() { Name = "GPT Usable Length: ", Value = GPT_UsableLength });
+        bResponse.Add(new PropertiesToList() { Name = "GPT Max Partition Count: ", Value = GPT_MaxPartitionCount });
         bResponse.Add(new PropertiesToList() { Name = "Media Loaded: ", Value = MediaLoaded });
         bResponse.Add(new PropertiesToList() { Name = "Disk Number: ", Value = DiskNumber });
-        bResponse.Add(new PropertiesToList() { Name = "Firmware Revision: ", Value = FirmwareRevision });
+        bResponse.Add(new PropertiesToList() { Name = "Device Revision: ", Value = DeviceRevision });
         bResponse.Add(new PropertiesToList() { Name = "Serial Number: ", Value = SerialNumber });
         bResponse.Add(new PropertiesToList() { Name = "Vendor ID: ", Value = VendorId });
         bResponse.Add(new PropertiesToList() { Name = "Product ID: ", Value = ProductId });

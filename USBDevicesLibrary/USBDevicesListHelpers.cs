@@ -551,7 +551,16 @@ internal static class USBDevicesListHelpers
             diskDrive.MediaType = diskDriveGeoEx.Geometry.MediaType;
             diskDrive.SectorsPerTrack = diskDriveGeoEx.Geometry.SectorsPerTrack;
             diskDrive.TracksPerCylinder = diskDriveGeoEx.Geometry.TracksPerCylinder;
-            diskDrive.Signature = diskDriveGeoEx.PatitionInfo.PartitionLayoutInfo.MBR_Signature;
+            diskDrive.PartitionStyle = diskDriveGeoEx.PatitionInfo.PartitionStyle;
+            if (diskDrive.PartitionStyle == PARTITION_STYLE.PARTITION_STYLE_MBR)
+            {
+                diskDrive.MBR_Signature = diskDriveGeoEx.PatitionInfo.PartitionLayoutInfo.MBR_Signature;
+                diskDrive.MBR_CheckSum = diskDriveGeoEx.PatitionInfo.PartitionLayoutInfo.MBR_CheckSum;
+            }
+            else if (diskDrive.PartitionStyle == PARTITION_STYLE.PARTITION_STYLE_GPT)
+            {
+                diskDrive.GPT_DiskId = diskDriveGeoEx.PatitionInfo.PartitionLayoutInfo.GPT_DiskId;
+            }
             diskDrive.TotalHeads = diskDriveGeoEx.Geometry.TracksPerCylinder;
             diskDrive.TotalTracks = diskDrive.TracksPerCylinder * diskDrive.TotalCylinders;
             diskDrive.TotalSectors = diskDrive.SectorsPerTrack * diskDrive.TotalTracks;
@@ -559,7 +568,7 @@ internal static class USBDevicesListHelpers
                 diskDrive.MediaLoaded = true;
         }
 
-        Win32ResponseDataStruct diskDriveNumber = StorageInterfaceHelpers.GetDiskNumber(devicePath);
+        Win32ResponseDataStruct diskDriveNumber = StorageInterfaceHelpers.GetDiskDriveNumber(devicePath);
         if (diskDriveNumber.Status)
         {
             STORAGE_DEVICE_NUMBER diskDriveNum = (STORAGE_DEVICE_NUMBER)diskDriveNumber.Data;
@@ -571,7 +580,7 @@ internal static class USBDevicesListHelpers
         if (diskDriveStorageDescriptor.Status)
         {
             StorageDeviceDescriptor diskDriveDescriptor = (StorageDeviceDescriptor)diskDriveStorageDescriptor.Data;
-            diskDrive.FirmwareRevision = diskDriveDescriptor.ProductRevision;
+            diskDrive.DeviceRevision = diskDriveDescriptor.ProductRevision;
             diskDrive.SerialNumber = diskDriveDescriptor.SerialNumber;
             diskDrive.VendorId = diskDriveDescriptor.VendorId;
             diskDrive.ProductId = diskDriveDescriptor.ProductId;
@@ -579,14 +588,25 @@ internal static class USBDevicesListHelpers
             diskDrive.RemovableMedia = diskDriveDescriptor.RemovableMedia;
         }
 
-        Win32ResponseDataStruct diskHandle = Kernel32Functions.CreateDeviceHandle(devicePath, readOnly: true);
-        if (diskHandle.Status)
+        Win32ResponseDataStruct driveLayoutInformationEx = StorageInterfaceHelpers.GetDiskDriveLayoutInformationEx(devicePath);
+        if (driveLayoutInformationEx.Status)
         {
-            DRIVE_LAYOUT_INFORMATION_EX pix = new();
-            Win32ResponseDataStruct decviceIOControl2 = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)diskHandle.Data,
-                    pix, DISK_IOCTL[DISK_IOCTL_Enum.IOCTL_DISK_GET_DRIVE_LAYOUT_EX]);
+            DRIVE_LAYOUT_INFORMATION_EX driveLayoutInfoEx = (DRIVE_LAYOUT_INFORMATION_EX)driveLayoutInformationEx.Data;
+            if (driveLayoutInfoEx.PartitionStyle==PARTITION_STYLE.PARTITION_STYLE_GPT)
+            {
+                diskDrive.GPT_MaxPartitionCount = driveLayoutInfoEx.DriveInfo.GPT_MaxPartitionCount;
+                diskDrive.GPT_StartingUsableOffset = driveLayoutInfoEx.DriveInfo.GPT_StartingUsableOffset;
+                diskDrive.GPT_UsableLength = driveLayoutInfoEx.DriveInfo.GPT_UsableLength;
+            }
 
-            pix = (DRIVE_LAYOUT_INFORMATION_EX)decviceIOControl2.Data;
+            ObservableCollection<DiskPartitionInterface> partitions = StorageInterfaceHelpers.GetDiskDrivePartitions(driveLayoutInfoEx, diskDrive.DiskNumber);
+            if (partitions.Count>0)
+            {
+                foreach (DiskPartitionInterface itemPartition in partitions)
+                {
+                    diskDrive.Add(itemPartition);
+                }
+            }
         }
 
         usbDevice.Add(diskDrive);

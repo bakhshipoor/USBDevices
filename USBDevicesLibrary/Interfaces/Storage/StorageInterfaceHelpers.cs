@@ -1,6 +1,8 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -32,7 +34,7 @@ public static class StorageInterfaceHelpers
         return bresponse;
     }
 
-    public static Win32ResponseDataStruct GetDiskNumber(string devicePath)
+    public static Win32ResponseDataStruct GetDiskDriveNumber(string devicePath)
     {
         Win32ResponseDataStruct bresponse = new();
         Win32ResponseDataStruct diskHandle = Kernel32Functions.CreateDeviceHandle(devicePath, readOnly: true);
@@ -150,4 +152,62 @@ public static class StorageInterfaceHelpers
         }
         return bresponse;
     }
+
+    public static Win32ResponseDataStruct GetDiskDriveLayoutInformationEx(string devicePath)
+    {
+        Win32ResponseDataStruct bresponse = new();
+        Win32ResponseDataStruct diskHandle = Kernel32Functions.CreateDeviceHandle(devicePath, readOnly: true);
+        if (diskHandle.Status)
+        {
+            DRIVE_LAYOUT_INFORMATION_EX driveLayoutInformationEx = new();
+            Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)diskHandle.Data,
+                    driveLayoutInformationEx, DISK_IOCTL[DISK_IOCTL_Enum.IOCTL_DISK_GET_DRIVE_LAYOUT_EX]);
+            if (decviceIOControl.Status)
+            {
+                bresponse.Status = true;
+                bresponse.Data = decviceIOControl.Data;
+            }
+            ((SafeFileHandle)diskHandle.Data).Close();
+        }
+        return bresponse;
+    }
+
+    public static ObservableCollection<DiskPartitionInterface> GetDiskDrivePartitions(DRIVE_LAYOUT_INFORMATION_EX driveLayoutInfoEx, uint diskNumber)
+    {
+        ObservableCollection<DiskPartitionInterface> diskDrivePartitions = [];
+        if (driveLayoutInfoEx.PartitionCount>0)
+        {
+            foreach (PARTITION_INFORMATION_EX itemPartitionInfo in driveLayoutInfoEx.PartitionEntry)
+            {
+                if (itemPartitionInfo.PartitionInfo.MBR_PartitionType == PARTITION_TYPE.PARTITION_ENTRY_UNUSED)
+                    break;
+                DiskPartitionInterface partition = new();
+                partition.DiskNumber = diskNumber;
+                partition.PartitionNumber = itemPartitionInfo.PartitionNumber;
+                partition.PartitionStyle = itemPartitionInfo.PartitionStyle;
+                partition.Size = itemPartitionInfo.PartitionLength;
+                partition.StartingOffset = itemPartitionInfo.StartingOffset;
+                partition.RewritePartition = Convert.ToBoolean(itemPartitionInfo.RewritePartition);
+                partition.IsServicePartition = Convert.ToBoolean(itemPartitionInfo.IsServicePartition);
+                if (partition.PartitionStyle ==PARTITION_STYLE.PARTITION_STYLE_MBR)
+                {
+                    partition.MBR_Type = itemPartitionInfo.PartitionInfo.MBR_PartitionType;
+                    partition.Bootable = Convert.ToBoolean(itemPartitionInfo.PartitionInfo.MBR_BootIndicator);
+                    partition.HiddenSectors = itemPartitionInfo.PartitionInfo.MBR_HiddenSectors;
+                    partition.PartitionID = itemPartitionInfo.PartitionInfo.MBR_PartitionId;
+                }
+                else if (partition.PartitionStyle == PARTITION_STYLE.PARTITION_STYLE_GPT)
+                {
+                    partition.GPT_Type = itemPartitionInfo.PartitionInfo.GPT_PartitionType;
+                    partition.GPT_Attributes = itemPartitionInfo.PartitionInfo.GPT_Attributes;
+                    partition.GPT_Name = itemPartitionInfo.PartitionInfo.GPT_Name;
+                    partition.PartitionID = itemPartitionInfo.PartitionInfo.GPT_PartitionId;
+                }
+                partition.Name = $"Disk #{diskNumber}, Partition #{partition.PartitionNumber}";
+                diskDrivePartitions.Add(partition);
+            }
+        }
+        return diskDrivePartitions;
+    }
+
 }

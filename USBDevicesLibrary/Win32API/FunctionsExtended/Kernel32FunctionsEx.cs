@@ -125,7 +125,7 @@ public static partial class Kernel32Functions
         {
             bResponse.Status = false;
             bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
-            bResponse.ErrorFunctionName = $"DeviceIoControl [{structureInputSize.GetType().Name}]";
+            bResponse.ErrorFunctionName = $"DeviceIoControl [{structureInput.GetType().Name}]";
         }
         return bResponse;
     }

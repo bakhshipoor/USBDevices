@@ -93,7 +93,7 @@ public static partial class NTDDDiskData
         public uint CheckSum;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+    [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Unicode)]
     public struct PARTITION_INFORMATION
     {
         ulong StartingOffset;
@@ -142,6 +142,7 @@ public static partial class NTDDDiskData
         public uint MBR_Signature;
         [FieldOffset(4)]
         public uint MBR_CheckSum;
+        // GPT
         [FieldOffset(0)]
         public Guid GPT_DiskId;
         [FieldOffset(16)]
@@ -178,7 +179,7 @@ public static partial class NTDDDiskData
     }
 
 
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    [StructLayout(LayoutKind.Sequential, Pack =8, Size =144, CharSet = CharSet.Unicode)]
     public struct PARTITION_INFORMATION_EX
     {
         public PARTITION_STYLE PartitionStyle;
@@ -190,12 +191,12 @@ public static partial class NTDDDiskData
         public PARTITION_INFORMATION_UNION PartitionInfo;
     }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+    [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Unicode)]
     public struct DRIVE_LAYOUT_INFORMATION
     {
         public uint PartitionCount;
         public uint Signature;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 255)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
         public PARTITION_INFORMATION[] PartitionEntry;
     }
 
