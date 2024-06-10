@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:USBDevicesDemo"
         xmlns:usb="clr-namespace:USBDevicesLibrary;assembly=USBDevicesLibrary"
+        xmlns:usbInterface="clr-namespace:USBDevicesLibrary.Interfaces;assembly=USBDevicesLibrary"
         xmlns:usbDevices="clr-namespace:USBDevicesLibrary.USBDevices;assembly=USBDevicesLibrary"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
@@ -19,9 +20,9 @@
         <Grid Grid.Column="0">
             <TreeView Margin="10" x:Name="trvMain">
                 <TreeView.Resources>
-                    <HierarchicalDataTemplate DataType="{x:Type usbDevices:USBDevice}" >
+                    <HierarchicalDataTemplate DataType="{x:Type usbInterface:InterfaceBaseClass}" ItemsSource="{Binding  Children}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding StringDescriptor_Product,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Padding="5" />
+                            <TextBlock Text="{Binding Name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Padding="5" />
                         </StackPanel>
                     </HierarchicalDataTemplate>
                 </TreeView.Resources>

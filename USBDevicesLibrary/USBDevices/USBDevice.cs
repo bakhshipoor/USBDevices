@@ -1,10 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using USBDevicesLibrary.Devices;
+using USBDevicesLibrary.Interfaces;
 using static USBDevicesLibrary.Win32API.USBIOCtl;
 
 namespace USBDevicesLibrary.USBDevices;
 
-public class USBDevice
+public class USBDevice : InterfaceBaseClass
 {
     public USBDevice()
     {
@@ -21,6 +22,8 @@ public class USBDevice
         DevicePath = string.Empty;
         BaseDeviceProperties = new();
         BaseClassProperties = new();
+
+        Name = string.Empty;
     }
 
     public USBDevice(Device device) : this()
@@ -109,7 +112,9 @@ public class USBDevice
     public string DevicePath_ParentHub { get; set; }
     public uint PortIndex { get; set; }
 
-    public List<PropertiesToList> PropertiesToList()
+    public string Name { get; set; }
+
+    public override List<PropertiesToList> PropertiesToList()
     {
         List<PropertiesToList> bResponse = [];
         bResponse.Add(new PropertiesToList(){ Name = "USB Revision: " , Value = Rev_USB});

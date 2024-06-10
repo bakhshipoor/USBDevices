@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using USBDevicesLibrary;
+using USBDevicesLibrary.Interfaces;
 using USBDevicesLibrary.USBDevices;
 
 namespace USBDevicesDemo;
@@ -37,7 +38,7 @@ public partial class MainWindow : Window
     {
         if (e.NewValue != null)
         {
-            List<PropertiesToList> filedsToList = [.. ((USBDevice)e.NewValue).PropertiesToList()];
+            List<PropertiesToList> filedsToList = [.. ((InterfaceBaseClass)e.NewValue).PropertiesToList()];
             itemUSB.ItemsSource = filedsToList;
         }
     }

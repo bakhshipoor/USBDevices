@@ -486,6 +486,7 @@ internal static class USBDevicesListHelpers
             if (!string.IsNullOrEmpty(strProduct[0]))
                 usbDevice.StringDescriptor_Product_Length = Convert.ToUInt32(strProduct[0]);
             usbDevice.StringDescriptor_Product = strProduct[1];
+            usbDevice.Name = usbDevice.StringDescriptor_Product;
         }
         if (usbDevice.IndexOfSerialNumber > 0)
         {
@@ -586,8 +587,8 @@ internal static class USBDevicesListHelpers
                     pix, DISK_IOCTL[DISK_IOCTL_Enum.IOCTL_DISK_GET_DRIVE_LAYOUT_EX]);
 
             pix = (DRIVE_LAYOUT_INFORMATION_EX)decviceIOControl2.Data;
-
-            
         }
+
+        usbDevice.Add(diskDrive);
     }
 }
