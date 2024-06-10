@@ -1,26 +1,173 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Windows.Data;
-using USBDevicesLibrary.Devices;
-using static USBDevicesLibrary.Win32API.WinIOCtlData;
-using System.Dynamic;
-using System.Reflection.Metadata;
-using System.Reflection.PortableExecutable;
-using System.Diagnostics.Metrics;
-using System.Windows.Media;
-using System.Windows;
+﻿using static USBDevicesLibrary.Win32API.WinIOCtlData;
 
 namespace USBDevicesLibrary.Win32API;
 
 public static partial class NTDDStorData
 {
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/
+
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ne-ntddstor-storage_property_id
+    public enum STORAGE_PROPERTY_ID : uint
+    {
+        // The caller is querying for the device descriptor, STORAGE_DEVICE_DESCRIPTOR.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_device_descriptor
+        StorageDeviceProperty,
+        // The caller is querying for the adapter descriptor, STORAGE_ADAPTER_DESCRIPTOR.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_adapter_descriptor
+        StorageAdapterProperty,
+        // The caller is querying for the device identifiers provided with the SCSI vital product data pages. Data is returned using the STORAGE_DEVICE_ID_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_device_id_descriptor
+        StorageDeviceIdProperty,
+        // The caller is querying for the unique device identifiers. Data is returned using the STORAGE_DEVICE_UNIQUE_IDENTIFIER structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/storduid/ns-storduid-_storage_device_unique_identifier
+        StorageDeviceUniqueIdProperty,
+        // The caller is querying for the write cache property. Data is returned using the STORAGE_WRITE_CACHE_PROPERTY structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_write_cache_property
+        StorageDeviceWriteCacheProperty,
+        // Reserved for system use.
+        StorageMiniportProperty,
+        // The caller is querying for the access alignment descriptor, STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_access_alignment_descriptor
+        StorageAccessAlignmentProperty,
+        // The caller is querying for the seek penalty descriptor, DEVICE_SEEK_PENALTY_DESCRIPTOR.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_device_seek_penalty_descriptor
+        StorageDeviceSeekPenaltyProperty,
+        // The caller is querying for the trim descriptor, DEVICE_TRIM_DESCRIPTOR.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_device_trim_descriptor
+        StorageDeviceTrimProperty,
+        // Reserved for system use.
+        StorageDeviceWriteAggregationProperty,
+        // Reserved for system use.
+        StorageDeviceDeviceTelemetryProperty,
+        // The caller is querying for the logical block provisioning property. Data is returned using the DEVICE_LB_PROVISIONING_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_device_lb_provisioning_descriptor
+        StorageDeviceLBProvisioningProperty,
+        // The caller is querying for the device power descriptor. Data is returned using the DEVICE_POWER_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_device_power_descriptor
+        StorageDevicePowerProperty,
+        // The caller is querying for the copy offload parameters property. Data is returned using the DEVICE_COPY_OFFLOAD_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_device_copy_offload_descriptor
+        StorageDeviceCopyOffloadProperty,
+        // Reserved for system use.
+        StorageDeviceResiliencyProperty,
+        // The caller is querying for the medium product type. Data is returned using the STORAGE_MEDIUM_PRODUCT_TYPE_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_medium_product_type_descriptor
+        StorageDeviceMediumProductType,
+        // The caller is querying for RPMB support and properties. Data is returned using the STORAGE_RPMB_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-storage_rpmb_descriptor
+        StorageAdapterRpmbProperty,
+        // Provides information on the storage adapter encryption capabilities. This is currently supported on UFS (Universal Flash Storage) adapters.
+        StorageAdapterCryptoProperty,
+        // Reserved for system use.
+        StorageDeviceTieringProperty,
+        // Reserved for system use.
+        StorageDeviceFaultDomainProperty,
+        // Reserved for system use.
+        StorageDeviceClusportProperty,
+        // Reserved for system use.
+        StorageDeviceDependantDevicesProperty,
+        // The caller is querying for the device I/O capability property. Data is returned using the STORAGE_DEVICE_IO_CAPABILITY_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_device_io_capability_descriptor
+        StorageDeviceIoCapabilityProperty,
+        // The caller is querying for protocol-specific data from the adapter. Data is returned using the STORAGE_PROTOCOL_DATA_DESCRIPTOR structure. See the Remarks for more info.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_protocol_data_descriptor
+        StorageAdapterProtocolSpecificProperty,
+        // The caller is querying for protocol-specific data from the device. Data is returned using the STORAGE_PROTOCOL_DATA_DESCRIPTOR structure. See the Remarks for more info.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_protocol_data_descriptor
+        StorageDeviceProtocolSpecificProperty,
+        // The caller is querying temperature data from the adapter. Data is returned using the STORAGE_TEMPERATURE_DATA_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_temperature_data_descriptor
+        StorageAdapterTemperatureProperty,
+        // The caller is querying for temperature data from the device. Data is returned using the STORAGE_TEMPERATURE_DATA_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_temperature_data_descriptor
+        StorageDeviceTemperatureProperty,
+        // The caller is querying for topology information from the adapter. Data is returned using the STORAGE_PHYSICAL_TOPOLOGY_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_physical_topology_descriptor
+        StorageAdapterPhysicalTopologyProperty,
+        // The caller is querying for topology information from the device. Data is returned using the STORAGE_PHYSICAL_TOPOLOGY_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-_storage_physical_topology_descriptor
+        StorageDevicePhysicalTopologyProperty,
+        // Reserved for future use.
+        StorageDeviceAttributesProperty,
+        // The caller is querying for health information about the storage device (specifically for the persistent memory stack).
+        StorageDeviceManagementStatus,
+        // The caller is querying for the adapter serial number. Data is returned using the STORAGE_ADAPTER_SERIAL_NUMBER structure.
+        // https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ns-winioctl-storage_adapter_serial_number
+        StorageAdapterSerialNumberProperty,
+        // Reserved for system use.
+        StorageDeviceLocationProperty,
+        // The caller is querying for the non-uniform memory access (NUMA) node of the storage device.
+        StorageDeviceNumaProperty,
+        // Reserved for system use.
+        StorageDeviceZonedDeviceProperty,
+        // Provides the unsafe shutdown count value used to determine if the device data might have been lost during a power loss event (specifically for the persistent memory stack).
+        StorageDeviceUnsafeShutdownCount,
+        // The caller is querying for how many bytes have been read from or written to a solid-state drive (SSD).
+        // This property is currently supported only for Non-Volatile Memory Express (NVMe) devices that implement a certain NVMe feature.
+        StorageDeviceEnduranceProperty,
+        // The caller is querying for the LED state of the device. Data is returned using the STORAGE_DEVICE_LED_STATE_DESCRIPTOR structure.
+        // This property is currently supported only for certain NVMe devices. Supported in Windows Server 2022 and later.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-storage_device_led_state_descriptor
+        StorageDeviceLedStateProperty,
+        // The caller is querying to determine whether the device supports self encryption.
+        // Data is returned using the STORAGE_DEVICE_SELF_ENCRYPTION_PROPERTY structure. Supported in Windows Server 2022 and later.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-storage_device_self_encryption_property
+        StorageDeviceSelfEncryptionProperty,
+        // The caller is querying for the ID of a fault replacement unit (FRU).
+        // Data is returned using the STORAGE_FRU_ID_DESCRIPTOR structure. Supported in Windows Server 2022 and later.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-storage_fru_id_descriptor
+        StorageFruIdProperty,
+        // The caller is querying for the type of the storage stack, such as SCSI, NVMe, and so on. Data is returned using the STORAGE_STACK_DESCRIPTOR structure.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-storage_stack_descriptor
+        StorageStackProperty,
+        // The caller is querying for protocol-specific data from the adapter. Data is returned using the STORAGE_PROTOCOL_DATA_DESCRIPTOR_EXT structure. See the Remarks for more info.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-storage_protocol_specific_data_ext
+        StorageAdapterProtocolSpecificPropertyEx,
+        // The caller is querying for protocol-specific data from the device. Data is returned using the STORAGE_PROTOCOL_DATA_DESCRIPTOR_EXT structure. See the Remarks for more info.
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ns-ntddstor-storage_protocol_specific_data_ext
+        StorageDeviceProtocolSpecificPropertyEx,
+    }
+
+    // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddstor/ne-ntddstor-_storage_query_type
+    public enum STORAGE_QUERY_TYPE : uint
+    {
+        // Instructs the port driver to report a device descriptor, an adapter descriptor or a unique hardware device ID (DUID).
+        PropertyStandardQuery,
+        // Instructs the port driver to report whether the descriptor is supported.
+        PropertyExistsQuery,
+        // Not currently supported. Do not use.
+        PropertyMaskQuery,
+        // Specifies the upper limit of the list of query types. This is used to validate the query type.
+        PropertyQueryMaxDefined
+    }
+
+    public enum STORAGE_BUS_TYPE : uint
+    {
+        BusTypeUnknown,
+        BusTypeScsi,
+        BusTypeAtapi,
+        BusTypeAta,
+        BusType1394,
+        BusTypeSsa,
+        BusTypeFibre,
+        BusTypeUsb,
+        BusTypeRAID,
+        BusTypeiScsi,
+        BusTypeSas,
+        BusTypeSata,
+        BusTypeSd,
+        BusTypeMmc,
+        BusTypeVirtual,
+        BusTypeFileBackedVirtual,
+        BusTypeSpaces,
+        BusTypeNvme,
+        BusTypeSCM,
+        BusTypeUfs,
+        BusTypeNvmeof,
+        BusTypeMax,
+        BusTypeMaxReserved,
+    }
+
     public enum STORAGE_IOCTL_Enum
     {
         // 
@@ -238,66 +385,67 @@ public static partial class NTDDStorData
         // 
         OBSOLETE_IOCTL_STORAGE_RESET_DEVICE,
     }
-public static readonly Dictionary<STORAGE_IOCTL_Enum, uint> STORAGE_IOCTL = new Dictionary<STORAGE_IOCTL_Enum, uint>()
-{
+    
+    public static readonly Dictionary<STORAGE_IOCTL_Enum, uint> STORAGE_IOCTL = new Dictionary<STORAGE_IOCTL_Enum, uint>()
     {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_CHECK_VERIFY,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0200, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_CHECK_VERIFY2,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0200, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_MEDIA_REMOVAL,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0201, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_EJECT_MEDIA,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0202, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_LOAD_MEDIA,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0203, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_LOAD_MEDIA2,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0203, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_RESERVE,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0204, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_RELEASE,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0205, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_FIND_NEW_DEVICES,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0206, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_MANAGE_BYPASS_IO,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0230, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_EJECTION_CONTROL,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0250, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_MCN_CONTROL,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0251, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_GET_MEDIA_TYPES,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0300, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_GET_MEDIA_TYPES_EX,
-        WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0301, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
-    },
-    {
-        STORAGE_IOCTL_Enum.IOCTL_STORAGE_GET_MEDIA_SERIAL_NUMBER,
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_CHECK_VERIFY,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0200, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_CHECK_VERIFY2,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0200, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_MEDIA_REMOVAL,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0201, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_EJECT_MEDIA,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0202, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_LOAD_MEDIA,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0203, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_LOAD_MEDIA2,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0203, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_RESERVE,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0204, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_RELEASE,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0205, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_FIND_NEW_DEVICES,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0206, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_READ_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_MANAGE_BYPASS_IO,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0230, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_EJECTION_CONTROL,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0250, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_MCN_CONTROL,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0251, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_GET_MEDIA_TYPES,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0300, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_GET_MEDIA_TYPES_EX,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0301, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
+        },
+        {
+            STORAGE_IOCTL_Enum.IOCTL_STORAGE_GET_MEDIA_SERIAL_NUMBER,
             WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.IOCTL_STORAGE_BASE, 0x0304, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
         },
         {

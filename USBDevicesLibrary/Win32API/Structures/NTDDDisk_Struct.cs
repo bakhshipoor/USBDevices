@@ -80,10 +80,10 @@ public static partial class NTDDDiskData
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
     public struct DISK_GEOMETRY_EX
     {
-        DISK_GEOMETRY Geometry;
-        ulong DiskSize;
-        DISK_PARTITION_INFO PatitionInfo;
-        DISK_DETECTION_INFO DetectionInfo;
+        public DISK_GEOMETRY Geometry;
+        public ulong DiskSize;
+        public DISK_PARTITION_INFO PatitionInfo;
+        public DISK_DETECTION_INFO DetectionInfo;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]

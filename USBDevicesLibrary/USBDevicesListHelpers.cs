@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
 using USBDevicesLibrary.Devices;
+using USBDevicesLibrary.Interfaces.Storage;
 using USBDevicesLibrary.USBDevices;
 using USBDevicesLibrary.Win32API;
 using static USBDevicesLibrary.Win32API.ClassesGUID;
@@ -530,30 +531,63 @@ internal static class USBDevicesListHelpers
 
         if (diskDrivesFromSetupAPI.Count > 1 || diskDrivesFromSetupAPI.Count == 0) return;
 
-        string? devicePath = diskDrivesFromSetupAPI.FirstOrDefault()?.DevicePath;
+        string? devicePath = diskDrivesFromSetupAPI[0].DevicePath;
         if (string.IsNullOrEmpty(devicePath)) return;
-       
+
+        DiskDriveInterface diskDrive = new();
+
+        diskDrive.DevicePath = devicePath;
+        diskDrive.BaseClassProperties = diskDrivesFromSetupAPI[0].ClassProperties;
+        diskDrive.BaseDeviceProperties = diskDrivesFromSetupAPI[0].DeviceProperties;
+
+        Win32ResponseDataStruct diskDriveGeometryEx = StorageInterfaceHelpers.GetDiskDriveGeometryEx(devicePath);
+        if (diskDriveGeometryEx.Status)
+        {
+            DISK_GEOMETRY_EX diskDriveGeoEx = (DISK_GEOMETRY_EX)diskDriveGeometryEx.Data;
+            diskDrive.DiskSize = diskDriveGeoEx.DiskSize;
+            diskDrive.BytesPerSector = diskDriveGeoEx.Geometry.BytesPerSector;
+            diskDrive.TotalCylinders = diskDriveGeoEx.Geometry.Cylinders;
+            diskDrive.MediaType = diskDriveGeoEx.Geometry.MediaType;
+            diskDrive.SectorsPerTrack = diskDriveGeoEx.Geometry.SectorsPerTrack;
+            diskDrive.TracksPerCylinder = diskDriveGeoEx.Geometry.TracksPerCylinder;
+            diskDrive.Signature = diskDriveGeoEx.PatitionInfo.PartitionLayoutInfo.MBR_Signature;
+            diskDrive.TotalHeads = diskDriveGeoEx.Geometry.TracksPerCylinder;
+            diskDrive.TotalTracks = diskDrive.TracksPerCylinder * diskDrive.TotalCylinders;
+            diskDrive.TotalSectors = diskDrive.SectorsPerTrack * diskDrive.TotalTracks;
+            if (diskDrive.MediaType == MEDIA_TYPE.RemovableMedia || diskDrive.MediaType == MEDIA_TYPE.FixedMedia)
+                diskDrive.MediaLoaded = true;
+        }
+
+        Win32ResponseDataStruct diskDriveNumber = StorageInterfaceHelpers.GetDiskNumber(devicePath);
+        if (diskDriveNumber.Status)
+        {
+            STORAGE_DEVICE_NUMBER diskDriveNum = (STORAGE_DEVICE_NUMBER)diskDriveNumber.Data;
+            diskDrive.DiskNumber = diskDriveNum.DeviceNumber;
+            diskDrive.Name = $@"\\.\PHYSICALDRIVE{diskDrive.DiskNumber}";
+        }
+
+        Win32ResponseDataStruct diskDriveStorageDescriptor = StorageInterfaceHelpers.GetStorageDeviceDescriptor(devicePath);
+        if (diskDriveStorageDescriptor.Status)
+        {
+            StorageDeviceDescriptor diskDriveDescriptor = (StorageDeviceDescriptor)diskDriveStorageDescriptor.Data;
+            diskDrive.FirmwareRevision = diskDriveDescriptor.ProductRevision;
+            diskDrive.SerialNumber = diskDriveDescriptor.SerialNumber;
+            diskDrive.VendorId = diskDriveDescriptor.VendorId;
+            diskDrive.ProductId = diskDriveDescriptor.ProductId;
+            diskDrive.BusType = diskDriveDescriptor.BusType;
+            diskDrive.RemovableMedia = diskDriveDescriptor.RemovableMedia;
+        }
+
         Win32ResponseDataStruct diskHandle = Kernel32Functions.CreateDeviceHandle(devicePath, readOnly: true);
         if (diskHandle.Status)
         {
-            DISK_GEOMETRY_EX diskGeo = new();
-
-            Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)diskHandle.Data,
-                    diskGeo, DISK_IOCTL[DISK_IOCTL_Enum.IOCTL_DISK_GET_DRIVE_GEOMETRY_EX]);
-            diskGeo = (DISK_GEOMETRY_EX)decviceIOControl.Data;
-
-            int xxxx = Marshal.SizeOf(typeof(PARTITION_INFORMATION_EX));
-
             DRIVE_LAYOUT_INFORMATION_EX pix = new();
             Win32ResponseDataStruct decviceIOControl2 = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)diskHandle.Data,
                     pix, DISK_IOCTL[DISK_IOCTL_Enum.IOCTL_DISK_GET_DRIVE_LAYOUT_EX]);
 
             pix = (DRIVE_LAYOUT_INFORMATION_EX)decviceIOControl2.Data;
 
-            STORAGE_DEVICE_NUMBER dn = new();
-            Win32ResponseDataStruct decviceIOControl3 = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)diskHandle.Data,
-                    dn, STORAGE_IOCTL[STORAGE_IOCTL_Enum.IOCTL_STORAGE_GET_DEVICE_NUMBER]);
-            dn = (STORAGE_DEVICE_NUMBER)decviceIOControl3.Data;
+            
         }
     }
 }

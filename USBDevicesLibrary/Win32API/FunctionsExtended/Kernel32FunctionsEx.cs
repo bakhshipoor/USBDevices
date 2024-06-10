@@ -49,37 +49,83 @@ public static partial class Kernel32Functions
         return bResponse;
     }
 
-    public static Win32ResponseDataStruct GetDeviceIoControl<T>(SafeFileHandle fileHandle, [DisallowNull] T structure, uint ctlCode)
+    public static Win32ResponseDataStruct GetDeviceIoControl<T>(SafeFileHandle fileHandle, [DisallowNull] T structureInput, uint ctlCode, [AllowNull] object? structureOutput=null)
     {
         Win32ResponseDataStruct bResponse = new();
-        uint structureSize = (uint)Marshal.SizeOf(structure);
-        IntPtr structurePtr = Marshal.AllocHGlobal((int)structureSize);
-        Marshal.StructureToPtr(structure, structurePtr, true);
-        bool isSuccess = DeviceIoControl
-    (
-    fileHandle,
-    ctlCode,
-    structurePtr,
-    structureSize,
-    structurePtr,
-    structureSize,
-    out uint returnedSize,
-    nint.Zero
-    );
+        bool isSuccess;
+        uint structureInputSize;
+        IntPtr structureInputPtr;
+        uint structureOutputSize;
+        IntPtr structureOutputPtr;
+        uint returnedSize;
+        if (structureOutput == null)
+        {
+            structureInputSize = (uint)Marshal.SizeOf(structureInput);
+            structureInputPtr = Marshal.AllocHGlobal((int)structureInputSize);
+            Marshal.StructureToPtr(structureInput, structureInputPtr, true);
+            structureOutputSize = structureInputSize;
+            structureOutputPtr = structureInputPtr;
+            isSuccess = DeviceIoControl
+                (
+                fileHandle,
+                ctlCode,
+                structureInputPtr,
+                structureInputSize,
+                structureOutputPtr,
+                structureOutputSize,
+                out returnedSize,
+                nint.Zero
+                );
+        }
+        else
+        {
+
+            structureInputSize = (uint)Marshal.SizeOf(structureInput);
+            structureInputPtr = Marshal.AllocHGlobal((int)structureInputSize);
+            Marshal.StructureToPtr(structureInput, structureInputPtr, true);
+            structureOutputSize = (uint)Marshal.SizeOf(structureOutput);
+            structureOutputPtr = Marshal.AllocHGlobal((int)structureOutputSize);
+            Marshal.StructureToPtr(structureOutput, structureOutputPtr, true);
+            isSuccess = DeviceIoControl
+                (
+                fileHandle,
+                ctlCode,
+                structureInputPtr,
+                structureInputSize,
+                structureOutputPtr,
+                structureOutputSize,
+                out returnedSize,
+                nint.Zero
+                );
+        }
         if (isSuccess)
         {
-            T? st = Marshal.PtrToStructure<T>(structurePtr);
-            if (st != null)
-                structure = st;
-            bResponse.Status = true;
-            bResponse.Data = structure;
-            bResponse.LengthTransferred = returnedSize;
+            if (structureOutput == null)
+            {
+                T? st = Marshal.PtrToStructure<T>(structureOutputPtr);
+                if (st != null)
+                {
+                    bResponse.Status = true;
+                    bResponse.Data = st;
+                    bResponse.LengthTransferred = returnedSize;
+                }
+            }
+            else
+            {
+                var st = Marshal.PtrToStructure(structureOutputPtr, structureOutput.GetType());
+                if (st != null)
+                {
+                    bResponse.Status = true;
+                    bResponse.Data = st;
+                    bResponse.LengthTransferred = returnedSize;
+                }
+            }
         }
         else
         {
             bResponse.Status = false;
             bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
-            bResponse.ErrorFunctionName = $"DeviceIoControl [{structure.GetType().Name}]";
+            bResponse.ErrorFunctionName = $"DeviceIoControl [{structureInputSize.GetType().Name}]";
         }
         return bResponse;
     }

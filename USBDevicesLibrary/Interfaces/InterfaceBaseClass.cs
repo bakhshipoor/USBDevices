@@ -11,6 +11,6 @@ public class InterfaceBaseClass : ObservableCollection<InterfaceBaseClass>
 {
     public InterfaceBaseClass()
     {
-        
+
     }
 }
