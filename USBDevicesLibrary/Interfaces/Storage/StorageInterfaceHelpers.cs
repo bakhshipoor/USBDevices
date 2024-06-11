@@ -1,15 +1,16 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
+using USBDevicesLibrary.Devices;
 using USBDevicesLibrary.Win32API;
+using static USBDevicesLibrary.Win32API.ClassesGUID;
+using static USBDevicesLibrary.Win32API.MountMgrData;
 using static USBDevicesLibrary.Win32API.NTDDDiskData;
 using static USBDevicesLibrary.Win32API.NTDDStorData;
+using static USBDevicesLibrary.Win32API.NTDDVolData;
+using static USBDevicesLibrary.Win32API.SetupAPIData;
 
 namespace USBDevicesLibrary.Interfaces.Storage;
 
@@ -177,6 +178,9 @@ public static class StorageInterfaceHelpers
         ObservableCollection<DiskPartitionInterface> diskDrivePartitions = [];
         if (driveLayoutInfoEx.PartitionCount>0)
         {
+            // Get Volumes
+            ObservableCollection<DiskLogicalInterface> logicalDisks = GetDiskDriveVolumes(diskNumber);
+
             foreach (PARTITION_INFORMATION_EX itemPartitionInfo in driveLayoutInfoEx.PartitionEntry)
             {
                 if (itemPartitionInfo.PartitionInfo.MBR_PartitionType == PARTITION_TYPE.PARTITION_ENTRY_UNUSED)
@@ -204,10 +208,166 @@ public static class StorageInterfaceHelpers
                     partition.PartitionID = itemPartitionInfo.PartitionInfo.GPT_PartitionId;
                 }
                 partition.Name = $"Disk #{diskNumber}, Partition #{partition.PartitionNumber}";
+
+                foreach (DiskLogicalInterface itemLogicalDisk in logicalDisks)
+                {
+                    if ((itemLogicalDisk.StatingOffset == partition.StartingOffset) && (itemLogicalDisk.VolumeLength == partition.Size))
+                    {
+                        partition.Add(itemLogicalDisk);
+                    }
+                }
+                
+
                 diskDrivePartitions.Add(partition);
             }
         }
         return diskDrivePartitions;
     }
 
+    public static ObservableCollection<DiskLogicalInterface> GetDiskDriveVolumes(uint diskNumber)
+    {
+        uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
+        Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_VOLUME];
+        ObservableCollection<Device> volumesFromSetupAPI = DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags);
+        ObservableCollection<DiskLogicalInterface> logicalDisks = [];
+        foreach (Device itemVolume in volumesFromSetupAPI)
+        {
+            ulong startingOffset = 0;
+            ulong extentLength = 0;
+            Win32ResponseDataStruct volumeDiskExtents = GetVolumeDiskExtents(itemVolume.DevicePath);
+            if (volumeDiskExtents.Status)
+            {
+                bool find = false;
+                VOLUME_DISK_EXTENTS volumeDiskEx = (VOLUME_DISK_EXTENTS)volumeDiskExtents.Data;
+                uint numberOfExtents = volumeDiskExtents.LengthTransferred / 32; // 32 is VOLUME_DISK_EXTENTS size with 1 array
+                for (int i=0;i< numberOfExtents;i++)
+                {
+                    if (volumeDiskEx.Extents[i].DiskNumber== diskNumber)
+                    {
+                        find = true;
+                        startingOffset = volumeDiskEx.Extents[i].StartingOffset;
+                        extentLength = volumeDiskEx.Extents[i].ExtentLength;
+                        break;
+                    }
+                }
+                if (find)
+                {
+                    DiskLogicalInterface logicalDisk = new();
+                    logicalDisk.DiskNumber = diskNumber;
+                    logicalDisk.StatingOffset = startingOffset;
+                    logicalDisk.VolumeLength = extentLength;
+                    Win32ResponseDataStruct driveGuidPath = GetVolumeGuidPath(itemVolume.DevicePath);
+                    if (driveGuidPath.Status)
+                    {
+                        logicalDisk.DrivePathGuid = (string)driveGuidPath.Data;
+                    }
+                    string dosPath = GetVolumeDosPath(logicalDisk.DrivePathGuid);
+                    logicalDisk.DrivePathDos = dosPath;
+
+                    if (!string.IsNullOrEmpty(logicalDisk.DrivePathDos))
+                        logicalDisk.Name = logicalDisk.DrivePathDos;
+                    else
+                        logicalDisk.Name = logicalDisk.DrivePathGuid;
+
+
+                    logicalDisks.Add(logicalDisk);
+                }
+            }
+        }
+        return logicalDisks;
+    }
+
+    public static Win32ResponseDataStruct GetVolumeDiskExtents(string devicePath)
+    {
+        Win32ResponseDataStruct bresponse = new();
+        Win32ResponseDataStruct volumeHandle = Kernel32Functions.CreateDeviceHandle(devicePath, readOnly: true);
+        if (volumeHandle.Status)
+        {
+            VOLUME_DISK_EXTENTS volumeDiskExtents = new();
+            Win32ResponseDataStruct decviceIOControl = Kernel32Functions.GetDeviceIoControl((SafeFileHandle)volumeHandle.Data,
+                    volumeDiskExtents, VOLUME_IOCTL[VOLUME_IOCTL_Enum.IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS]);
+            if (decviceIOControl.Status)
+            {
+                bresponse.Status = true;
+                bresponse.Data = decviceIOControl.Data;
+                bresponse.LengthTransferred = decviceIOControl.LengthTransferred;
+            }
+            ((SafeFileHandle)volumeHandle.Data).Close();
+        }
+        return bresponse;
+    }
+
+    public static Win32ResponseDataStruct GetVolumeGuidPath(string devicePath)
+    {
+        Win32ResponseDataStruct bResponse = new();
+        StringBuilder volumeGuidPath = new(260);
+        volumeGuidPath.Length = 260;
+        bool isSuccess = Kernel32Functions.GetVolumeNameForVolumeMountPoint(devicePath + "\\", volumeGuidPath, (uint)volumeGuidPath.Length);
+        if (isSuccess)
+        {
+            bResponse.Status = true;
+            bResponse.Data = volumeGuidPath.ToString();
+        }
+        else
+        {
+            bResponse.Status = false;
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+        }
+        return bResponse;
+    }
+
+    public static List<string> GetLogicalDriveStrings()
+    {
+        List<string> bResponse = [];
+        byte[] byteDriveLetters = new byte[1024];
+        int lenghtTransfered = Kernel32Functions.GetLogicalDriveStrings(byteDriveLetters.Length, byteDriveLetters);
+        int win32ErrorCode = Marshal.GetLastWin32Error();
+        string win32ErrorMessage = new Win32Exception(win32ErrorCode).Message;
+        if (lenghtTransfered != 0)
+        {
+            byte[] byteFinalDriveLetters = new byte[lenghtTransfered];
+            Array.Copy(byteDriveLetters, byteFinalDriveLetters, lenghtTransfered);
+            bResponse = Encoding.ASCII.GetString(byteFinalDriveLetters).Remove(lenghtTransfered-1,1).Split('\0').ToList();
+        }
+        return bResponse;
+    }
+
+    public static string GetVolumeDosPath(string volumeGuidPath)
+    {
+        string bResponse = string.Empty;
+        List<string> driveLetters = GetLogicalDriveStrings();
+        foreach (string itemDriveLetter in driveLetters)
+        {
+            Win32ResponseDataStruct guidPath = GetVolumeGuidPath(itemDriveLetter);
+            if (volumeGuidPath.Equals((string)guidPath.Data,StringComparison.OrdinalIgnoreCase))
+            {
+                bResponse = itemDriveLetter;
+                break;
+            }
+        }
+        return bResponse;
+    }
 }
+
+
+/*
+
+            uint volumeSerialNumber;
+            uint maximumComponentLength;
+            uint fileSystemFlags;
+
+            StringBuilder dcdc2 = new(200);
+            dcdc2.Length = 200;
+            StringBuilder dcdc3 = new(200);
+            dcdc3.Length = 200;
+            bool ss2 = Kernel32Functions.GetVolumeInformation(dcdc.ToString(), dcdc2, 200,out volumeSerialNumber,
+                out maximumComponentLength,
+                out fileSystemFlags,
+                dcdc3,
+                200);
+            string err2 = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+
+            
+
+
+*/

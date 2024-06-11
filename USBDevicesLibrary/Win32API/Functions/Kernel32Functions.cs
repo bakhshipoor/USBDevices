@@ -3,6 +3,7 @@ using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/
@@ -115,5 +116,86 @@ public static unsafe partial class Kernel32Functions
         [Out] IntPtr FileObject,
         [Out] IntPtr DeviceObject
         );
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern bool GetVolumeInformation(
+            string rootPathName,
+            StringBuilder volumeNameBuffer,
+            int volumeNameSize,
+            out uint volumeSerialNumber,
+            out uint maximumComponentLength,
+            out uint fileSystemFlags,
+            StringBuilder fileSystemNameBuffer,
+            int nFileSystemNameSize);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetVolumePathName(
+                string volumeName,
+                StringBuilder volumePathName,
+                uint bufferLength);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.U4)]
+    public static extern uint GetShortPathName(
+                string volumeLongPath,
+                StringBuilder volumeShortPath,
+                uint bufferLength);
+
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.U4)]
+    public static extern uint GetFullPathName(
+                string volumeFileNam,
+                uint BufferLength,
+                [Out] StringBuilder volumeShortPath,
+                IntPtr volumeFilePart);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern IntPtr FindFirstVolumeMountPoint([In] string VolumeName, [Out] StringBuilder lpszVolumeName,
+           int cchBufferLength);
+
+
+    [DllImport("kernel32.dll", SetLastError = false, CharSet = CharSet.Ansi)]
+    public static extern int GetLogicalDriveStrings(int nBufferLength,[Out] byte[] lpBuffer);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    public struct WIN32_DRV_STR
+    {
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 260)]
+        public byte[] cFileName;
+        
+    }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern IntPtr FindFirstFile(string lpFileName, out WIN32_FIND_DATA lpFindFileData);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    public struct WIN32_FIND_DATA
+    {
+        public uint dwFileAttributes;
+        public System.Runtime.InteropServices.ComTypes.FILETIME ftCreationTime;
+        public System.Runtime.InteropServices.ComTypes.FILETIME ftLastAccessTime;
+        public System.Runtime.InteropServices.ComTypes.FILETIME ftLastWriteTime;
+        public uint nFileSizeHigh;
+        public uint nFileSizeLow;
+        public uint dwReserved0;
+        public uint dwReserved1;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+        public string cFileName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
+        public string cAlternateFileName;
+    }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern IntPtr FindFirstVolume([Out] StringBuilder lpszVolumeName, uint cchBufferLength);
+
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern bool GetVolumeNameForVolumeMountPoint(
+       [In] string lpszVolumeMountPoint,
+      [Out] StringBuilder lpszVolumeName,
+      [In] uint cchBufferLength);
+
 }
 

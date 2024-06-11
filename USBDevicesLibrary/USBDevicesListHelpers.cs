@@ -609,6 +609,8 @@ internal static class USBDevicesListHelpers
             }
         }
 
+        
+
         usbDevice.Add(diskDrive);
     }
 }

@@ -13,27 +13,9 @@ public class DiskLogicalInterface : InterfaceBaseClass
 
     }
 
-    public string? Caption { get; set; }
-    public string? Description { get; set; }
-    public DateTime? InstallDate { get; set; }
+    
     public string? Name { get; set; }
-    public string? Status { get; set; }
-
-    public ushort? Availability { get; set; }
-    public uint? ConfigManagerErrorCode { get; set; }
-    public bool? ConfigManagerUserConfig { get; set; }
-    public string? CreationClassName { get; set; }
-    public string? DeviceID { get; set; }
-    public List<ushort> PowerManagementCapabilities { get; set; }
-    public bool? ErrorCleared { get; set; }
-    public string? ErrorDescription { get; set; }
-    public uint? LastErrorCode { get; set; }
-    public string? PNPDeviceID { get; set; }
-    public bool? PowerManagementSupported { get; set; }
-    public ushort? StatusInfo { get; set; }
-    public string? SystemCreationClassName { get; set; }
-    public string? SystemName { get; set; }
-
+  
     public ulong? BlockSize { get; set; }
     public string? ErrorMethodology { get; set; }
     public ulong? NumberOfBlocks { get; set; }
@@ -57,4 +39,13 @@ public class DiskLogicalInterface : InterfaceBaseClass
     public bool? VolumeDirty { get; set; }
     public string? VolumeName { get; set; }
     public string? VolumeSerialNumber { get; set; }
+
+    // 1
+    public uint DiskNumber {  get; set; }
+    public ulong StatingOffset {  get; set; }
+    public ulong VolumeLength {  get; set; }
+
+    //2
+    public string DrivePathGuid { get; set; }
+    public string DrivePathDos { get; set; }
 }

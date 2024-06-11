@@ -118,6 +118,8 @@ public static partial class WinIOCtlData
         FILE_DEVICE_EVENT_COLLECTOR = 0X0000005F,
         FILE_DEVICE_USB4 = 0X00000060,
         FILE_DEVICE_SOUNDWIRE = 0X00000061,
+        MOUNTMGRCONTROLTYPE = 0x0000006D, // 'm'
+        MOUNTDEVCONTROLTYPE = 0x0000004D, // 'M'
     }
 
     // Define the method codes for how buffers are passed for I/O and FS controls

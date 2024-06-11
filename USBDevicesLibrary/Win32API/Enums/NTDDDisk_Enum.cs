@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -87,6 +89,43 @@ public static partial class NTDDDiskData
         PARTITION_SPACES = 0xE7,                // Storage Spaces protective partition
         PARTITION_GPT = 0xEE,                   // Gpt protective partition
         PARTITION_SYSTEM = 0xEF,                // System partition
+    }
+
+    // https://learn.microsoft.com/en-us/windows/win32/api/winioctl/ns-winioctl-partition_information_gpt
+    public enum GPT_PARTITION_TYPE 
+    {
+        // There is no partition.
+        // This value can be set for basic and dynamic disks.
+        // "00000000-0000-0000-0000-000000000000"
+        PARTITION_ENTRY_UNUSED_GUID,
+        // The data partition type that is created and recognized by Windows.
+        // Only partitions of this type can be assigned drive letters, receive volume GUID paths, host mounted folders (also called volume mount points),
+        // and be enumerated by calls to FindFirstVolume and FindNextVolume.
+        // This value can be set only for basic disks, with one exception.If both PARTITION_BASIC_DATA_GUID and GPT_ATTRIBUTE_PLATFORM_REQUIRED are set for a
+        // partition on a basic disk that is subsequently converted to a dynamic disk, the partition remains a basic partition, even though the rest of
+        // the disk is a dynamic disk.This is because the partition is considered to be an OEM partition on a GPT disk.
+        // "ebd0a0a2-b9e5-4433-87c0-68b6b72699c7"
+        PARTITION_BASIC_DATA_GUID,
+        // The partition is an EFI system partition.
+        // This value can be set for basic and dynamic disks.
+        // "c12a7328-f81f-11d2-ba4b-00a0c93ec93b"
+        PARTITION_SYSTEM_GUID,
+        // The partition is a Microsoft reserved partition.
+        // This value can be set for basic and dynamic disks.
+        // "e3c9e316-0b5c-4db8-817d-f92df00215ae"
+        PARTITION_MSFT_RESERVED_GUID,
+        // The partition is a Logical Disk Manager (LDM) metadata partition on a dynamic disk.
+        // This value can be set only for dynamic disks.
+        // "5808c8aa-7e8f-42e0-85d2-e1e90434cfb3"
+        PARTITION_LDM_METADATA_GUID,
+        // The partition is an LDM data partition on a dynamic disk.
+        // This value can be set only for dynamic disks.
+        // "af9b60a0-1431-4f62-bc68-3311714a69ad"
+        PARTITION_LDM_DATA_GUID,
+        // The partition is a Microsoft recovery partition.
+        // This value can be set for basic and dynamic disks.
+        // "de94bba4-06d1-4d40-a16a-bfd50179d6ac"
+        PARTITION_MSFT_RECOVERY_GUID,
     }
 
     public enum DISK_IOCTL_Enum
