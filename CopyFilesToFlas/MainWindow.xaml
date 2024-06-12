@@ -118,7 +118,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <!-- Buttons -->
-                <Border Grid.Row="0" Margin="5 10" Background="AliceBlue" Padding="5" BorderBrush="SteelBlue" BorderThickness="1.5" CornerRadius="5" SnapsToDevicePixels="True" ClipToBounds="True">
+                <Border Grid.Row="0" Margin="5 10" Background="LightPink" Padding="5" BorderBrush="IndianRed" BorderThickness="1.5" CornerRadius="5" SnapsToDevicePixels="True" ClipToBounds="True">
                     <Grid>
                         <Button HorizontalAlignment="Left" Content="Start" Margin="5" Padding="5" Width="100"/>
                         <Button HorizontalAlignment="Right" Content="Stop" Margin="5" Padding="5" Width="100"/>
