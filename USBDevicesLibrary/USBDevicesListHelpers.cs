@@ -22,6 +22,7 @@ internal static class USBDevicesListHelpers
     public static bool DisconnectedEventStatus { get; set; }
     public static bool ModifiedEventStatus { get; set; }
     public static bool FilterDeviceStatus { get; set; }
+    public static bool CheckInterfacesStatus { get; set; }
     public static List<USBDevicesFilter> USBDevicesFilterList { get; set; } = [];
 
     public static List<HUB_CHARACHTERISTICS> ExtractHubCharachteristics(ushort charachteristics)
@@ -506,7 +507,7 @@ internal static class USBDevicesListHelpers
             }
             usbDevice.ConfigurationDescriptors.Add(configurationDescriptor);
         }
-        if (usbDevice.BaseDeviceProperties.Device_Service.Contains("USBSTOR",StringComparison.OrdinalIgnoreCase))
+        if (CheckInterfacesStatus && usbDevice.BaseDeviceProperties.Device_Service.Contains("USBSTOR",StringComparison.OrdinalIgnoreCase))
         {
             GetDiskDriveInterface(usbDevice);
         }

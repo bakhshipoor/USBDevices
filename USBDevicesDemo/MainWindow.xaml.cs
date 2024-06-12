@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using USBDevicesLibrary;
 using USBDevicesLibrary.Interfaces;
 using USBDevicesLibrary.USBDevices;
@@ -42,5 +43,6 @@ public partial class MainWindow : Window
             itemUSB.ItemsSource = filedsToList;
         }
     }
+
 }
 

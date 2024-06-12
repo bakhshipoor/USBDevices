@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\flashdrive.ico</ApplicationIcon>
+    <Title>Copy Files To Flash</Title>
+    <Description>Usinf USBDevicesLibrary to copy files to specified flash memory</Description>
+    <PackageIcon>flashdrive.png</PackageIcon>
+    <RepositoryUrl>https://github.com/bakhshipoor/USBDevices</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\file.png" />
+    <None Remove="Assets\flashdrive.png" />
+    <None Remove="Assets\usb.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\flashdrive.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\file.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\flashdrive.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\usb.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+</Project>

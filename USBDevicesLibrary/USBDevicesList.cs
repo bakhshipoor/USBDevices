@@ -41,6 +41,12 @@ public class USBDevicesList
         set { USBDevicesListHelpers.FilterDeviceStatus = value; }
     }
 
+    public static bool CheckInterfacesStatus
+    {
+        get { return USBDevicesListHelpers.CheckInterfacesStatus; }
+        set { USBDevicesListHelpers.CheckInterfacesStatus = value; }
+    }
+
     public USBDevicesList()
     {
         USBHubs = [];
@@ -53,6 +59,7 @@ public class USBDevicesList
         ConnectedEventStatus = true;
         ModifiedEventStatus = true;
         FilterDeviceStatus = false;
+        CheckInterfacesStatus = false;
 
         USBDevices.CollectionChanged += USBDevices_CollectionChanged;
     }

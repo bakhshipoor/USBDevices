@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34601.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USBDevicesLibrary", "USBDevicesLibrary\USBDevicesLibrary.csproj", "{75924F42-796E-47C6-9868-AAC5F41CA92F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "USBDevicesLibrary", "USBDevicesLibrary\USBDevicesLibrary.csproj", "{75924F42-796E-47C6-9868-AAC5F41CA92F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "USBDevicesDemo", "USBDevicesDemo\USBDevicesDemo.csproj", "{796DDF50-9FDF-42D5-9533-AF5AB462E150}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "USBDevicesDemo", "USBDevicesDemo\USBDevicesDemo.csproj", "{796DDF50-9FDF-42D5-9533-AF5AB462E150}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CopyFilesToFlash", "CopyFilesToFlas\CopyFilesToFlash.csproj", "{BE47B30D-0CF1-4561-86ED-030F52F253A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{796DDF50-9FDF-42D5-9533-AF5AB462E150}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{796DDF50-9FDF-42D5-9533-AF5AB462E150}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{796DDF50-9FDF-42D5-9533-AF5AB462E150}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE47B30D-0CF1-4561-86ED-030F52F253A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE47B30D-0CF1-4561-86ED-030F52F253A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE47B30D-0CF1-4561-86ED-030F52F253A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE47B30D-0CF1-4561-86ED-030F52F253A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
