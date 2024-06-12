@@ -21,7 +21,6 @@ public class DiskDriveInterface : InterfaceBaseClass
 
         //Capabilities = [];
         //CapabilityDescriptions = [];
-
         //CompressionMethod = string.Empty;
         //ErrorMethodology = string.Empty;
         DeviceRevision = string.Empty;
@@ -52,9 +51,6 @@ public class DiskDriveInterface : InterfaceBaseClass
     //public ulong MinBlockSize { get; set; }
     //public bool NeedsCleaning { get; set; }
     //public uint NumberOfMediaSupported { get; set; }
-
-    
-    
 
     // Disk Geo
     public ulong DiskSize { get; set; }

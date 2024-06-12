@@ -14,24 +14,19 @@ public class DiskPartitionInterface : InterfaceBaseClass
     public DiskPartitionInterface()
     {
         //IdentifyingDescriptions = [];
-
         //ErrorMethodology = string.Empty;
         //Purpose = string.Empty;
 
         Name = string.Empty;
+        GPT_Name = string.Empty;
     }
-
-    
 
     //public ulong BlockSize { get; set; }
     //public string ErrorMethodology { get; set; }
     //public ulong NumberOfBlocks { get; set; }
     //public string Purpose { get; set; }
-
     //public ushort Access { get; set; }
-    
     //public bool PrimaryPartition { get; set; }
-
     //public ushort AdditionalAvailability { get; set; }
     //public List<string> IdentifyingDescriptions { get; set; }
     //public ulong MaxQuiesceTime { get; set; }
@@ -39,13 +34,7 @@ public class DiskPartitionInterface : InterfaceBaseClass
     //public ulong PowerOnHours { get; set; }
     //public ulong TotalPowerOnHours { get; set; }
     //public bool BootPartition { get; set; }
-    
-   
-    
-    
-    
-    
-    
+ 
 
     // Drive Layout Information
     public string Name { get; set; }

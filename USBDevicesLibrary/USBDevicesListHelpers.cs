@@ -599,7 +599,7 @@ internal static class USBDevicesListHelpers
                 diskDrive.GPT_UsableLength = driveLayoutInfoEx.DriveInfo.GPT_UsableLength;
             }
 
-            ObservableCollection<DiskPartitionInterface> partitions = StorageInterfaceHelpers.GetDiskDrivePartitions(driveLayoutInfoEx, diskDrive.DiskNumber);
+            ObservableCollection<DiskPartitionInterface> partitions = StorageInterfaceHelpers.GetDiskDrivePartitions(driveLayoutInfoEx, diskDrive);
             if (partitions.Count>0)
             {
                 foreach (DiskPartitionInterface itemPartition in partitions)

@@ -1,21 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows;
-using USBDevicesLibrary.Devices;
-using USBDevicesLibrary.USBDevices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static USBDevicesLibrary.Win32API.USBIOCtl;
-using static USBDevicesLibrary.Win32API.USBSpec;
-
-namespace USBDevicesLibrary.Win32API;
+﻿namespace USBDevicesLibrary.Win32API;
 
 public static partial class WinIOCtlData
 {
@@ -149,5 +132,27 @@ public static partial class WinIOCtlData
         FILE_WRITE_ACCESS = (0x0002),    // file & pipe
     }
 
+    //  Output flags for the FSCTL_IS_VOLUME_DIRTY is a DWORD
+    public enum VOLUME_DIRTY : uint
+    {
+        // The volume is dirty.
+        VOLUME_IS_DIRTY = 0x00000001,
+        // This value is not currently used.
+        VOLUME_UPGRADE_SCHEDULED = 0x00000002,
+        // 
+        VOLUME_SESSION_OPEN = 0x00000004,
+    }
 
+    public enum WINIOCTL_IOCTL_Enum
+    {
+        FSCTL_IS_VOLUME_DIRTY,
+    }
+
+    public static readonly Dictionary<WINIOCTL_IOCTL_Enum, uint> WINIOCTL_IOCTL = new Dictionary<WINIOCTL_IOCTL_Enum, uint>()
+    {
+        {
+            WINIOCTL_IOCTL_Enum.FSCTL_IS_VOLUME_DIRTY,
+            WinIOCtlFunctions.CTL_CODE( DEVICE_TYPES.FILE_DEVICE_FILE_SYSTEM, 30, METHOD_CODES.METHOD_BUFFERED, FILE_ACCESS.FILE_ANY_ACCESS)
+        },
+    };
 }

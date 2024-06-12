@@ -168,26 +168,6 @@ public static unsafe partial class Kernel32Functions
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    public static extern IntPtr FindFirstFile(string lpFileName, out WIN32_FIND_DATA lpFindFileData);
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    public struct WIN32_FIND_DATA
-    {
-        public uint dwFileAttributes;
-        public System.Runtime.InteropServices.ComTypes.FILETIME ftCreationTime;
-        public System.Runtime.InteropServices.ComTypes.FILETIME ftLastAccessTime;
-        public System.Runtime.InteropServices.ComTypes.FILETIME ftLastWriteTime;
-        public uint nFileSizeHigh;
-        public uint nFileSizeLow;
-        public uint dwReserved0;
-        public uint dwReserved1;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-        public string cFileName;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
-        public string cAlternateFileName;
-    }
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     public static extern IntPtr FindFirstVolume([Out] StringBuilder lpszVolumeName, uint cchBufferLength);
 
 
@@ -196,6 +176,24 @@ public static unsafe partial class Kernel32Functions
        [In] string lpszVolumeMountPoint,
       [Out] StringBuilder lpszVolumeName,
       [In] uint cchBufferLength);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern bool 
+        GetDiskFreeSpace
+        (
+        string lpRootPathName,
+        out uint lpSectorsPerCluster,
+        out uint lpBytesPerSector,
+        out uint lpNumberOfFreeClusters,
+        out uint lpTotalNumberOfClusters
+        );
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern uint
+        GetDriveType
+        (
+        string lpRootPathName
+        );
 
 }
 
