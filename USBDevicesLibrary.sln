@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "USBDevicesLibrary", "USBDev
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "USBDevicesDemo", "USBDevicesDemo\USBDevicesDemo.csproj", "{796DDF50-9FDF-42D5-9533-AF5AB462E150}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CopyFilesToFlash", "CopyFilesToFlas\CopyFilesToFlash.csproj", "{BE47B30D-0CF1-4561-86ED-030F52F253A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CopyFilesToFlash", "CopyFilesToFlash\CopyFilesToFlash.csproj", "{BE47B30D-0CF1-4561-86ED-030F52F253A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
