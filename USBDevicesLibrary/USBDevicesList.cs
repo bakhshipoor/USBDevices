@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
 using USBDevicesLibrary.Devices;
 using USBDevicesLibrary.Events;
 using USBDevicesLibrary.USBDevices;
@@ -20,28 +21,28 @@ public class USBDevicesList
 
     public bool InitialCompleted { get; set; }
 
-    public static bool ConnectedEventStatus 
+    public bool ConnectedEventStatus 
     { 
         get { return USBDevicesListHelpers.ConnectedEventStatus; } 
         set { USBDevicesListHelpers.ConnectedEventStatus = value; } 
     }
-    public static bool DisconnectedEventStatus
+    public bool DisconnectedEventStatus
     {
         get { return USBDevicesListHelpers.DisconnectedEventStatus; }
         set { USBDevicesListHelpers.DisconnectedEventStatus = value; }
     }
-    public static bool ModifiedEventStatus
+    public bool ModifiedEventStatus
     {
         get { return USBDevicesListHelpers.ModifiedEventStatus; }
         set { USBDevicesListHelpers.ModifiedEventStatus = value; }
     }
-    public static bool FilterDeviceStatus
+    public bool FilterDeviceStatus
     {
         get { return USBDevicesListHelpers.FilterDeviceStatus; }
         set { USBDevicesListHelpers.FilterDeviceStatus = value; }
     }
 
-    public static bool CheckInterfacesStatus
+    public bool CheckInterfacesStatus
     {
         get { return USBDevicesListHelpers.CheckInterfacesStatus; }
         set { USBDevicesListHelpers.CheckInterfacesStatus = value; }
@@ -96,6 +97,9 @@ public class USBDevicesList
 
     public void Start()
     {
+        USBHubs.Clear();
+        USBDevicesFromSetupAPI.Clear();
+        USBDevices.Clear();
         USBDevicesListHelpers.UpdateHubCollection(USBHubs);
         USBDevicesListHelpers.UpdateUSBDevicesFromSetupAPICollection(USBDevicesFromSetupAPI);
         USBDevicesListHelpers.UpdateUSBDevicesCollection(USBHubs, USBDevicesFromSetupAPI, USBDevices);
@@ -119,99 +123,23 @@ public class USBDevicesList
     /// <param name="idVendor">String just for 'Hexadecimal' value. UInt16 or ushort for decimal values.</param>
     /// <param name="idProduct">String just for 'Hexadecimal' value. UInt16 or ushort for decimal values.</param>
     /// <returns>Return True if Add successful or False if unsuccessfull</returns>
-    public static bool AddDeviceToFilter(object idVendor, object? idProduct=null)
+    public void SetDeviceToFilter(object idVendor, [AllowNull] object? idProduct=null, [AllowNull] string? service=null)
     {
-        bool find = false;
-        uint _VID = 0;
-        uint _PID = 0;
-        bool bResponse = false;
-
-        if (idVendor == null) return bResponse;
-
         string? strVID = string.Format("{0:X4}", idVendor).ToUpper().Trim();
-        if (!string.IsNullOrEmpty(strVID) && strVID.Length < 5 )
-            if (strVID.ToCharArray().All(char.IsAsciiHexDigit))
-                _VID = Convert.ToUInt16(strVID, 16);
         
-        if (idProduct != null)
-        {
-            string? strPID = string.Format("{0:X4}", idProduct).ToUpper().Trim();
-            if (!string.IsNullOrWhiteSpace(strPID) && strPID.Length < 5)
-                if (strPID.ToCharArray().All(char.IsAsciiHexDigit))
-                    _PID = Convert.ToUInt16(strPID, 16);
-        }
-
-        if (_VID==0) return bResponse;
-
-        foreach (USBDevicesFilter itemFilter in USBDevicesListHelpers.USBDevicesFilterList)
-        {
-            if (itemFilter.IDVendor == _VID && itemFilter.IDProduct == _PID)
-            {
-                find = true;
-                break;
-            }
-        }
-
-        if (!find)
-        {
-            USBDevicesListHelpers.USBDevicesFilterList.Add(new USBDevicesFilter { IDVendor = (ushort)_VID, IDProduct = (ushort)_PID });
-            bResponse = true;
-        }
-
-        return bResponse;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="idVendor">String just for 'Hexadecimal' value. UInt16 or ushort for decimal values.</param>
-    /// <param name="idProduct">String just for 'Hexadecimal' value. UInt16 or ushort for decimal values.</param>
-    /// <returns>Return True if Remove successful or False if unsuccessfull</returns>
-    public static bool RemoveDeviceFromFilter(object idVendor, object? idProduct=null)
-    {
-        bool find = false;
-        uint _VID = 0;
-        uint _PID = 0;
-        bool bResponse = false;
-
-        if (idVendor == null) return bResponse;
-
-        string? strVID = string.Format("{0:X4}", idVendor).ToUpper().Trim();
-        if (!string.IsNullOrEmpty(strVID) && strVID.Length < 5)
             if (strVID.ToCharArray().All(char.IsAsciiHexDigit))
-                _VID = Convert.ToUInt16(strVID, 16);
-
-        if (idProduct != null)
+                USBDevicesListHelpers.USBDevicesFilterData.IDVendor = strVID;
+        
+        string? strPID = string.Format("{0:X4}", idProduct).ToUpper().Trim();
+        
+            if (strPID.ToCharArray().All(char.IsAsciiHexDigit))
+                USBDevicesListHelpers.USBDevicesFilterData.IDProduct = strPID;
+        
+        if (service != null)
         {
-            string? strPID = string.Format("{0:X4}", idProduct).ToUpper().Trim();
-            if (!string.IsNullOrWhiteSpace(strPID) && strPID.Length < 5)
-                if (strPID.ToCharArray().All(char.IsAsciiHexDigit))
-                    _PID = Convert.ToUInt16(strPID, 16);
+            USBDevicesListHelpers.USBDevicesFilterData.Service = service;
         }
-
-        if (_VID == 0) return bResponse;
-
-        USBDevicesFilter devicesFilter = new();
-        foreach (USBDevicesFilter item in USBDevicesListHelpers.USBDevicesFilterList)
-        {
-            if (item.IDVendor == (ushort)_VID && item.IDProduct == (ushort)_PID)
-            {
-                find = true;
-                devicesFilter = item;
-                break;
-            }
-        }
-        if (find)
-        {
-            USBDevicesListHelpers.USBDevicesFilterList.Remove(devicesFilter);
-            bResponse = true;
-        }
-        return bResponse;
     }
 
-    public static List<USBDevicesFilter> GetDevicesFromFilter()
-    {
-        // Create new list. If you modified this list not changes USBDevicesFilterList.
-        return [.. USBDevicesListHelpers.USBDevicesFilterList];
-    }
+    
 }

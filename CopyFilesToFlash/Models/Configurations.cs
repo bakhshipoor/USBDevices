@@ -10,6 +10,7 @@ namespace CopyFilesToFlash.Models;
 public class Configurations : ViewModelBase
 {
     private readonly MainViewModel mainViewModel;
+
     public Configurations(MainViewModel _MainViewModel)
     {
         mainViewModel = _MainViewModel;
@@ -29,8 +30,9 @@ public class Configurations : ViewModelBase
             }
             _VID = value.ToUpper(); 
 			OnPropertyChanged(nameof(VID)); 
-			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).VID = value; 
-		}
+			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).VID = value;
+            mainViewModel.UpdateUSBFilter();
+        }
 	}
 
 	private string _PID;
@@ -45,22 +47,33 @@ public class Configurations : ViewModelBase
             }
             _PID = value.ToUpper(); 
 			OnPropertyChanged(nameof(PID)); 
-			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).PID = value; 
-		}
+			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).PID = value;
+            mainViewModel.UpdateUSBFilter();
+        }
 	}
 
 	private bool _Format;
 	public bool Format
 	{
 		get { return _Format; }
-		set { _Format = value; OnPropertyChanged(nameof(Format)); ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Format = value; }
+		set 
+		{ 
+			_Format = value; 
+			OnPropertyChanged(nameof(Format)); 
+			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Format = value; 
+		}
 	}
 
 	private bool _Eject;
 	public bool Eject
 	{
 		get { return _Eject; }
-		set { _Eject = value; OnPropertyChanged(nameof(Eject)); ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Eject = value; }
+		set 
+		{ 
+			_Eject = value; 
+			OnPropertyChanged(nameof(Eject)); 
+			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Eject = value; 
+		}
 	}
 
 

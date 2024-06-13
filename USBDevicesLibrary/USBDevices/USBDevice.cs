@@ -162,13 +162,13 @@ public class USBDevice : InterfaceBaseClass
         List<string> bResponse = [];
         if (BaseDeviceProperties.Device_Service.Contains("USBSTOR", StringComparison.OrdinalIgnoreCase))
         {
-            foreach (DiskDriveInterface itemDiskDrive in Children)
+            foreach (DiskDriveInterface itemDiskDrive in this)
             {
                 foreach (DiskPartitionInterface itemPartitions in itemDiskDrive.Children)
                 {
                     foreach (DiskLogicalInterface itemLogicalDrive in itemPartitions.Children)
                     {
-                        bResponse.Add(Name);
+                        bResponse.Add(itemLogicalDrive.Name);
                     }
                 }
             }

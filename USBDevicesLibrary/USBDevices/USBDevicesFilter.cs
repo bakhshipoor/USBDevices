@@ -10,9 +10,12 @@ public class USBDevicesFilter
 {
     public USBDevicesFilter()
     {
-        
+        IDVendor = string.Empty;
+        IDProduct = string.Empty;
+        Service = string.Empty;
     }
 
-    public ushort IDVendor { get; set; }
-    public ushort IDProduct { get; set; }
+    public string IDVendor { get; set; }
+    public string IDProduct { get; set; }
+    public string Service {  get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Cryptography;
@@ -14,7 +15,7 @@ namespace USBDevicesLibrary.Devices;
 
 public static class DeviceHelpers
 {
-    public static ObservableCollection<Device> GetClassDevicesWithProperties(Guid classGuid, string enumString, uint flags, [AllowNull] bool filterStatus=false, [AllowNull] List<USBDevicesFilter> filterList=null, [AllowNull] string parentID=null)
+    public static ObservableCollection<Device> GetClassDevicesWithProperties(Guid classGuid, string enumString, uint flags, [AllowNull] bool filterStatus=false, [AllowNull] USBDevicesFilter filterData=null, [AllowNull] string parentID=null)
     {
         ObservableCollection<Device> devices = [];
         Win32ResponseDataStruct devicesHandle = SetupAPIFunctions.GetClassDevices(classGuid, enumString, IntPtr.Zero, flags);
@@ -36,61 +37,6 @@ public static class DeviceHelpers
                 }
 
                 SP_DEVINFO_DATA deviceInfoData = (SP_DEVINFO_DATA)enumDeviceInfo.Data;
-
-                // Check Filter
-                if (filterStatus && filterList!=null && filterList.Count>0)
-                {
-                    string strDeviceID = string.Empty;
-                    Win32ResponseDataStruct deviceID = SetupAPIFunctions.GetDeviceId(hDevInfo, deviceInfoData);
-                    if (deviceID.Status)
-                    {
-                        if (!string.IsNullOrEmpty((string)deviceID.Data))
-                            strDeviceID = (string)deviceID.Data;
-                    }
-                    if (!string.IsNullOrEmpty(strDeviceID))
-                    {
-                        int indexofVID = strDeviceID.IndexOf("VID", StringComparison.OrdinalIgnoreCase);
-                        int indexofPID = strDeviceID.IndexOf("PID", StringComparison.OrdinalIgnoreCase);
-                        string strVID = indexofVID >= 0 ? strDeviceID.Substring(indexofVID + 4, 4) : string.Empty;
-                        string strPID = indexofVID >= 0 ? strDeviceID.Substring(indexofPID + 4, 4) : string.Empty;
-                        if (!string.IsNullOrEmpty(strVID) && strVID.Length<5 && !string.IsNullOrEmpty(strPID) && strPID.Length<5)
-                        {
-                            if (strVID.ToCharArray().All(char.IsAsciiHexDigit) && strPID.ToCharArray().All(char.IsAsciiHexDigit))
-                            {
-                                ushort VID = Convert.ToUInt16(strVID, 16);
-                                ushort PID = Convert.ToUInt16(strPID, 16);
-                                bool findFilter = false;
-                                foreach (USBDevicesFilter itemFilter in filterList)
-                                {
-                                    if (itemFilter.IDVendor == VID)
-                                    {
-                                        if (itemFilter.IDProduct > 0)
-                                        {
-                                            if (itemFilter.IDProduct == PID)
-                                            {
-                                                findFilter = true;
-                                                break;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            findFilter = true;
-                                            break;
-                                        }
-                                    }
-                                    else
-                                        findFilter = false;
-                                }
-                                if (!findFilter)
-                                {
-                                    memberIndex++;
-                                    continue;
-                                }
-                            }
-                        }
-                        
-                    }
-                }
 
                 // Get Device Properties 
                 Win32ResponseDataStruct devicePropertyKeyArray = SetupAPIFunctions.GetDevicePropertyKeyArray(hDevInfo, deviceInfoData);
@@ -114,6 +60,37 @@ public static class DeviceHelpers
                     {
                         memberIndex++;
                         continue;
+                    }
+                }
+
+                // Check Filter
+                if (filterStatus && filterData != null )
+                {
+                    string strDeviceID = device.DeviceProperties.Device_InstanceId;
+                    string strService = device.DeviceProperties.Device_Service;
+                    if (!string.IsNullOrEmpty(strDeviceID))
+                    {
+                        int indexofVID = strDeviceID.IndexOf("VID", StringComparison.OrdinalIgnoreCase);
+                        int indexofPID = strDeviceID.IndexOf("PID", StringComparison.OrdinalIgnoreCase);
+                        string strVID = indexofVID >= 0 ? strDeviceID.Substring(indexofVID + 4, 4) : string.Empty;
+                        string strPID = indexofVID >= 0 ? strDeviceID.Substring(indexofPID + 4, 4) : string.Empty;
+                        if (!string.IsNullOrEmpty(strVID) && strVID.Length < 5 && !string.IsNullOrEmpty(strPID) && strPID.Length < 5)
+                        {
+                            if (strVID.ToCharArray().All(char.IsAsciiHexDigit) && strPID.ToCharArray().All(char.IsAsciiHexDigit))
+                            {
+                                //ushort VID = Convert.ToUInt16(strVID, 16);
+                                //ushort PID = Convert.ToUInt16(strPID, 16);
+                                bool findFilter = false;
+                                if ((strVID.Contains(filterData.IDVendor, StringComparison.OrdinalIgnoreCase) && strPID.Contains(filterData.IDProduct, StringComparison.OrdinalIgnoreCase)) && strService.Contains(filterData.Service, StringComparison.OrdinalIgnoreCase))
+                                    findFilter = true;
+                                if (!findFilter)
+                                {
+                                    memberIndex++;
+                                    continue;
+                                }
+                            }
+                        }
+
                     }
                 }
 

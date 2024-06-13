@@ -23,7 +23,7 @@ internal static class USBDevicesListHelpers
     public static bool ModifiedEventStatus { get; set; }
     public static bool FilterDeviceStatus { get; set; }
     public static bool CheckInterfacesStatus { get; set; }
-    public static List<USBDevicesFilter> USBDevicesFilterList { get; set; } = [];
+    public static USBDevicesFilter USBDevicesFilterData { get; set; } = new();
 
     public static List<HUB_CHARACHTERISTICS> ExtractHubCharachteristics(ushort charachteristics)
     {
@@ -519,7 +519,7 @@ internal static class USBDevicesListHelpers
         uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
         Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_USB_DEVICE];
         usbDevicesFromSetupAPI.Clear();
-        foreach (Device itemDevice in DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags, FilterDeviceStatus, USBDevicesFilterList))
+        foreach (Device itemDevice in DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags, FilterDeviceStatus, USBDevicesFilterData))
         {
             usbDevicesFromSetupAPI.Add(itemDevice);
         }
