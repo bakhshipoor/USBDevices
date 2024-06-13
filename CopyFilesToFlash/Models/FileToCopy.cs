@@ -4,15 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace CopyFilesToFlash.Models;
 
-public class File : ViewModelBase
+[Serializable]
+public class FileToCopy : ViewModelBase
 {
-    public File()
+	private readonly MainViewModel mainViewModel;
+    public FileToCopy(MainViewModel _MainViewModel)
     {
 		_FileName = string.Empty;
         _FilePath = string.Empty;
+		mainViewModel = _MainViewModel;
     }
 
 	private string _FileName;
@@ -34,6 +38,13 @@ public class File : ViewModelBase
 	{
 		get { return _FileIndex; }
 		set { _FileIndex = value; OnPropertyChanged(nameof(FileIndex)); }
+	}
+
+	private bool _IsSelected;
+	public bool IsSelected
+	{
+		get { return _IsSelected; }
+		set { _IsSelected = value; OnPropertyChanged(nameof(IsSelected)); mainViewModel.OnFileSelectionChanged(this); }
 	}
 
 

@@ -41,10 +41,11 @@
                     <TextBox Grid.Column="1" Grid.Row="0" 
                              Text="{Binding Configuration.VID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                              VerticalAlignment="Center" Margin="5" Padding="5" Height="30" 
-                             VerticalContentAlignment="Center"/>
+                             VerticalContentAlignment="Center" MaxLength="4"/>
                     <TextBox Grid.Column="1" Grid.Row="1" 
                              Text="{Binding Configuration.PID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                             VerticalAlignment="Center" Margin="5" Padding="5" Height="30" VerticalContentAlignment="Center"/>
+                             VerticalAlignment="Center" Margin="5" Padding="5" Height="30" 
+                             VerticalContentAlignment="Center" MaxLength="4"/>
                     <CheckBox Grid.Column="1" Grid.Row="2" 
                               IsChecked="{Binding Configuration.Format,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                               VerticalAlignment="Center" Margin="5"/>
@@ -59,18 +60,23 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <!-- Buttons -->
-                    <Border Grid.Row="0" Margin="5 10" Background="AliceBlue" Padding="5" BorderBrush="SteelBlue" BorderThickness="1.5" CornerRadius="5" SnapsToDevicePixels="True" ClipToBounds="True">
+                    <Border Grid.Row="0" Margin="5 10" Background="Transparent" Padding="5" BorderBrush="SteelBlue" BorderThickness="0" 
+                            CornerRadius="0" SnapsToDevicePixels="True" ClipToBounds="True">
                         <Grid>
-                            <Button HorizontalAlignment="Left" Content="Add Files" Margin="5" Padding="5" Width="100"/>
-                            <Button HorizontalAlignment="Right" Content="Remove Files" Margin="5" Padding="5" Width="100"/>
+                            <Button HorizontalAlignment="Left" Content="Add Files" Margin="5" Padding="5" Width="100"
+                                    Command="{Binding AddFiles}"/>
+                            <Button HorizontalAlignment="Right" Content="Remove Files" Margin="5" Padding="5" Width="100"
+                                    Command="{Binding RemoveFiles}"/>
                         </Grid>
                     </Border>
                     <!-- List Box -->
                     <ListBox Grid.Row="1" Margin="5" AlternationCount="2" HorizontalContentAlignment="Stretch" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             ItemsSource="{Binding Files,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                             ItemsSource="{Binding Files,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                             SelectionMode="Multiple"
+                             SelectionChanged="ListBox_SelectionChanged">
                         <ListBox.ItemTemplate>
-                            <DataTemplate DataType="{x:Type models:File}">
+                            <DataTemplate DataType="{x:Type models:FileToCopy}">
                                 <Border Height="48" Padding="0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -93,11 +99,29 @@
                                                Text="{Binding FileIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold"/>
                                     </Grid>
+                                    <Border.ToolTip>
+                                        <Border CornerRadius="5">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Grid.Row="0" 
+                                                           Text="{Binding FileName}" 
+                                                           VerticalAlignment="Center"
+                                                           FontWeight="Bold"/>
+                                                <TextBlock Grid.Row="1" 
+                                                           Text="{Binding FilePath}" 
+                                                           VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </Border.ToolTip>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.Resources>
                             <Style  TargetType="{x:Type ListBoxItem}">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                                 <Style.Triggers>
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                         <Setter Property="Background" Value="#CDD7CA"></Setter>
