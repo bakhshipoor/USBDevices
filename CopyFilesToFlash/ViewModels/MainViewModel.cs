@@ -17,6 +17,7 @@ public class MainViewModel : ViewModelBase
     public Configuration AppConfig;
     public USBDevicesList USBDevices { get; set; } = new();
     
+    public List<string> FileSystemTypes { get; } = new() { "NTFS", "FAT","FAT32", "exFAT"};
 
     public MainViewModel(Configuration _AppConfig)
     {
@@ -37,6 +38,8 @@ public class MainViewModel : ViewModelBase
         Configuration.VID= ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).VID;
         Configuration.PID = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).PID;
         Configuration.Format = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).Format;
+        Configuration.FileSystemIndex = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).FileSystemIndex;
+        Configuration.VolumeLabel = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).VolumeLabel;
         Configuration.Eject = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).Eject;
         Files = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).GetFiles(this);
 

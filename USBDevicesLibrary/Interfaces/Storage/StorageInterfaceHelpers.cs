@@ -432,6 +432,8 @@ public static class StorageInterfaceHelpers
             bResponse.Status = false;
             bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
         }
+
+        //FmIfsFunctions.FormatFMIFS("F:\\");
         return bResponse;
     }
 

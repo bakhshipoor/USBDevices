@@ -76,7 +76,6 @@ public static partial class CfgMgrData
         CR_INVALID_CONFLICT_LIST = 0x00000039,
         CR_INVALID_INDEX = 0x0000003A,
         CR_INVALID_STRUCTURE_SIZE = 0x0000003B,
-        NUM_CR_RESULTS = 0x0000003C,
     }
 
     // If the PnP manager rejects a request to perform an operation, the PNP_VETO_TYPE enumeration is used to identify the reason for the rejection.

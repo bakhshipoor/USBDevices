@@ -41,6 +41,20 @@ public class UserConfigurations : ConfigurationSection
         set { this["Format"] = value;}
     }
 
+    [ConfigurationProperty(name: "FileSystemIndex", DefaultValue = 1)]
+    public int FileSystemIndex
+    {
+        get { return (int)this["FileSystemIndex"]; }
+        set { this["FileSystemIndex"] = value; }
+    }
+
+    [ConfigurationProperty(name: "VolumeLabel", DefaultValue = null)]
+    public string VolumeLabel
+    {
+        get { return (string)this["VolumeLabel"]; }
+        set { this["VolumeLabel"] = value; }
+    }
+
     [ConfigurationProperty(name: "Eject", DefaultValue = false)]
     public bool Eject
     {

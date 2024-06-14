@@ -14,10 +14,10 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <!-- Left Side -->
-        <Border Grid.Column="0" Padding="10" Background="LightGoldenrodYellow" >
+        <Border Grid.Column="0" Padding="10" Background="#b2bec3" >
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="180"/>
+                    <RowDefinition Height="250"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <!-- Configurations -->
@@ -27,52 +27,77 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
                     </Grid.RowDefinitions>
                     <!-- Labels -->
-                    <TextBlock Grid.Column="0" Grid.Row="0" Text="USB Vendor ID (VID) (Hex):" VerticalAlignment="Center" Margin="5"/>
-                    <TextBlock Grid.Column="0" Grid.Row="1" Text="USB Product ID (PID) (Hex):" VerticalAlignment="Center" Margin="5"/>
-                    <TextBlock Grid.Column="0" Grid.Row="2" Text="Format Flash Disk:" VerticalAlignment="Center" Margin="5"/>
-                    <TextBlock Grid.Column="0" Grid.Row="3" Text="Eject Flash When Finished:" VerticalAlignment="Center" Margin="5"/>
+                    <Border Grid.Row="0" Grid.ColumnSpan="2" BorderThickness="0 0 0 2" BorderBrush="#636e72">
+                        <TextBlock Text="Filter" Foreground="#2d3436" FontWeight="Bold" FontSize="13"/>
+                    </Border>
+                    <TextBlock Grid.Column="0" Grid.Row="1" Text="USB Vendor ID (VID) (Hex):" VerticalAlignment="Center" Margin="5"/>
+                    <TextBlock Grid.Column="0" Grid.Row="2" Text="USB Product ID (PID) (Hex):" VerticalAlignment="Center" Margin="5"/>
+                    <Border Grid.Row="3" Grid.ColumnSpan="2" BorderThickness="0 0 0 2" BorderBrush="#636e72">
+                        <TextBlock Text="Settings" Foreground="#2d3436" FontWeight="Bold" FontSize="13"/>
+                    </Border>
+                    <TextBlock Grid.Column="0" Grid.Row="4" Text="Format Flash Disk (Quick):" VerticalAlignment="Center" Margin="5"/>
+                    <TextBlock Grid.Column="0" Grid.Row="5" Text="File System Name:" VerticalAlignment="Center" Margin="5"/>
+                    <TextBlock Grid.Column="0" Grid.Row="6" Text="Volume Label:" VerticalAlignment="Center" Margin="5"/>
+                    <TextBlock Grid.Column="0" Grid.Row="7" Text="Eject Flash When Finished:" VerticalAlignment="Center" Margin="5"/>
                     <!-- Controls -->
-                    <TextBox Grid.Column="1" Grid.Row="0" 
+                    <TextBox Grid.Column="1" Grid.Row="1"
                              Text="{Binding Configuration.VID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                             VerticalAlignment="Center" Margin="5" Padding="5" Height="30" 
+                             VerticalAlignment="Center" Height="25"
                              VerticalContentAlignment="Center" MaxLength="4"/>
-                    <TextBox Grid.Column="1" Grid.Row="1" 
+                    <TextBox Grid.Column="1" Grid.Row="2" 
                              Text="{Binding Configuration.PID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                             VerticalAlignment="Center" Margin="5" Padding="5" Height="30" 
+                             VerticalAlignment="Center"  Height="25" 
                              VerticalContentAlignment="Center" MaxLength="4"/>
-                    <CheckBox Grid.Column="1" Grid.Row="2" 
+                    <CheckBox Grid.Column="1" Grid.Row="4" x:Name="chbFormat"
                               IsChecked="{Binding Configuration.Format,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                              VerticalAlignment="Center" Margin="5"/>
-                    <CheckBox Grid.Column="1" Grid.Row="3" 
+                              VerticalAlignment="Center" />
+                    <ComboBox  Grid.Column="1" Grid.Row="5" Height="25" 
+                               ItemsSource="{Binding FileSystemTypes}"
+                               SelectedIndex="{Binding Configuration.FileSystemIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                               IsEnabled="{Binding ElementName=chbFormat,Path=IsChecked}"/>
+                    <TextBox Grid.Column="1" Grid.Row="6" 
+                             Text="{Binding Configuration.VolumeLabel,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                             VerticalAlignment="Center" Height="25" 
+                             VerticalContentAlignment="Center" MaxLength="32"
+                             IsEnabled="{Binding ElementName=chbFormat,Path=IsChecked}"/>
+                    <CheckBox Grid.Column="1" Grid.Row="7" 
                               IsChecked="{Binding Configuration.Eject,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                              VerticalAlignment="Center" Margin="5"/>
+                              VerticalAlignment="Center" />
                 </Grid>
                 <!-- Files -->
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="70"/>
+                        <RowDefinition Height="20" />
+                        <RowDefinition Height="50"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+                    <Border Grid.Row="0" BorderThickness="0 0 0 2" BorderBrush="#636e72">
+                        <TextBlock Text="Files" Foreground="#2d3436" FontWeight="Bold" FontSize="13"/>
+                    </Border>
                     <!-- Buttons -->
-                    <Border Grid.Row="0" Margin="0 15 0 0 " Padding="5">
+                    <Border Grid.Row="1" Margin="0 5 0 0 " Padding="5">
                         <Grid>
                             <Button HorizontalAlignment="Left" Content="Add Files" Padding="5" Width="100" Height="35" VerticalAlignment="Bottom"
-                                    Command="{Binding AddFiles}"/>
+                                    Command="{Binding AddFiles}" FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"/>
                             <Button HorizontalAlignment="Right" Content="Remove Files" Padding="5" Width="100" Height="35" VerticalAlignment="Bottom"
-                                    Command="{Binding RemoveFiles}"/>
+                                    Command="{Binding RemoveFiles}" FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"/>
                         </Grid>
                     </Border>
                     <!-- List Box -->
-                    <ListBox Grid.Row="1" Margin="5 0 5 5" AlternationCount="2" HorizontalContentAlignment="Stretch" 
+                    <ListBox Grid.Row="2" Margin="5 0 5 5" AlternationCount="2" HorizontalContentAlignment="Stretch" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ItemsSource="{Binding Files,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                             SelectionMode="Multiple">
+                             SelectionMode="Multiple" Background="Transparent" BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:FileToCopy}">
                                 <Border Height="48" Padding="0">
@@ -122,10 +147,10 @@
                                 <Setter Property="IsSelected" Value="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                                 <Style.Triggers>
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                        <Setter Property="Background" Value="#CDD7CA"></Setter>
+                                        <Setter Property="Background" Value="#AAffeaa7"></Setter>
                                     </Trigger>
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                        <Setter Property="Background" Value="#ACBAC8"></Setter>
+                                        <Setter Property="Background" Value="#AAfdcb6e"></Setter>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -135,7 +160,7 @@
             </Grid>
         </Border>
         <!-- Right Side -->
-        <Border Grid.Column="1" Padding="10 0 10 10" Background="FloralWhite" >
+        <Border Grid.Column="1" Padding="10 0 10 10" Background="#dfe6e9" >
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="55"/>
@@ -144,15 +169,17 @@
                 <!-- Buttons -->
                 <Border Grid.Row="0" Margin="0 0 0 0" Padding="5 0">
                     <Grid>
-                        <Button HorizontalAlignment="Left" Content="Start" Padding="0" Width="100"  Height="35" VerticalAlignment="Bottom"/>
-                        <Button HorizontalAlignment="Right" Content="Stop" Padding="0" Width="100" Height="35" VerticalAlignment="Bottom"/>
+                        <Button HorizontalAlignment="Left" Content="Start" Padding="0" Width="100"  Height="35" VerticalAlignment="Bottom"
+                                FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"/>
+                        <Button HorizontalAlignment="Right" Content="Stop" Padding="0" Width="100" Height="35" VerticalAlignment="Bottom"
+                                FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"/>
                     </Grid>
                 </Border>
                 <!-- List Box -->
                 <ListView Grid.Row="1" Margin="5" AlternationCount="2" HorizontalContentAlignment="Stretch" 
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ItemsSource="{Binding USBFlashDisks,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                         SelectionMode="Single">
+                         SelectionMode="Single" Background="Transparent" BorderThickness="0">
                     <ListView.ItemTemplate>
                         <DataTemplate DataType="{x:Type models:FileToCopy}">
                             <Border Height="48" Padding="0">
@@ -221,10 +248,10 @@
                         <Style  TargetType="{x:Type ListViewItem}">
                             <Style.Triggers>
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                    <Setter Property="Background" Value="#CDD7CA"></Setter>
+                                    <Setter Property="Background" Value="#66fdcb6e"></Setter>
                                 </Trigger>
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                    <Setter Property="Background" Value="#ACBAC8"></Setter>
+                                    <Setter Property="Background" Value="#66ffeaa7"></Setter>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>

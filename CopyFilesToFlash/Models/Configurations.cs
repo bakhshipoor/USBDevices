@@ -64,7 +64,31 @@ public class Configurations : ViewModelBase
 		}
 	}
 
-	private bool _Eject;
+    private int _FileSystemIndex;
+    public int FileSystemIndex
+    {
+        get { return _FileSystemIndex; }
+        set
+        {
+            _FileSystemIndex = value;
+            OnPropertyChanged(nameof(FileSystemIndex));
+            ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).FileSystemIndex = value;
+        }
+    }
+
+    private string _VolumeLabel;
+    public string VolumeLabel
+    {
+        get { return _VolumeLabel; }
+        set
+        {
+            _VolumeLabel = value;
+            OnPropertyChanged(nameof(VolumeLabel));
+            ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).VolumeLabel = value;
+        }
+    }
+
+    private bool _Eject;
 	public bool Eject
 	{
 		get { return _Eject; }
