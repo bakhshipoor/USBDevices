@@ -70,6 +70,7 @@ public class DeviceProperties
         OtherProperties = new();
     }
 
+    public uint DevInst { get; set; }
     // DEVPKEY_NAME
     // Common DEVPKEY used to retrieve the display name for an object.
     // # 1

@@ -37,6 +37,7 @@ public static class DeviceHelpers
                 }
 
                 SP_DEVINFO_DATA deviceInfoData = (SP_DEVINFO_DATA)enumDeviceInfo.Data;
+                device.DeviceProperties.DevInst = deviceInfoData.DevInst;
 
                 // Get Device Properties 
                 Win32ResponseDataStruct devicePropertyKeyArray = SetupAPIFunctions.GetDevicePropertyKeyArray(hDevInfo, deviceInfoData);

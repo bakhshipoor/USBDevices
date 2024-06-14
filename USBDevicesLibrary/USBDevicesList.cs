@@ -60,7 +60,7 @@ public class USBDevicesList
         ConnectedEventStatus = true;
         ModifiedEventStatus = true;
         FilterDeviceStatus = false;
-        CheckInterfacesStatus = false;
+        CheckInterfacesStatus = true;
 
         USBDevices.CollectionChanged += USBDevices_CollectionChanged;
     }

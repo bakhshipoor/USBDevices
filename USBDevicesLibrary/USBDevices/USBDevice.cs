@@ -164,9 +164,9 @@ public class USBDevice : InterfaceBaseClass
         {
             foreach (DiskDriveInterface itemDiskDrive in this)
             {
-                foreach (DiskPartitionInterface itemPartitions in itemDiskDrive.Children)
+                foreach (DiskPartitionInterface itemPartitions in itemDiskDrive)
                 {
-                    foreach (DiskLogicalInterface itemLogicalDrive in itemPartitions.Children)
+                    foreach (DiskLogicalInterface itemLogicalDrive in itemPartitions)
                     {
                         bResponse.Add(itemLogicalDrive.Name);
                     }

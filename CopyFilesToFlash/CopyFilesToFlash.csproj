@@ -11,6 +11,7 @@
     <Description>Usinf USBDevicesLibrary to copy files to specified flash memory</Description>
     <PackageIcon>flashdrive.png</PackageIcon>
     <RepositoryUrl>https://github.com/bakhshipoor/USBDevices</RepositoryUrl>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

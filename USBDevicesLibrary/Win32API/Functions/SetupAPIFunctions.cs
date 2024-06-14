@@ -7,6 +7,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static USBDevicesLibrary.Win32API.CfgMgrData;
 using static USBDevicesLibrary.Win32API.SetupAPIData;
 
 // https://learn.microsoft.com/en-us/windows/win32/api/setupapi/
@@ -219,5 +220,16 @@ public static partial class SetupAPIFunctions
 #pragma warning disable SYSLIB1051 // Specified type is not supported by source-generated P/Invokes
         out SP_DRVINFO_DATA_W DriverInfoData
 #pragma warning restore SYSLIB1051 // Specified type is not supported by source-generated P/Invokes
+        );
+
+    [DllImport(_DLLName, SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern CONFIGRET
+        CM_Query_And_Remove_SubTreeW
+        (
+        uint dnDevInst,
+        out PNP_VETO_TYPE pVetoType,
+        StringBuilder pszVetoName,
+        uint ulNameLength,
+        Query_And_Remove_SubTree_FLAGS ulFlags
         );
 }

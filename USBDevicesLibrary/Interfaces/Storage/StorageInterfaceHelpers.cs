@@ -1,10 +1,12 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using USBDevicesLibrary.Devices;
 using USBDevicesLibrary.Win32API;
+using static USBDevicesLibrary.Win32API.CfgMgrData;
 using static USBDevicesLibrary.Win32API.ClassesGUID;
 using static USBDevicesLibrary.Win32API.Kernel32Data;
 using static USBDevicesLibrary.Win32API.NTDDDiskData;
@@ -90,7 +92,7 @@ public static class StorageInterfaceHelpers
                 {
                     uint indexVID = stDesc.VendorIdOffset - lenghtOfDataRemoved;
                     uint lenghtVID = 0;
-                    for (uint i=0;i< byteDescriptor.Length;i++)
+                    for (uint i = 0; i < byteDescriptor.Length; i++)
                     {
                         byte b = byteDescriptor[i + indexVID];
                         if (b == 0) break;
@@ -173,11 +175,11 @@ public static class StorageInterfaceHelpers
         return bresponse;
     }
 
-    public static ObservableCollection<DiskPartitionInterface> GetDiskDrivePartitions(DRIVE_LAYOUT_INFORMATION_EX driveLayoutInfoEx, DiskDriveInterface diskDrive )
+    public static ObservableCollection<DiskPartitionInterface> GetDiskDrivePartitions(DRIVE_LAYOUT_INFORMATION_EX driveLayoutInfoEx, DiskDriveInterface diskDrive)
     {
         uint diskNumber = diskDrive.DiskNumber;
         ObservableCollection<DiskPartitionInterface> diskDrivePartitions = [];
-        if (driveLayoutInfoEx.PartitionCount>0)
+        if (driveLayoutInfoEx.PartitionCount > 0)
         {
             // Get Volumes
             ObservableCollection<DiskLogicalInterface> logicalDisks = GetDiskDriveVolumes(diskDrive);
@@ -194,7 +196,7 @@ public static class StorageInterfaceHelpers
                 partition.StartingOffset = itemPartitionInfo.StartingOffset;
                 partition.RewritePartition = Convert.ToBoolean(itemPartitionInfo.RewritePartition);
                 partition.IsServicePartition = Convert.ToBoolean(itemPartitionInfo.IsServicePartition);
-                if (partition.PartitionStyle ==PARTITION_STYLE.PARTITION_STYLE_MBR)
+                if (partition.PartitionStyle == PARTITION_STYLE.PARTITION_STYLE_MBR)
                 {
                     partition.MBR_Type = itemPartitionInfo.PartitionInfo.MBR_PartitionType;
                     partition.Bootable = Convert.ToBoolean(itemPartitionInfo.PartitionInfo.MBR_BootIndicator);
@@ -217,7 +219,7 @@ public static class StorageInterfaceHelpers
                         partition.Add(itemLogicalDisk);
                     }
                 }
-                
+
 
                 diskDrivePartitions.Add(partition);
             }
@@ -241,10 +243,10 @@ public static class StorageInterfaceHelpers
             {
                 bool find = false;
                 VOLUME_DISK_EXTENTS volumeDiskEx = (VOLUME_DISK_EXTENTS)volumeDiskExtents.Data;
-                uint numberOfExtents = (volumeDiskExtents.LengthTransferred - 8 ) / 24; // !!!! ????
-                for (int i=0;i< numberOfExtents;i++)
+                uint numberOfExtents = (volumeDiskExtents.LengthTransferred - 8) / 24; // !!!! ????
+                for (int i = 0; i < numberOfExtents; i++)
                 {
-                    if (volumeDiskEx.Extents[i].DiskNumber== diskNumber)
+                    if (volumeDiskEx.Extents[i].DiskNumber == diskNumber)
                     {
                         find = true;
                         startingOffset = volumeDiskEx.Extents[i].StartingOffset;
@@ -355,7 +357,7 @@ public static class StorageInterfaceHelpers
         {
             byte[] byteFinalDriveLetters = new byte[lenghtTransfered];
             Array.Copy(byteDriveLetters, byteFinalDriveLetters, lenghtTransfered);
-            driveStrings = Encoding.ASCII.GetString(byteFinalDriveLetters).Remove(lenghtTransfered-1,1).Split('\0').ToList();
+            driveStrings = Encoding.ASCII.GetString(byteFinalDriveLetters).Remove(lenghtTransfered - 1, 1).Split('\0').ToList();
             bResponse.Status = true;
             bResponse.Data = driveStrings;
             bResponse.LengthTransferred = (uint)lenghtTransfered;
@@ -399,9 +401,9 @@ public static class StorageInterfaceHelpers
         StringBuilder fileSystemName = new(260);
         fileSystemName.Length = 260;
         bool isSuccess = Kernel32Functions.GetVolumeInformation(
-            volumePath, 
-            volumeName, 
-            volumeName.Length, 
+            volumePath,
+            volumeName,
+            volumeName.Length,
             out volumeSerialNumber,
             out maximumComponentLength,
             out fileSystemFlags,
@@ -473,5 +475,58 @@ public static class StorageInterfaceHelpers
         bResponse.Data = (DRIVE_TYPE)bResult;
         return bResponse;
     }
-   
+
+    public static Win32ResponseDataStruct EjectDiskDrive(DiskDriveInterface diskDrive)
+    {
+        Win32ResponseDataStruct bresponse = new();
+        foreach (DiskPartitionInterface itemPartitions in diskDrive)
+        {
+            foreach (DiskLogicalInterface itemLogicalDrive in itemPartitions)
+            {
+                bresponse = EjectVolume(itemLogicalDrive);
+                if (!bresponse.Status)
+                {
+                    return bresponse;
+                }
+            }
+        }
+        bresponse = EjectMedia(diskDrive.BaseDeviceProperties.DevInst);
+        return bresponse;
+    }
+
+    public static Win32ResponseDataStruct EjectVolume(DiskLogicalInterface volume)
+    {
+        return EjectMedia(volume.BaseDeviceProperties.DevInst);
+    }
+
+    public static Win32ResponseDataStruct EjectMedia(uint devInst)
+    {
+        Win32ResponseDataStruct bresponse = new();
+        uint MaxLenght = 260;
+        StringBuilder vetoName = new((int)MaxLenght);
+        vetoName.Length = (int)MaxLenght;
+        PNP_VETO_TYPE vetoType;
+        CONFIGRET configRet = SetupAPIFunctions.CM_Query_And_Remove_SubTreeW(devInst, out vetoType, vetoName, MaxLenght, Query_And_Remove_SubTree_FLAGS.CM_REMOVE_UI_OK);
+        // Try Again
+        if (configRet != CONFIGRET.CR_SUCCESS)
+        {
+            configRet = SetupAPIFunctions.CM_Query_And_Remove_SubTreeW(devInst, out vetoType, vetoName, MaxLenght, Query_And_Remove_SubTree_FLAGS.CM_REMOVE_UI_OK);
+        }
+        if (configRet == CONFIGRET.CR_SUCCESS)
+        {
+            bresponse.Status = true;
+            Win32Exception exception = new(string.Format("{0} : {1}", vetoType, vetoName));
+            exception.Source = "CM_Query_And_Remove_SubTreeW()";
+            bresponse.Exception = exception;
+        }
+        else
+        {
+            bresponse.Status = false;
+            Win32Exception exception = new(string.Format("{0} [ {1} : {2} ]", configRet, vetoType, vetoName));
+            exception.Source = "CM_Query_And_Remove_SubTreeW()";
+            bresponse.Exception = exception;
+        }
+        return bresponse;
+    }
+
 }
