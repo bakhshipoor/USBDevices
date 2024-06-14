@@ -432,7 +432,7 @@ public static class StorageInterfaceHelpers
             bResponse.Status = false;
             bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
         }
-
+        bool sss = Kernel32Functions.SetVolumeLabel(volumePath,"*/-+.<>?@!%^&*");
         //FmIfsFunctions.FormatFMIFS("F:\\");
         return bResponse;
     }
@@ -531,4 +531,36 @@ public static class StorageInterfaceHelpers
         return bresponse;
     }
 
+    public static string ValidateVolumeLabel(string volumeLabel,bool fileSystemIsNotNTFS)
+    {
+        string bResponse = string.Empty;
+        if (!string.IsNullOrEmpty(volumeLabel))
+        {
+            if (fileSystemIsNotNTFS)
+            {
+
+                string notAccept = "\"*+,./:;<=>?[\\]|";
+                foreach (char itemChar in notAccept)
+                {
+                    volumeLabel = volumeLabel.Replace(itemChar.ToString(), "");
+                }
+                if (volumeLabel.Length > 11)
+                {
+                    string strVL = volumeLabel.Remove(11, volumeLabel.Length - 11);
+                    volumeLabel = strVL;
+                }
+                bResponse = volumeLabel;
+            }
+            else
+            {
+                if (volumeLabel.Length > 32)
+                {
+                    string strVL = volumeLabel.Remove(32, volumeLabel.Length - 32);
+                    volumeLabel = strVL;
+                }
+                bResponse = volumeLabel;
+            }
+        }
+        return bResponse;
+    }
 }

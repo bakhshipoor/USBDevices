@@ -128,54 +128,22 @@ public static unsafe partial class Kernel32Functions
             StringBuilder fileSystemNameBuffer,
             int nFileSystemNameSize);
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool GetVolumePathName(
-                string volumeName,
-                StringBuilder volumePathName,
-                uint bufferLength);
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-    [return: MarshalAs(UnmanagedType.U4)]
-    public static extern uint GetShortPathName(
-                string volumeLongPath,
-                StringBuilder volumeShortPath,
-                uint bufferLength);
-
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-    [return: MarshalAs(UnmanagedType.U4)]
-    public static extern uint GetFullPathName(
-                string volumeFileNam,
-                uint BufferLength,
-                [Out] StringBuilder volumeShortPath,
-                IntPtr volumeFilePart);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    public static extern IntPtr FindFirstVolumeMountPoint([In] string VolumeName, [Out] StringBuilder lpszVolumeName,
-           int cchBufferLength);
-
-
     [DllImport("kernel32.dll", SetLastError = false, CharSet = CharSet.Ansi)]
-    public static extern int GetLogicalDriveStrings(int nBufferLength,[Out] byte[] lpBuffer);
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    public struct WIN32_DRV_STR
-    {
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 260)]
-        public byte[] cFileName;
-        
-    }
+    public static extern int 
+        GetLogicalDriveStrings
+        (
+        int nBufferLength,
+        [Out] byte[] lpBuffer
+        );
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    public static extern IntPtr FindFirstVolume([Out] StringBuilder lpszVolumeName, uint cchBufferLength);
-
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    public static extern bool GetVolumeNameForVolumeMountPoint(
-       [In] string lpszVolumeMountPoint,
-      [Out] StringBuilder lpszVolumeName,
-      [In] uint cchBufferLength);
+    public static extern bool 
+        GetVolumeNameForVolumeMountPoint
+        (
+        [In] string lpszVolumeMountPoint,
+        [Out] StringBuilder lpszVolumeName,
+        [In] uint cchBufferLength
+        );
 
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     public static extern bool 
@@ -195,5 +163,12 @@ public static unsafe partial class Kernel32Functions
         string lpRootPathName
         );
 
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern bool
+    SetVolumeLabel
+    (
+    string lpRootPathName,
+    string lpVolumeName
+    );
 }
 

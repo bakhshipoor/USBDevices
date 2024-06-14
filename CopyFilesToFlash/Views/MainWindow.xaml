@@ -8,6 +8,7 @@
         xmlns:local="clr-namespace:CopyFilesToFlas"
         mc:Ignorable="d"
         Title="Copy Files To Flash" Height="800" MinHeight="800" Width="800" MinWidth="800" WindowStartupLocation="CenterScreen">
+   
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320"/>
@@ -61,15 +62,46 @@
                     <CheckBox Grid.Column="1" Grid.Row="4" x:Name="chbFormat"
                               IsChecked="{Binding Configuration.Format,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                               VerticalAlignment="Center" />
-                    <ComboBox  Grid.Column="1" Grid.Row="5" Height="25" 
+                    <ComboBox  Grid.Column="1" Grid.Row="5" x:Name="cmbFileSystem" Height="25" 
                                ItemsSource="{Binding FileSystemTypes}"
                                SelectedIndex="{Binding Configuration.FileSystemIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                IsEnabled="{Binding ElementName=chbFormat,Path=IsChecked}"/>
-                    <TextBox Grid.Column="1" Grid.Row="6" 
+                    <TextBox Grid.Column="1" Grid.Row="6" x:Name="txbVolumeLabel"
                              Text="{Binding Configuration.VolumeLabel,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                              VerticalAlignment="Center" Height="25" 
-                             VerticalContentAlignment="Center" MaxLength="32"
-                             IsEnabled="{Binding ElementName=chbFormat,Path=IsChecked}"/>
+                             VerticalContentAlignment="Center" 
+                             MaxLength="{Binding VolumeLabelMaxLenght,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                             >
+                        <TextBox.ToolTip>
+                            <Border>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="25"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Text="NTFS File System: " FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" Grid.Row="1" Text="Max Lenght: "/>
+                                    <TextBlock Grid.Column="1" Grid.Row="2" Text="Charachters Reject: "/>
+                                    <TextBlock Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Text="FAT File System: " FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" Grid.Row="4" Text="Max Lenght: "/>
+                                    <TextBlock Grid.Column="1" Grid.Row="5" Text="Charachters Reject: "/>
+                                    <TextBlock Grid.Column="2" Grid.Row="1" Text=" 32 " FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="2" Grid.Row="2" Text=" None " FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="2" Grid.Row="4" Text=" 11 " FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="2" Grid.Row="5" Text=" &quot; * + , . / : ; &lt; = &gt; ? [ \ ] | " FontWeight="Bold"/>
+                                </Grid>
+                            </Border>
+                        </TextBox.ToolTip>
+                    </TextBox>
                     <CheckBox Grid.Column="1" Grid.Row="7" 
                               IsChecked="{Binding Configuration.Eject,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                               VerticalAlignment="Center" />
@@ -147,10 +179,10 @@
                                 <Setter Property="IsSelected" Value="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                                 <Style.Triggers>
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                        <Setter Property="Background" Value="#AAffeaa7"></Setter>
+                                        <Setter Property="Background" Value="#A0ffeaa7"></Setter>
                                     </Trigger>
                                     <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                        <Setter Property="Background" Value="#AAfdcb6e"></Setter>
+                                        <Setter Property="Background" Value="#A0fdcb6e"></Setter>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>

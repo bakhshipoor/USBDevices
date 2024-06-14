@@ -10,8 +10,10 @@
     <Title>Copy Files To Flash</Title>
     <Description>Usinf USBDevicesLibrary to copy files to specified flash memory</Description>
     <PackageIcon>flashdrive.png</PackageIcon>
-    <RepositoryUrl>https://github.com/bakhshipoor/USBDevices</RepositoryUrl>
+    <RepositoryUrl>https://github.com/bakhshipoor/USBDevices/tree/master/CopyFilesToFlash</RepositoryUrl>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Authors>$(AssemblyName), Hossein Bakhshipoor</Authors>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,6 +49,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\USBDevicesLibrary\USBDevicesLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Converters\" />
   </ItemGroup>
 
 </Project>

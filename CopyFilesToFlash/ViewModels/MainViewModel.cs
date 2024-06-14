@@ -2,10 +2,7 @@
 using CopyFilesToFlash.Models;
 using System.Collections.ObjectModel;
 using System.Configuration;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using CopyFilesToFlas;
 using USBDevicesLibrary;
 using USBDevicesLibrary.USBDevices;
 
@@ -16,7 +13,10 @@ public class MainViewModel : ViewModelBase
     public event EventHandler<EventArgs>? FileSelectionChanged;
     public Configuration AppConfig;
     public USBDevicesList USBDevices { get; set; } = new();
-    
+
+    public ICommand AddFiles { get; set; }
+    public ICommand RemoveFiles { get; set; }
+
     public List<string> FileSystemTypes { get; } = new() { "NTFS", "FAT","FAT32", "exFAT"};
 
     public MainViewModel(Configuration _AppConfig)
@@ -29,17 +29,16 @@ public class MainViewModel : ViewModelBase
         USBDevices.CheckInterfacesStatus= true;
         USBDevices.ConnectedEventStatus = true;
         USBDevices.DisconnectedEventStatus = true;
-        
 
         Configuration = new Configurations(this);
         USBFlashDisks = [];
         Files = [];
-
+        VolumeLabelMaxLenght = 32;
         Configuration.VID= ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).VID;
         Configuration.PID = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).PID;
+        Configuration.VolumeLabel = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).VolumeLabel;
         Configuration.Format = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).Format;
         Configuration.FileSystemIndex = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).FileSystemIndex;
-        Configuration.VolumeLabel = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).VolumeLabel;
         Configuration.Eject = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).Eject;
         Files = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).GetFiles(this);
 
@@ -72,8 +71,15 @@ public class MainViewModel : ViewModelBase
     public Configurations Configuration { get; set; }
     public ObservableCollection<FileToCopy> Files { get; set; }
     public ObservableCollection<USBFlashDisk> USBFlashDisks { get; set; }
-    public ICommand AddFiles { get; set; }
-    public ICommand RemoveFiles { get; set; }
+
+    private uint _VolumeLabelMaxLenght;
+    public uint VolumeLabelMaxLenght
+    {
+        get { return _VolumeLabelMaxLenght; }
+        set { _VolumeLabelMaxLenght = value; OnPropertyChanged(nameof(VolumeLabelMaxLenght)); }
+    }
+
+
 
     public void OnFileSelectionChanged(FileToCopy fileToCopy)
     {

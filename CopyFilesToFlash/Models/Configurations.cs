@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using USBDevicesLibrary.Interfaces.Storage;
 
 namespace CopyFilesToFlash.Models;
 
@@ -59,7 +60,26 @@ public class Configurations : ViewModelBase
 		set 
 		{ 
 			_Format = value; 
-			OnPropertyChanged(nameof(Format)); 
+            if (value)
+            {
+                if (FileSystemIndex == 0)
+                {
+                    mainViewModel.VolumeLabelMaxLenght = 32;
+                    VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, false);
+                }
+                else
+                {
+                    mainViewModel.VolumeLabelMaxLenght = 11;
+                    VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, true);
+
+                }
+            }
+            else
+            {
+                mainViewModel.VolumeLabelMaxLenght = 32;
+                VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, false);
+            }
+            OnPropertyChanged(nameof(Format)); 
 			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Format = value; 
 		}
 	}
@@ -73,6 +93,24 @@ public class Configurations : ViewModelBase
             _FileSystemIndex = value;
             OnPropertyChanged(nameof(FileSystemIndex));
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).FileSystemIndex = value;
+            if (Format)
+            {
+                if (value == 0)
+                {
+                    mainViewModel.VolumeLabelMaxLenght = 32;
+                    VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, false);
+                }
+                else
+                {
+                    mainViewModel.VolumeLabelMaxLenght = 11;
+                    VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, true);
+                }
+            }
+            else
+            {
+                mainViewModel.VolumeLabelMaxLenght = 32;
+                VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, false);
+            }
         }
     }
 
@@ -82,6 +120,18 @@ public class Configurations : ViewModelBase
         get { return _VolumeLabel; }
         set
         {
+            if (Format)
+            {
+                if (FileSystemIndex != 0)
+                    value = StorageInterfaceHelpers.ValidateVolumeLabel(value, true);
+                else
+                    value = StorageInterfaceHelpers.ValidateVolumeLabel(value, false);
+            }
+            else
+            {
+                mainViewModel.VolumeLabelMaxLenght = 32;
+                value = StorageInterfaceHelpers.ValidateVolumeLabel(value, false);
+            }
             _VolumeLabel = value;
             OnPropertyChanged(nameof(VolumeLabel));
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).VolumeLabel = value;
