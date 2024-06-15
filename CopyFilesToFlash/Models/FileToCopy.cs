@@ -33,6 +33,14 @@ public class FileToCopy : ViewModelBase
 		set { _FilePath = value; OnPropertyChanged(nameof(FilePath)); }
 	}
 
+	private long _FileSize;
+	public long FileSize
+	{
+		get { return _FileSize; }
+		set { _FileSize = value; OnPropertyChanged(nameof(FilePath)); }
+    }
+
+
 	private int _FileIndex;
 	public int FileIndex
 	{

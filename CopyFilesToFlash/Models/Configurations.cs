@@ -103,6 +103,7 @@ public class Configurations : ViewModelBase
             _VolumeLabel = value;
             OnPropertyChanged(nameof(VolumeLabel));
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).VolumeLabel = value;
+            mainViewModel.OnVolumeLabelChanged();
         }
     }
 

@@ -157,35 +157,4 @@ public class USBDevice : InterfaceBaseClass
         return bResponse;
     }
 
-    public List<string> GetUSBDeviceVolumPaths()
-    {
-        List<string> bResponse = [];
-        if (BaseDeviceProperties.Device_Service.Contains("USBSTOR", StringComparison.OrdinalIgnoreCase))
-        {
-            foreach (DiskDriveInterface itemDiskDrive in this)
-            {
-                foreach (DiskPartitionInterface itemPartitions in itemDiskDrive)
-                {
-                    foreach (DiskLogicalInterface itemLogicalDrive in itemPartitions)
-                    {
-                        bResponse.Add(itemLogicalDrive.Name);
-                    }
-                }
-            }
-        }
-        return bResponse;
-    }
-
-    public ulong GetUSBDeviceDiskSize()
-    {
-        ulong bResponse = 0;
-        if (BaseDeviceProperties.Device_Service.Contains("USBSTOR", StringComparison.OrdinalIgnoreCase))
-        {
-            foreach (DiskDriveInterface itemDiskDrive in this)
-            {
-                bResponse = itemDiskDrive.DiskSize;
-            }
-        }
-        return bResponse;
-    }
 }

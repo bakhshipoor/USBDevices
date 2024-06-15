@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
+using System.IO;
 using System.IO.Packaging;
 using System.Linq;
 using System.Text;
@@ -104,15 +105,23 @@ public class UserConfigurations : ConfigurationSection
                 itemFile.FileName = bResult[i];
                 i++;
                 itemFile.FilePath = bResult[i];
-                bResponse.Add(itemFile);
+                bool isFileExist = new FileInfo(itemFile.FilePath).Exists;
+                if (isFileExist)
+                {
+                    itemFile.FileSize = new FileInfo(itemFile.FilePath).Length;
+                    bResponse.Add(itemFile);
+                }
             }
         }
         int memberIndex = 1;
+        ulong totalFileSize = 0;
         foreach (FileToCopy itemFile in bResponse)
         {
             itemFile.FileIndex = memberIndex;
+            totalFileSize += (ulong)itemFile.FileSize;
             memberIndex++;
         }
+        mainViewModel.TotalTasks.TotalFileSize = totalFileSize;
         return bResponse;
     }
 }

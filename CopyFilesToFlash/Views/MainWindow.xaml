@@ -119,7 +119,17 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" BorderThickness="0 0 0 2" BorderBrush="#636e72">
-                        <TextBlock Text="Files" Foreground="#2d3436" FontWeight="Bold" FontSize="13"/>
+                        <Grid>
+                            <Grid HorizontalAlignment="Left">
+                                <TextBlock Text="Files" Foreground="#2d3436" FontWeight="Bold" FontSize="14"/>
+                            </Grid>
+                            <Grid HorizontalAlignment="Right">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="    Total Size (Bytes) : " VerticalAlignment="Bottom"/>
+                                    <TextBlock Text="{Binding TotalTasks.TotalFileSize,Mode=OneWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}" VerticalAlignment="Bottom" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
                     </Border>
                     <!-- Buttons -->
                     <Border Grid.Row="1" Margin="0 5 0 0 " Padding="5">
@@ -134,10 +144,10 @@
                     <ListBox Grid.Row="2" Margin="5 0 5 5" AlternationCount="2" HorizontalContentAlignment="Stretch" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ItemsSource="{Binding Files,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                             SelectionMode="Multiple" Background="Transparent" BorderThickness="0">
+                             SelectionMode="Extended" Background="Transparent" BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:FileToCopy}">
-                                <Border Height="48" Padding="0">
+                                <Border Height="50" Padding="0">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="38"/>
@@ -147,15 +157,21 @@
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*"/>
                                             <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
-                                        <Image Grid.Column="0" Grid.RowSpan="2" Source="/Assets/file.png" />
+                                        <Image Grid.Column="0" Grid.RowSpan="3" Source="/Assets/file.png" />
                                         <TextBlock Grid.Column="1" Grid.Row="0" 
                                                Text="{Binding FileName,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                VerticalAlignment="Bottom" FontWeight="Bold"/>
                                         <TextBlock Grid.Column="1" Grid.Row="1" 
                                                Text="{Binding FilePath,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                VerticalAlignment="Top"/>
-                                        <TextBlock Grid.Column="2" Grid.RowSpan="2" 
+                                        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" >
+                                            <TextBlock Text="File Size (Bytes) : " />
+                                            <TextBlock Text="{Binding FileSize,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}" 
+                                                   VerticalAlignment="Top" FontWeight="Bold"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="2" Grid.RowSpan="3" 
                                                Text="{Binding FileIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold"/>
                                     </Grid>
@@ -246,10 +262,9 @@
                                             <TextBlock Text=" / " VerticalAlignment="Center" />
                                             <TextBlock Text="{Binding VolumeCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
                                             <TextBlock Text=" : " VerticalAlignment="Center" />
-                                            <ListView x:Name="lstVolumePath" ItemsSource="{Binding VolumePaths}" Visibility="Collapsed" />
-                                            <TextBlock Text="{Binding VolumeCurrent,Converter={StaticResource GetVolumePathFromListByIndexConverter},
+                                            <!--<TextBlock Text="{Binding VolumeCurrent,Converter={StaticResource GetVolumePathFromListByIndexConverter},
                                                        ConverterParameter={x:Reference Name=lstVolumePath}}"  
-                                                       VerticalAlignment="Center" />
+                                                       VerticalAlignment="Center" />-->
                                         </StackPanel>
                                         <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal">
                                             <TextBlock Text="Task " VerticalAlignment="Center" />
@@ -274,7 +289,7 @@
                                     </Grid>
                                     <Border Grid.Row="1" x:Name="grdTaskDetails" 
                                           Visibility="{Binding IsSelected,Converter={StaticResource BooleanToVisibilityConverter}}" 
-                                          Background="White" Height="50">
+                                          Background="#400984e3" Margin="2" Padding="5" BorderThickness="0 2 0 0" BorderBrush="#0984e3">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
@@ -282,12 +297,42 @@
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="20"/>
-                                                <RowDefinition Height="20"/>
+                                                <RowDefinition Height="*"/>
                                             </Grid.RowDefinitions>
-                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Volume Paths : "/>
-                                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding ElementName=lstVolumePath,Converter={StaticResource GetVolumPathsFromListConverter}}"/>
-                                            <TextBlock Grid.Column="0" Grid.Row="1" Text="Disk Size : "/>
-                                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding DiskSize,Mode=OneTime,UpdateSourceTrigger=PropertyChanged}"/>
+                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Disk Size (Bytes) : "/>
+                                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding DiskSize,Mode=OneWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}"/>
+                                            <Grid Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
+                                                <ListView Margin="0" ItemsSource="{Binding Volumes}">
+                                                    <ListView.View>
+                                                        <GridView>
+                                                            <GridViewColumn Header=" Path " Width="Auto" DisplayMemberBinding="{Binding Name, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" />
+                                                            <GridViewColumn Header=" Valid " Width="Auto" >
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <CheckBox IsChecked="{Binding IsValid, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" IsEnabled="False" />
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                            <GridViewColumn Header=" Capacity " Width="Auto" DisplayMemberBinding="{Binding Capacity, Mode=OneWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}" />
+                                                            <GridViewColumn Header=" Free Space " Width="Auto" DisplayMemberBinding="{Binding FreeSpace, Mode=OneWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}" />
+                                                            <GridViewColumn Header=" File System " Width="Auto" DisplayMemberBinding="{Binding FileSystem, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" />
+                                                            <GridViewColumn Header=" Label " Width="Auto" DisplayMemberBinding="{Binding VolumeLabel, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" />
+                                                        </GridView>
+                                                    </ListView.View>
+                                                    <ListView.Resources>
+                                                        <Style  TargetType="{x:Type ListViewItem}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsValid}" Value="False">
+                                                                    <Setter Property="Background" Value="#50d63031"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding IsValid}" Value="True">
+                                                                    <Setter Property="Background" Value="#ffeaa7"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ListView.Resources>
+                                                </ListView>
+                                            </Grid>
                                         </Grid>
                                     </Border>
                                 </Grid>
@@ -321,7 +366,7 @@
                             </Border>
                         </DataTemplate>
                     </ListView.ItemTemplate>
-                    <ListBox.Resources>
+                    <ListView.Resources>
                         <Style  TargetType="{x:Type ListViewItem}">
                             <Setter Property="IsSelected" Value="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                             <Style.Triggers>
@@ -333,7 +378,7 @@
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
-                    </ListBox.Resources>
+                    </ListView.Resources>
                 </ListView>
             </Grid>
         </Border>

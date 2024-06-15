@@ -1,9 +1,6 @@
 ﻿using CopyFilesToFlash.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
+using USBDevicesLibrary.Interfaces.Storage;
 using USBDevicesLibrary.USBDevices;
 
 namespace CopyFilesToFlash.Models;
@@ -13,15 +10,34 @@ public class USBFlashDisk : ViewModelBase
     private readonly MainViewModel mainViewModel;
     private const string taskStopped = "Task Stopped";
 
-    public USBFlashDisk(MainViewModel _MainViewModel)
+    public USBFlashDisk(MainViewModel _MainViewModel, USBDevice usbDevice)
     {
         mainViewModel = _MainViewModel;
-        _VID = string.Empty;
-        _PID = string.Empty;
-        _VolumePaths = [];
+
+        _USBFlashDevice = usbDevice;
+        _VID = string.Format("{0:X4}", usbDevice.IDVendor).ToUpper();
+        _PID = string.Format("{0:X4}", usbDevice.IDProduct).ToUpper();
+        _TaskTotal = mainViewModel.TotalTasks.GetTotalTasks();
+
+        _VolumeCount = 0;
+        Volumes = [];
+        if (usbDevice.BaseDeviceProperties.Device_Service.Contains("USBSTOR", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (DiskDriveInterface itemDiskDrive in usbDevice)
+            {
+                _DiskSize = itemDiskDrive.DiskSize;
+                foreach (DiskPartitionInterface itemPartitions in itemDiskDrive)
+                {
+                    foreach (DiskLogicalInterface itemLogicalDrive in itemPartitions)
+                    {
+                        _VolumeCount++;
+                        Volumes.Add(new(mainViewModel, itemLogicalDrive));
+                    }
+                }
+            }
+        }
         _TaskDescription = taskStopped;
         _ErrorDescription = string.Empty;
-        _USBFlashDevice = new();
     }
 
     private string _VID;
@@ -43,13 +59,6 @@ public class USBFlashDisk : ViewModelBase
     {
         get { return _VolumeCount; }
         set { _VolumeCount = value; OnPropertyChanged(nameof(VolumeCount)); }
-    }
-
-    private List<string> _VolumePaths;
-    public List<string> VolumePaths
-    {
-        get { return _VolumePaths; }
-        set { _VolumePaths = value; OnPropertyChanged(nameof(VolumePaths)); }
     }
 
     private uint _VolumeCurrent;
@@ -122,7 +131,7 @@ public class USBFlashDisk : ViewModelBase
         set { _IsSelected = value; OnPropertyChanged(nameof(IsSelected)); }
     }
 
-
+    public ObservableCollection<Volume> Volumes {  get; set; }
 
     private USBDevice _USBFlashDevice;
     public USBDevice USBFlashDevice

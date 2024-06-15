@@ -53,6 +53,19 @@ public class TotalTasks : ViewModelBase
         }
     }
 
+    private ulong _TotalFileSize;
+    public ulong TotalFileSize
+    {
+        get { return _TotalFileSize; }
+        set 
+        { 
+            _TotalFileSize = value; 
+            OnPropertyChanged(nameof(TotalFileSize));
+            mainViewModel.OnTotalTasksChanged();
+        }
+    }
+
+
     public uint GetTotalTasks()
     {
         uint bResponse = 0;

@@ -60,14 +60,8 @@ public class MainViewModel : ViewModelBase
         USBFlashDisks.Clear();
         foreach (USBDevice itemUSBDevice in USBDevices.USBDevices)
         {
-            USBFlashDisk usbFlashDisk = new(this);
-            usbFlashDisk.USBFlashDevice = itemUSBDevice;
-            usbFlashDisk.VID = string.Format("{0:X4}", itemUSBDevice.IDVendor).ToUpper();
-            usbFlashDisk.PID = string.Format("{0:X4}", itemUSBDevice.IDProduct).ToUpper();
-            usbFlashDisk.VolumePaths = itemUSBDevice.GetUSBDeviceVolumPaths();
-            usbFlashDisk.VolumeCount = (uint)usbFlashDisk.VolumePaths.Count;
-            usbFlashDisk.TaskTotal = TotalTasks.GetTotalTasks();
-            usbFlashDisk.DiskSize = itemUSBDevice.GetUSBDeviceDiskSize();
+            USBFlashDisk usbFlashDisk = new(this, itemUSBDevice);
+            
             USBFlashDisks.Add(usbFlashDisk);
         }
     }
@@ -111,6 +105,21 @@ public class MainViewModel : ViewModelBase
         foreach (USBFlashDisk itemFlashDisks in USBFlashDisks)
         {
             itemFlashDisks.TaskTotal = TotalTasks.GetTotalTasks();
+            foreach (Volume itemVolume in itemFlashDisks.Volumes)
+            {
+                itemVolume.CheckVolumeIsValid();
+            }
+        }
+    }
+
+    public void OnVolumeLabelChanged()
+    {
+        foreach (USBFlashDisk itemFlashDisks in USBFlashDisks)
+        {
+            foreach (Volume itemVolume in itemFlashDisks.Volumes)
+            {
+                itemVolume.SetVolumeLabel();
+            }
         }
     }
 

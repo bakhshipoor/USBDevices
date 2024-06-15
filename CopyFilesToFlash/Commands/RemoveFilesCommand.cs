@@ -39,13 +39,16 @@ public class RemoveFilesCommand :CommandBase
             files.Remove(itemFile);
         }
         int memberIndex = 1;
+        ulong totalFileSize = 0;
         foreach (FileToCopy itemFile in files)
         {
             itemFile.FileIndex = memberIndex;
+            totalFileSize += (ulong)itemFile.FileSize;
             memberIndex++;
         }
         ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).SetFiles(files);
         mainViewModel.TotalTasks.FilesCount = (uint)files.Count;
+        mainViewModel.TotalTasks.TotalFileSize = totalFileSize;
         OnCanExecuteChanged();
     }
 

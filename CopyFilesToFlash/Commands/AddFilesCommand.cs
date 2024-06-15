@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,18 +37,25 @@ public class AddFilesCommand : CommandBase
             {
                 if (!CheckFileIsExistInList(itemFilePath))
                 {
-                    files.Add(new FileToCopy(mainViewModel) { FilePath = itemFilePath, FileName = openFileDialog.SafeFileNames[memberIndex] });
+                    FileToCopy file = new(mainViewModel);
+                    file.FilePath = itemFilePath;
+                    file.FileName = openFileDialog.SafeFileNames[memberIndex];
+                    file.FileSize = new FileInfo(itemFilePath).Length;
+                    files.Add(file);
                 }
                 memberIndex++;
             }
             memberIndex = 1;
+            ulong totalFileSize = 0;
             foreach (FileToCopy itemFile in files)
             {
                 itemFile.FileIndex = memberIndex;
+                totalFileSize += (ulong)itemFile.FileSize;
                 memberIndex++;
             }
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).SetFiles(files);
             mainViewModel.TotalTasks.FilesCount = (uint)files.Count;
+            mainViewModel.TotalTasks.TotalFileSize = totalFileSize;
         }
     }
 
