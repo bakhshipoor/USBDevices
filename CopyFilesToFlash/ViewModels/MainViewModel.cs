@@ -131,7 +131,7 @@ public class MainViewModel : ViewModelBase
         {
             foreach (Volume itemVolume in itemFlashDisks.Volumes)
             {
-                itemVolume.SetVolumeLabel();
+                itemVolume.ValidateNewVolumeLabel();
             }
         }
     }

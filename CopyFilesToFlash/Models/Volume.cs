@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using static USBDevicesLibrary.Win32API.FmIfsFunctions;
 using USBDevicesLibrary.Events;
 using CopyFilesToFlash.Events;
+using System.IO;
 
 namespace CopyFilesToFlash.Models;
 
@@ -45,7 +46,7 @@ public class Volume : DiskLogicalInterface
         _ErrorDescription = "No Error Detected.";
 
         CheckVolumeIsValid();
-        SetVolumeLabel();
+        ValidateNewVolumeLabel();
     }
 
 	private bool _IsValid;
@@ -90,7 +91,7 @@ public class Volume : DiskLogicalInterface
             IsValid = false;
     }
 
-    public void SetVolumeLabel()
+    public void ValidateNewVolumeLabel()
     {
         if (FileSystem.Equals("NTFS",StringComparison.OrdinalIgnoreCase))
         {
@@ -102,7 +103,7 @@ public class Volume : DiskLogicalInterface
         }
     }
 
-    public async void FormatVolume()
+    public async Task FormatVolume()
     {
         string filesystem = string.Empty;
         if (mainViewModel.Configuration.Format)
@@ -139,4 +140,31 @@ public class Volume : DiskLogicalInterface
         return 1;
     }
 
+    public bool SetVolumeLabel()
+    {
+        return StorageInterfaceHelpers.SetVolumeLabel(Name, VolumeLabel).Status;
+    }
+
+    public async Task<List<string>> CopyFiles()
+    {
+        List<string> bResponse = [];
+        List<Task> copyFilesTasks = [];
+        foreach (FileToCopy itemFile in mainViewModel.Files)
+        {
+            copyFilesTasks.Add(
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        File.Copy(itemFile.FilePath, Name + itemFile.FileName, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        bResponse.Add(itemFile.FileName + " -- " + ex.Message);
+                    }
+                }));
+        }
+        await Task.WhenAll(copyFilesTasks);
+        return bResponse;
+    }
 }

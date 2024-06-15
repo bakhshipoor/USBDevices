@@ -22,12 +22,16 @@ public class StartCommand : AsyncCommandBase
     public override async Task ExecuteAsync(object parameter)
     {
         mainViewModel.StartStatus = true;
-        foreach (USBFlashDisk itemFlashDisk in mainViewModel.USBFlashDisks)
+        await Task.Run(() =>
         {
-            foreach (Volume itemVolume in itemFlashDisk.Volumes)
+            while (mainViewModel.StartStatus)
             {
-                itemVolume.FormatVolume();
+                foreach (USBFlashDisk itemFlashDisk in mainViewModel.USBFlashDisks)
+                {
+                    if (itemFlashDisk.TaskCurrent == 0)
+                        itemFlashDisk.StartTasks();
+                }
             }
-        }
+        });
     }
 }

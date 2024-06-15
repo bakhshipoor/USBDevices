@@ -480,6 +480,11 @@ public static class StorageInterfaceHelpers
 
     public static Win32ResponseDataStruct EjectDiskDrive(DiskDriveInterface diskDrive)
     {
+        return EjectMedia(diskDrive.BaseDeviceProperties.DevInst);
+    }
+
+    public static Win32ResponseDataStruct EjectDiskDriveWithVolumes(DiskDriveInterface diskDrive)
+    {
         Win32ResponseDataStruct bresponse = new();
         foreach (DiskPartitionInterface itemPartitions in diskDrive)
         {
@@ -560,6 +565,22 @@ public static class StorageInterfaceHelpers
                 }
                 bResponse = volumeLabel;
             }
+        }
+        return bResponse;
+    }
+
+    public static Win32ResponseDataStruct SetVolumeLabel(string volumePath, string volumeLabel)
+    {
+        Win32ResponseDataStruct bResponse = new();
+        bool isSuccess = Kernel32Functions.SetVolumeLabel(volumePath, volumeLabel);
+        if (isSuccess)
+        {
+            bResponse.Status = true;
+        }
+        else
+        {
+            bResponse.Status = false;
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
         }
         return bResponse;
     }

@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using USBDevicesLibrary.Interfaces.Storage;
 using USBDevicesLibrary.USBDevices;
+using USBDevicesLibrary.Win32API;
 
 namespace CopyFilesToFlash.Models;
 
@@ -40,11 +41,6 @@ public class USBFlashDisk : ViewModelBase
             }
         }
         _TaskDescription = taskStopped;
-    }
-
-    private void Volume_FormatChanged(object? sender, Events.FormatEventArgs e)
-    {
-        
     }
 
     private string _VID;
@@ -89,8 +85,8 @@ public class USBFlashDisk : ViewModelBase
         set { _TaskTotal = value; OnPropertyChanged(nameof(TaskTotal)); }
     }
 
-    private int _TaskCurrent;
-    public int TaskCurrent
+    private uint _TaskCurrent;
+    public uint TaskCurrent
     {
         get { return _TaskCurrent; }
         set { _TaskCurrent = value; OnPropertyChanged(nameof(TaskCurrent)); }
@@ -124,6 +120,92 @@ public class USBFlashDisk : ViewModelBase
     {
         get { return _USBFlashDevice; }
         set { _USBFlashDevice = value; }
+    }
+
+    private void Volume_FormatChanged(object? sender, Events.FormatEventArgs e)
+    {
+        if (sender!=null && sender is Volume)
+        {
+            Volume volume = (Volume)sender;
+            if (!e.FormatIsWorking)
+            {
+                if (e.FormatIsSuccess)
+                {
+                    volume.TasksStatus = 1;
+                }
+                else
+                {
+                    volume.TasksStatus = 2;
+                    volume.ErrorDescription = "Error While Format";
+                }
+            }
+        }
+    }
+
+    public async void StartTasks()
+    {
+        uint volumeIndex = 1;
+        foreach (Volume itemVolume in Volumes)
+        {
+            VolumeCurrent = volumeIndex;
+            if (itemVolume.IsValid)
+            {
+                TaskCurrent = 1;
+                if (mainViewModel.Configuration.Format)
+                {
+                    TaskDescription = $"Format Volume {volumeIndex}";
+                    await Task.Run(() => itemVolume.FormatVolume());
+                    // Tray Again
+                    if (itemVolume.TasksStatus != 1)
+                        await Task.Run(() => itemVolume.FormatVolume());
+                    if (itemVolume.TasksStatus == 1)
+                        itemVolume.FileSystem = mainViewModel.FileSystemTypes[mainViewModel.Configuration.FileSystemIndex];
+                    else
+                    {
+                        volumeIndex++;
+                        continue;
+                    }    
+                }
+                bool bResult = itemVolume.SetVolumeLabel();
+                TaskCurrent++;
+                TaskDescription = $"Copying {mainViewModel.TotalTasks.FilesCount} Files";
+                List<string> copyResult = await Task.Run(() => itemVolume.CopyFiles());
+                if (copyResult!=null && copyResult.Count>0)
+                {
+                    itemVolume.TasksStatus = 2;
+                    itemVolume.ErrorDescription = "Error On This Files: " + string.Join(" , ", copyResult);
+                    volumeIndex++;
+                    continue;
+                }
+                else
+                {
+                    itemVolume.TasksStatus = 1;
+                    TaskCurrent += mainViewModel.TotalTasks.FilesCount - 1;
+                }
+                if (mainViewModel.Configuration.Eject)
+                {
+                    TaskCurrent++;
+                    TaskDescription = $"Eject Volume {volumeIndex}";
+                    Win32ResponseDataStruct ejectResult = StorageInterfaceHelpers.EjectVolume(itemVolume);
+                    // Try Again
+                    if (!ejectResult.Status)
+                        ejectResult = StorageInterfaceHelpers.EjectVolume(itemVolume);
+                    if (!ejectResult.Status)
+                    {
+                        //itemVolume.TasksStatus = 2;
+                        //itemVolume.ErrorDescription = ejectResult.Exception.Message;
+                    }
+                }
+            }
+            volumeIndex++;
+        }
+        if (mainViewModel.Configuration.Eject)
+        {
+            foreach (DiskDriveInterface itemDiskDrive in USBFlashDevice)
+            {
+                Win32ResponseDataStruct ejectResult = StorageInterfaceHelpers.EjectDiskDrive(itemDiskDrive);
+            }
+        }
     }
 
 }
