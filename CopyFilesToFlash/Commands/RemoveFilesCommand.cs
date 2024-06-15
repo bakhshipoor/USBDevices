@@ -45,6 +45,7 @@ public class RemoveFilesCommand :CommandBase
             memberIndex++;
         }
         ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).SetFiles(files);
+        mainViewModel.TotalTasks.FilesCount = (uint)files.Count;
         OnCanExecuteChanged();
     }
 

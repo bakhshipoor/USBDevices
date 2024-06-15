@@ -175,4 +175,17 @@ public class USBDevice : InterfaceBaseClass
         }
         return bResponse;
     }
+
+    public ulong GetUSBDeviceDiskSize()
+    {
+        ulong bResponse = 0;
+        if (BaseDeviceProperties.Device_Service.Contains("USBSTOR", StringComparison.OrdinalIgnoreCase))
+        {
+            foreach (DiskDriveInterface itemDiskDrive in this)
+            {
+                bResponse = itemDiskDrive.DiskSize;
+            }
+        }
+        return bResponse;
+    }
 }

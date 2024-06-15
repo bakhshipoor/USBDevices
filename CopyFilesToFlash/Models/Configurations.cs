@@ -17,6 +17,7 @@ public class Configurations : ViewModelBase
         mainViewModel = _MainViewModel;
         _VID = string.Empty;
 		_PID = string.Empty;
+        _VolumeLabel = string.Empty;
     }
 
 	private string _VID;
@@ -63,25 +64,16 @@ public class Configurations : ViewModelBase
             if (value)
             {
                 if (FileSystemIndex == 0)
-                {
                     mainViewModel.VolumeLabelMaxLenght = 32;
-                    VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, false);
-                }
                 else
-                {
                     mainViewModel.VolumeLabelMaxLenght = 11;
-                    VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, true);
-
-                }
             }
             else
-            {
                 mainViewModel.VolumeLabelMaxLenght = 32;
-                VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, false);
-            }
             OnPropertyChanged(nameof(Format)); 
-			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Format = value; 
-		}
+			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Format = value;
+            mainViewModel.TotalTasks.Format = value;
+        }
 	}
 
     private int _FileSystemIndex;
@@ -91,26 +83,12 @@ public class Configurations : ViewModelBase
         set
         {
             _FileSystemIndex = value;
+            if (value == 0)
+                mainViewModel.VolumeLabelMaxLenght = 32;
+            else
+                mainViewModel.VolumeLabelMaxLenght = 11;
             OnPropertyChanged(nameof(FileSystemIndex));
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).FileSystemIndex = value;
-            if (Format)
-            {
-                if (value == 0)
-                {
-                    mainViewModel.VolumeLabelMaxLenght = 32;
-                    VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, false);
-                }
-                else
-                {
-                    mainViewModel.VolumeLabelMaxLenght = 11;
-                    VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, true);
-                }
-            }
-            else
-            {
-                mainViewModel.VolumeLabelMaxLenght = 32;
-                VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(VolumeLabel, false);
-            }
         }
     }
 
@@ -120,18 +98,8 @@ public class Configurations : ViewModelBase
         get { return _VolumeLabel; }
         set
         {
-            if (Format)
-            {
-                if (FileSystemIndex != 0)
-                    value = StorageInterfaceHelpers.ValidateVolumeLabel(value, true);
-                else
-                    value = StorageInterfaceHelpers.ValidateVolumeLabel(value, false);
-            }
-            else
-            {
-                mainViewModel.VolumeLabelMaxLenght = 32;
-                value = StorageInterfaceHelpers.ValidateVolumeLabel(value, false);
-            }
+            if (mainViewModel.VolumeLabelMaxLenght == 11)
+                value = StorageInterfaceHelpers.ValidateVolumeLabel(value, true);
             _VolumeLabel = value;
             OnPropertyChanged(nameof(VolumeLabel));
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).VolumeLabel = value;
@@ -146,8 +114,9 @@ public class Configurations : ViewModelBase
 		{ 
 			_Eject = value; 
 			OnPropertyChanged(nameof(Eject)); 
-			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Eject = value; 
-		}
+			((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).Eject = value;
+            mainViewModel.TotalTasks.Eject = value;
+        }
 	}
 
 

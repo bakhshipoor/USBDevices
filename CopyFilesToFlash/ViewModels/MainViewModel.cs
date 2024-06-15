@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Windows.Input;
 using USBDevicesLibrary;
+using USBDevicesLibrary.Interfaces.Storage;
 using USBDevicesLibrary.USBDevices;
 
 namespace CopyFilesToFlash.ViewModels;
@@ -30,6 +31,7 @@ public class MainViewModel : ViewModelBase
         USBDevices.ConnectedEventStatus = true;
         USBDevices.DisconnectedEventStatus = true;
 
+        _TotalTasks = new(this);
         Configuration = new Configurations(this);
         USBFlashDisks = [];
         Files = [];
@@ -42,12 +44,15 @@ public class MainViewModel : ViewModelBase
         Configuration.Eject = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).Eject;
         Files = ((UserConfigurations)AppConfig.Sections["UserConfigurations"]).GetFiles(this);
 
+        TotalTasks.Format = Configuration.Format;
+        TotalTasks.Eject = Configuration.Eject;
+        TotalTasks.FilesCount = (uint)Files.Count;
+
         AddFiles = new AddFilesCommand(this);
         RemoveFiles = new RemoveFilesCommand(this);
-
+        
         UpdateUSBFilter();
         USBDevices.Start();
-
     }
 
     private void USBDevices_DeviceChanged(object? sender, USBDevicesLibrary.Events.USBDevicesEventArgs e)
@@ -55,16 +60,15 @@ public class MainViewModel : ViewModelBase
         USBFlashDisks.Clear();
         foreach (USBDevice itemUSBDevice in USBDevices.USBDevices)
         {
-            List<string> drivePaths = itemUSBDevice.GetUSBDeviceVolumPaths();
-            foreach (string itemDrivePath in drivePaths)
-            {
-                USBFlashDisk usbFlashDisk = new(this);
-                usbFlashDisk.USBFlashDevice = itemUSBDevice;
-                usbFlashDisk.VID = string.Format("{0:X4}", itemUSBDevice.IDVendor).ToUpper();
-                usbFlashDisk.PID = string.Format("{0:X4}", itemUSBDevice.IDProduct).ToUpper();
-                usbFlashDisk.Path = itemDrivePath;
-                USBFlashDisks.Add(usbFlashDisk);
-            }
+            USBFlashDisk usbFlashDisk = new(this);
+            usbFlashDisk.USBFlashDevice = itemUSBDevice;
+            usbFlashDisk.VID = string.Format("{0:X4}", itemUSBDevice.IDVendor).ToUpper();
+            usbFlashDisk.PID = string.Format("{0:X4}", itemUSBDevice.IDProduct).ToUpper();
+            usbFlashDisk.VolumePaths = itemUSBDevice.GetUSBDeviceVolumPaths();
+            usbFlashDisk.VolumeCount = (uint)usbFlashDisk.VolumePaths.Count;
+            usbFlashDisk.TaskTotal = TotalTasks.GetTotalTasks();
+            usbFlashDisk.DiskSize = itemUSBDevice.GetUSBDeviceDiskSize();
+            USBFlashDisks.Add(usbFlashDisk);
         }
     }
 
@@ -76,14 +80,38 @@ public class MainViewModel : ViewModelBase
     public uint VolumeLabelMaxLenght
     {
         get { return _VolumeLabelMaxLenght; }
-        set { _VolumeLabelMaxLenght = value; OnPropertyChanged(nameof(VolumeLabelMaxLenght)); }
+        set 
+        { 
+            _VolumeLabelMaxLenght = value; 
+            if (value == 11)
+            {
+                Configuration.VolumeLabel = StorageInterfaceHelpers.ValidateVolumeLabel(Configuration.VolumeLabel, true);
+            }
+            OnPropertyChanged(nameof(VolumeLabelMaxLenght)); 
+        }
     }
+
+    private TotalTasks _TotalTasks;
+    public TotalTasks TotalTasks
+    {
+        get { return _TotalTasks; }
+        set { _TotalTasks = value; }
+    }
+
 
 
 
     public void OnFileSelectionChanged(FileToCopy fileToCopy)
     {
         FileSelectionChanged?.Invoke(this, new EventArgs());
+    }
+
+    public void OnTotalTasksChanged()
+    {
+        foreach (USBFlashDisk itemFlashDisks in USBFlashDisks)
+        {
+            itemFlashDisks.TaskTotal = TotalTasks.GetTotalTasks();
+        }
     }
 
     public void UpdateUSBFilter()

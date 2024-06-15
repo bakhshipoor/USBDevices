@@ -47,6 +47,7 @@ public class AddFilesCommand : CommandBase
                 memberIndex++;
             }
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).SetFiles(files);
+            mainViewModel.TotalTasks.FilesCount = (uint)files.Count;
         }
     }
 

@@ -4,11 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:CopyFilesToFlash.ViewModels"
+        xmlns:converters="clr-namespace:CopyFilesToFlash.Converters"
         xmlns:models="clr-namespace:CopyFilesToFlash.Models"
         xmlns:local="clr-namespace:CopyFilesToFlas"
         mc:Ignorable="d"
         Title="Copy Files To Flash" Height="800" MinHeight="800" Width="800" MinWidth="800" WindowStartupLocation="CenterScreen">
-   
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:GetVolumePathFromListByIndexConverter x:Key="GetVolumePathFromListByIndexConverter" />
+        <converters:GetVolumPathsFromListConverter x:Key="GetVolumPathsFromListConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="320"/>
@@ -207,49 +212,89 @@
                                 FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"/>
                     </Grid>
                 </Border>
-                <!-- List Box -->
+                <!-- Tasks List Box -->
                 <ListView Grid.Row="1" Margin="5" AlternationCount="2" HorizontalContentAlignment="Stretch" 
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ItemsSource="{Binding USBFlashDisks,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                         SelectionMode="Single" Background="Transparent" BorderThickness="0">
+                         SelectionMode="Multiple" Background="Transparent" BorderThickness="0">
                     <ListView.ItemTemplate>
-                        <DataTemplate DataType="{x:Type models:FileToCopy}">
-                            <Border Height="48" Padding="0">
+                        <DataTemplate DataType="{x:Type models:USBFlashDisk}">
+                            <Border  Padding="0">
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="38"/>
-                                        <ColumnDefinition Width="50"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="50"/>
-                                        <ColumnDefinition Width="50"/>
-                                    </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="50"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <Image Grid.Column="0" Grid.RowSpan="2" Source="/Assets/usb.png" />
-                                    <TextBlock Grid.Column="1" Grid.RowSpan="2" 
-                                           Text="{Binding Path,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                                           VerticalAlignment="Center" FontWeight="Bold" Margin="10 0"/>
-                                    <ProgressBar Grid.Column="2" Value="50" Height="15" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="2" Grid.Row="1" Text="Operation 1/2: Formatting ..." VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="3"  Grid.Row="0" Text="VID : " VerticalAlignment="Center" 
+                                    <Grid Grid.Row="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="38"/>
+                                            <ColumnDefinition Width="10"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="50"/>
+                                            <ColumnDefinition Width="50"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Image Grid.Column="0" Grid.RowSpan="3" Source="/Assets/usb.png" />
+                                        <ProgressBar Grid.Column="2" Value="50" Height="15" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="2" Grid.Row="1" Orientation="Horizontal">
+                                            <TextBlock Text="Volume " VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding VolumeCurrent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                            <TextBlock Text=" / " VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding VolumeCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                            <TextBlock Text=" : " VerticalAlignment="Center" />
+                                            <ListView x:Name="lstVolumePath" ItemsSource="{Binding VolumePaths}" Visibility="Collapsed" />
+                                            <TextBlock Text="{Binding VolumeCurrent,Converter={StaticResource GetVolumePathFromListByIndexConverter},
+                                                       ConverterParameter={x:Reference Name=lstVolumePath}}"  
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal">
+                                            <TextBlock Text="Task " VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding TaskCurrent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                            <TextBlock Text=" / " VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding TaskTotal,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                            <TextBlock Text=" : " VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding TaskDescription,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="3"  Grid.Row="0" Text="VID : " VerticalAlignment="Center" 
                                            HorizontalAlignment="Right" FontWeight="Regular" Margin="10 0"/>
-                                    <TextBlock Grid.Column="3"  Grid.Row="1" Text="PID : " VerticalAlignment="Center" 
+                                        <TextBlock Grid.Column="3"  Grid.Row="1" Text="PID : " VerticalAlignment="Center" 
                                            HorizontalAlignment="Right" FontWeight="Regular" Margin="10 0"/>
-                                    <TextBlock Grid.Column="4"  Grid.Row="0" 
+                                        <TextBlock Grid.Column="4"  Grid.Row="0" 
                                            Text="{Binding VID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                            VerticalAlignment="Center" 
                                            HorizontalAlignment="Right" FontWeight="Bold" Margin="10 0"/>
-                                    <TextBlock Grid.Column="4"  Grid.Row="1" 
+                                        <TextBlock Grid.Column="4"  Grid.Row="1" 
                                            Text="{Binding PID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                            VerticalAlignment="Center" 
-                                           HorizontalAlignment="Right" FontWeight="Bold" Margin="10 0"/>
+                                           HorizontalAlignment="Right" FontWeight="Bold" Margin="10 0" />
+                                    </Grid>
+                                    <Border Grid.Row="1" x:Name="grdTaskDetails" 
+                                          Visibility="{Binding IsSelected,Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                          Background="White" Height="50">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="20"/>
+                                                <RowDefinition Height="20"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="Volume Paths : "/>
+                                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding ElementName=lstVolumePath,Converter={StaticResource GetVolumPathsFromListConverter}}"/>
+                                            <TextBlock Grid.Column="0" Grid.Row="1" Text="Disk Size : "/>
+                                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding DiskSize,Mode=OneTime,UpdateSourceTrigger=PropertyChanged}"/>
+                                        </Grid>
+                                    </Border>
                                 </Grid>
                                 <Border.ToolTip>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="50"/>
+                                            <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
@@ -257,12 +302,12 @@
                                             <RowDefinition Height="*"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
-                                        <TextBlock Grid.Column="0" Grid.Row="0" Text="Path : " VerticalAlignment="Center" Padding="2"/>
+                                        <TextBlock Grid.Column="0" Grid.Row="0" Text="Volume Count : " VerticalAlignment="Center" Padding="2"/>
                                         <TextBlock Grid.Column="0" Grid.Row="1" Text="VID : " VerticalAlignment="Center" Padding="2"/>
                                         <TextBlock Grid.Column="0" Grid.Row="2" Text="PID : " VerticalAlignment="Center" Padding="2"/>
 
                                         <TextBlock Grid.Column="1" Grid.Row="0" 
-                                                   Text="{Binding Path,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                   Text="{Binding VolumeCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                                     VerticalAlignment="Center" Padding="2" FontWeight="Bold"/>
                                         <TextBlock Grid.Column="1" Grid.Row="1" 
                                                    Text="{Binding VID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
@@ -278,6 +323,7 @@
                     </ListView.ItemTemplate>
                     <ListBox.Resources>
                         <Style  TargetType="{x:Type ListViewItem}">
+                            <Setter Property="IsSelected" Value="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
                             <Style.Triggers>
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                     <Setter Property="Background" Value="#66fdcb6e"></Setter>

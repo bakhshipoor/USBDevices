@@ -51,8 +51,4 @@
     <ProjectReference Include="..\USBDevicesLibrary\USBDevicesLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Converters\" />
-  </ItemGroup>
-
 </Project>
