@@ -11,8 +11,7 @@
         Title="Copy Files To Flash" Height="800" MinHeight="800" Width="800" MinWidth="800" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <converters:GetVolumePathFromListByIndexConverter x:Key="GetVolumePathFromListByIndexConverter" />
-        <converters:GetVolumPathsFromListConverter x:Key="GetVolumPathsFromListConverter" />
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -20,7 +19,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <!-- Left Side -->
-        <Border Grid.Column="0" Padding="10" Background="#b2bec3" >
+        <Border Grid.Column="0" Padding="10" Background="#b2bec3" IsEnabled="{Binding StartStatus,Mode=OneWay,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource InverseBooleanConverter}}" >
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="250"/>
@@ -144,7 +143,7 @@
                     <ListBox Grid.Row="2" Margin="5 0 5 5" AlternationCount="2" HorizontalContentAlignment="Stretch" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ItemsSource="{Binding Files,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                             SelectionMode="Extended" Background="Transparent" BorderThickness="0">
+                             SelectionMode="Multiple" Background="Transparent" BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate DataType="{x:Type models:FileToCopy}">
                                 <Border Height="50" Padding="0">
@@ -223,9 +222,13 @@
                 <Border Grid.Row="0" Margin="0 0 0 0" Padding="5 0">
                     <Grid>
                         <Button HorizontalAlignment="Left" Content="Start" Padding="0" Width="100"  Height="35" VerticalAlignment="Bottom"
-                                FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"/>
+                                FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"
+                                Command="{Binding Start}"
+                                IsEnabled="{Binding StartStatus,Mode=OneWay,UpdateSourceTrigger=PropertyChanged,Converter={StaticResource InverseBooleanConverter}}"/>
                         <Button HorizontalAlignment="Right" Content="Stop" Padding="0" Width="100" Height="35" VerticalAlignment="Bottom"
-                                FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"/>
+                                FontWeight="Bold" FontSize="13" Foreground="#2d3436" BorderBrush="#2d3436"
+                                Command="{Binding Stop}"
+                                IsEnabled="{Binding StartStatus,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
                 </Border>
                 <!-- Tasks List Box -->
@@ -261,10 +264,7 @@
                                             <TextBlock Text="{Binding VolumeCurrent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
                                             <TextBlock Text=" / " VerticalAlignment="Center" />
                                             <TextBlock Text="{Binding VolumeCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" />
-                                            <TextBlock Text=" : " VerticalAlignment="Center" />
-                                            <!--<TextBlock Text="{Binding VolumeCurrent,Converter={StaticResource GetVolumePathFromListByIndexConverter},
-                                                       ConverterParameter={x:Reference Name=lstVolumePath}}"  
-                                                       VerticalAlignment="Center" />-->
+                                            <TextBlock Text="  " VerticalAlignment="Center" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal">
                                             <TextBlock Text="Task " VerticalAlignment="Center" />
@@ -305,7 +305,13 @@
                                                 <ListView Margin="0" ItemsSource="{Binding Volumes}">
                                                     <ListView.View>
                                                         <GridView>
-                                                            <GridViewColumn Header=" Path " Width="Auto" DisplayMemberBinding="{Binding Name, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" />
+                                                            <GridViewColumn Header=" Path " Width="Auto">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding Name, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
                                                             <GridViewColumn Header=" Valid " Width="Auto" >
                                                                 <GridViewColumn.CellTemplate>
                                                                     <DataTemplate>
@@ -313,20 +319,55 @@
                                                                     </DataTemplate>
                                                                 </GridViewColumn.CellTemplate>
                                                             </GridViewColumn>
-                                                            <GridViewColumn Header=" Capacity " Width="Auto" DisplayMemberBinding="{Binding Capacity, Mode=OneWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}" />
-                                                            <GridViewColumn Header=" Free Space " Width="Auto" DisplayMemberBinding="{Binding FreeSpace, Mode=OneWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}" />
-                                                            <GridViewColumn Header=" File System " Width="Auto" DisplayMemberBinding="{Binding FileSystem, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" />
-                                                            <GridViewColumn Header=" Label " Width="Auto" DisplayMemberBinding="{Binding VolumeLabel, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" />
+                                                            <GridViewColumn Header=" Capacity " Width="Auto">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding Capacity, Mode=OneWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                            <GridViewColumn Header=" Free Space " Width="Auto">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding FreeSpace, Mode=OneWay,UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:N0}}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                            <GridViewColumn Header=" File System " Width="Auto">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding FileSystem, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center"/>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                            <GridViewColumn Header=" New Label " Width="Auto">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding VolumeLabel, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
+                                                            <GridViewColumn Header=" Error " Width="Auto">
+                                                                <GridViewColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBlock Text="{Binding ErrorDescription, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                                    </DataTemplate>
+                                                                </GridViewColumn.CellTemplate>
+                                                            </GridViewColumn>
                                                         </GridView>
                                                     </ListView.View>
                                                     <ListView.Resources>
                                                         <Style  TargetType="{x:Type ListViewItem}">
+                                                            <Setter Property="Background" Value="#ffeaa7"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsValid}" Value="False">
                                                                     <Setter Property="Background" Value="#50d63031"/>
                                                                 </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsValid}" Value="True">
-                                                                    <Setter Property="Background" Value="#ffeaa7"/>
+                                                                <DataTrigger Binding="{Binding TasksStatus}" Value="1">
+                                                                    <Setter Property="Background" Value="#7000b894"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding TasksStatus}" Value="2">
+                                                                    <Setter Property="Background" Value="#A0d63031"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -369,12 +410,16 @@
                     <ListView.Resources>
                         <Style  TargetType="{x:Type ListViewItem}">
                             <Setter Property="IsSelected" Value="{Binding IsSelected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                            <Setter Property="Margin" Value="0 0 0 5"/>
                             <Style.Triggers>
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
                                     <Setter Property="Background" Value="#66fdcb6e"></Setter>
                                 </Trigger>
                                 <Trigger Property="ItemsControl.AlternationIndex" Value="1">
                                     <Setter Property="Background" Value="#66ffeaa7"></Setter>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="BorderThickness" Value="2" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>

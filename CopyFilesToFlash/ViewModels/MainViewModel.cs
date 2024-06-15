@@ -17,6 +17,8 @@ public class MainViewModel : ViewModelBase
 
     public ICommand AddFiles { get; set; }
     public ICommand RemoveFiles { get; set; }
+    public ICommand Start { get; set; }
+    public ICommand Stop { get; set; }
 
     public List<string> FileSystemTypes { get; } = new() { "NTFS", "FAT","FAT32", "exFAT"};
 
@@ -50,6 +52,8 @@ public class MainViewModel : ViewModelBase
 
         AddFiles = new AddFilesCommand(this);
         RemoveFiles = new RemoveFilesCommand(this);
+        Start = new StartCommand(this);
+        Stop = new StopCommand(this);
         
         UpdateUSBFilter();
         USBDevices.Start();
@@ -92,6 +96,12 @@ public class MainViewModel : ViewModelBase
         set { _TotalTasks = value; }
     }
 
+    private bool _StartStatus;
+    public bool StartStatus
+    {
+        get { return _StartStatus; }
+        set { _StartStatus = value; OnPropertyChanged(nameof(StartStatus)); }
+    }
 
 
 
@@ -105,9 +115,12 @@ public class MainViewModel : ViewModelBase
         foreach (USBFlashDisk itemFlashDisks in USBFlashDisks)
         {
             itemFlashDisks.TaskTotal = TotalTasks.GetTotalTasks();
+            itemFlashDisks.VolumeCount = 0;
             foreach (Volume itemVolume in itemFlashDisks.Volumes)
             {
                 itemVolume.CheckVolumeIsValid();
+                if (itemVolume.IsValid)
+                    itemFlashDisks.VolumeCount++;
             }
         }
     }

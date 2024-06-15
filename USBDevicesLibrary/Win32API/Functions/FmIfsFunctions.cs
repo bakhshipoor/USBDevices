@@ -12,7 +12,7 @@ public static partial class FmIfsFunctions
 {
     // https://github.com/microsoft/winfile/blob/master/src/fmifs.h
 
-    private delegate byte FMIFS_CALLBACK
+    public delegate byte FMIFS_CALLBACK
         (
         FMIFS_PACKET_TYPE PacketType,
         uint PacketLength,
@@ -31,13 +31,18 @@ public static partial class FmIfsFunctions
         FMIFS_CALLBACK callBackDelegate
         );
 
-    public static void FormatFMIFS(string name)
+    // Use this code behind of this method when you call it
+    // FMIFS_CALLBACK formatCallBack = new FMIFS_CALLBACK(FormatCallBack); // see below to find FormatCallBack method
+    public static async Task FormatVolume(string driveName, FMIFS_MEDIA_TYPE driveType, string fileSystem, string volumeLabel, bool quickFormat, FMIFS_CALLBACK formatCallBack)
     {
-        FMIFS_CALLBACK fcb = new FMIFS_CALLBACK(formatCallBack);
-        Format(name, FMIFS_MEDIA_TYPE.FmMediaRemovable, "exFAT", "zzzzz", 1, fcb);
+        byte qf = Convert.ToByte(quickFormat);
+        await Task.Run(()=> Format(driveName, driveType, fileSystem, volumeLabel, qf, formatCallBack));
+        
     }
 
-    private static byte formatCallBack(FMIFS_PACKET_TYPE PacketType, uint PacketLength, IntPtr PacketData)
+    // use this method in your class to mange call back such as a trigger events.
+    /* 
+    public static byte FormatCallBack(FMIFS_PACKET_TYPE PacketType, uint PacketLength, IntPtr PacketData)
     {
         switch (PacketType)
         {
@@ -58,4 +63,5 @@ public static partial class FmIfsFunctions
         }
         return 1;
     }
+    */
 }

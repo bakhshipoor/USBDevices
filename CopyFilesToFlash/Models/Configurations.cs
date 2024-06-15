@@ -83,10 +83,16 @@ public class Configurations : ViewModelBase
         set
         {
             _FileSystemIndex = value;
-            if (value == 0)
-                mainViewModel.VolumeLabelMaxLenght = 32;
+            if (_Format)
+            {
+                if (value == 0)
+                    mainViewModel.VolumeLabelMaxLenght = 32;
+                else
+                    mainViewModel.VolumeLabelMaxLenght = 11;
+            }
             else
-                mainViewModel.VolumeLabelMaxLenght = 11;
+                mainViewModel.VolumeLabelMaxLenght = 32;
+
             OnPropertyChanged(nameof(FileSystemIndex));
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).FileSystemIndex = value;
         }
@@ -100,6 +106,8 @@ public class Configurations : ViewModelBase
         {
             if (mainViewModel.VolumeLabelMaxLenght == 11)
                 value = StorageInterfaceHelpers.ValidateVolumeLabel(value, true);
+            else
+                value = StorageInterfaceHelpers.ValidateVolumeLabel(value, false);
             _VolumeLabel = value;
             OnPropertyChanged(nameof(VolumeLabel));
             ((UserConfigurations)mainViewModel.AppConfig.Sections["UserConfigurations"]).VolumeLabel = value;

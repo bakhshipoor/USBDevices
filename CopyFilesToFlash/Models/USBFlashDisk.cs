@@ -30,14 +30,21 @@ public class USBFlashDisk : ViewModelBase
                 {
                     foreach (DiskLogicalInterface itemLogicalDrive in itemPartitions)
                     {
-                        _VolumeCount++;
-                        Volumes.Add(new(mainViewModel, itemLogicalDrive));
+                        Volume volume = new(mainViewModel, itemLogicalDrive);
+                        volume.FormatChanged += Volume_FormatChanged;
+                        Volumes.Add(volume);
+                        if (volume.IsValid)
+                            _VolumeCount++;
                     }
                 }
             }
         }
         _TaskDescription = taskStopped;
-        _ErrorDescription = string.Empty;
+    }
+
+    private void Volume_FormatChanged(object? sender, Events.FormatEventArgs e)
+    {
+        
     }
 
     private string _VID;
@@ -101,27 +108,6 @@ public class USBFlashDisk : ViewModelBase
     {
         get { return _TaskDescription; }
         set { _TaskDescription = value; OnPropertyChanged(nameof(TaskDescription)); }
-    }
-
-    private bool _TasksFinished;
-    public bool TasksFinished
-    {
-        get { return _TasksFinished; }
-        set { _TasksFinished = value; OnPropertyChanged(nameof(TasksFinished)); }
-    }
-
-    private bool _TasksIsSuccessfull;
-    public bool TasksIsSuccessfull
-    {
-        get { return _TasksIsSuccessfull; }
-        set { _TasksIsSuccessfull = value; OnPropertyChanged(nameof(TasksIsSuccessfull)); }
-    }
-
-    private string _ErrorDescription;
-    public string ErrorDescription
-    {
-        get { return _ErrorDescription; }
-        set { _ErrorDescription = value; OnPropertyChanged(nameof(ErrorDescription)); }
     }
 
     private bool _IsSelected;
