@@ -166,7 +166,7 @@ public class USBFlashDisk : ViewModelBase
     private void Volume_CopyFileFinished(object? sender, CopyEventArgs e)
     {
         
-        TaskDescription = $"Copy File {e.FileToCopy.FileName}";
+        TaskDescription = $"Copy File {e.FileToCopy.FileName} Finished";
         if (!e.CopyStatus && e.FileException != null)
         {
             e.Volume.TasksStatus = 2;
