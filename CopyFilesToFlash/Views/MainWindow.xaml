@@ -249,8 +249,8 @@
                                             <ColumnDefinition Width="38"/>
                                             <ColumnDefinition Width="10"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="50"/>
-                                            <ColumnDefinition Width="50"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="70"/>
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*"/>
@@ -281,6 +281,9 @@
                                            HorizontalAlignment="Right" FontWeight="Regular" Margin="10 0"/>
                                         <TextBlock Grid.Column="3"  Grid.Row="1" Text="PID : " VerticalAlignment="Center" 
                                            HorizontalAlignment="Right" FontWeight="Regular" Margin="10 0"/>
+                                        <TextBlock Grid.Column="3"  Grid.Row="2"  Grid.ColumnSpan="2"
+                                                   Text="{Binding USBFlashDevice.BaseDeviceProperties.Device_LocationInfo,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" 
+                                                   HorizontalAlignment="Right" FontWeight="Regular" Margin="0"/>
                                         <TextBlock Grid.Column="4"  Grid.Row="0" 
                                            Text="{Binding VID,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                            VerticalAlignment="Center" 

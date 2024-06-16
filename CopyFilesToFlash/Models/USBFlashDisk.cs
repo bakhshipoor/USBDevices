@@ -246,6 +246,8 @@ public class USBFlashDisk : ViewModelBase
             volumeIndex++;
         }
 
+        VolumeCurrent = 0;
+
         if (mainViewModel.Configuration.Eject)
         {
             foreach (DiskDriveInterface itemDiskDrive in USBFlashDevice)
