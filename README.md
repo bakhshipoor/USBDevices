@@ -73,6 +73,8 @@ This Library have two example of usage of this library.
 
 ![CopyFilesToFlash-1](https://github.com/bakhshipoor/USBDevices/assets/2270529/bd04ac13-bc25-4e69-b69e-e45ce0874791)
 
+![CopyFilesToFlash-2](https://github.com/bakhshipoor/USBDevices/assets/2270529/c9992ad0-4086-4190-814a-3577da294708)
+
 
 
 
