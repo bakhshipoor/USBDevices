@@ -1,4 +1,5 @@
-﻿using CopyFilesToFlash.ViewModels;
+﻿using CopyFilesToFlash.Events;
+using CopyFilesToFlash.ViewModels;
 using System.Collections.ObjectModel;
 using USBDevicesLibrary.Interfaces.Storage;
 using USBDevicesLibrary.USBDevices;
@@ -10,6 +11,7 @@ public class USBFlashDisk : ViewModelBase
 {
     private readonly MainViewModel mainViewModel;
     private const string taskStopped = "Task Stopped";
+    public event EventHandler<EventArgs>? TasksFinishedSuccessfully;
 
     public USBFlashDisk(MainViewModel _MainViewModel, USBDevice usbDevice)
     {
@@ -33,6 +35,7 @@ public class USBFlashDisk : ViewModelBase
                     {
                         Volume volume = new(mainViewModel, itemLogicalDrive);
                         volume.FormatChanged += Volume_FormatChanged;
+                        volume.CopyFileFinished += Volume_CopyFileFinished;
                         Volumes.Add(volume);
                         if (volume.IsValid)
                             _VolumeCount++;
@@ -142,18 +145,37 @@ public class USBFlashDisk : ViewModelBase
         }
     }
 
+    private void Volume_CopyFileFinished(object? sender, Events.CopyEventArgs e)
+    {
+        
+        TaskDescription = $"Copy File {e.FileToCopy.FileName}";
+        if (!e.CopyStatus && e.FileException != null)
+        {
+            e.Volume.TasksStatus = 2;
+            e.Volume.ErrorDescription += $" Error While Copyng File {e.FileToCopy.FileName}, Error: {e.FileException.Message},   ";
+        }
+        TaskCurrent++;
+    }
+
+    internal virtual void OnTasksFinishedSuccessfully(EventArgs e)
+    {
+        TasksFinishedSuccessfully?.Invoke(this, e);
+    }
+
     public async void StartTasks()
     {
         uint volumeIndex = 1;
+        List<Volume> successfullyFinisedVolumes = [];
         foreach (Volume itemVolume in Volumes)
         {
             VolumeCurrent = volumeIndex;
             if (itemVolume.IsValid)
             {
                 TaskCurrent = 1;
+                // Format
                 if (mainViewModel.Configuration.Format)
                 {
-                    TaskDescription = $"Format Volume {volumeIndex}";
+                    TaskDescription = $"Format Volume {itemVolume.Name}";
                     await Task.Run(() => itemVolume.FormatVolume());
                     // Tray Again
                     if (itemVolume.TasksStatus != 1)
@@ -162,30 +184,27 @@ public class USBFlashDisk : ViewModelBase
                         itemVolume.FileSystem = mainViewModel.FileSystemTypes[mainViewModel.Configuration.FileSystemIndex];
                     else
                     {
-                        volumeIndex++;
-                        continue;
+                        goto EndOfVolumeTask;
                     }    
                 }
+
+                // Set Volume Label
                 bool bResult = itemVolume.SetVolumeLabel();
-                TaskCurrent++;
-                TaskDescription = $"Copying {mainViewModel.TotalTasks.FilesCount} Files";
-                List<string> copyResult = await Task.Run(() => itemVolume.CopyFiles());
-                if (copyResult!=null && copyResult.Count>0)
+
+                // Copy Files
+                //TaskCurrent++;
+                //TaskDescription = $"Copying {mainViewModel.TotalTasks.FilesCount} Files";
+                await Task.Run(() => itemVolume.CopyFiles());
+                if (itemVolume.TasksStatus != 1)
                 {
-                    itemVolume.TasksStatus = 2;
-                    itemVolume.ErrorDescription = "Error On This Files: " + string.Join(" , ", copyResult);
-                    volumeIndex++;
-                    continue;
+                    goto EndOfVolumeTask;
                 }
-                else
-                {
-                    itemVolume.TasksStatus = 1;
-                    TaskCurrent += mainViewModel.TotalTasks.FilesCount - 1;
-                }
+
+                // Eject
                 if (mainViewModel.Configuration.Eject)
                 {
                     TaskCurrent++;
-                    TaskDescription = $"Eject Volume {volumeIndex}";
+                    TaskDescription = $"Eject Volume {itemVolume.Name}";
                     Win32ResponseDataStruct ejectResult = StorageInterfaceHelpers.EjectVolume(itemVolume);
                     // Try Again
                     if (!ejectResult.Status)
@@ -196,15 +215,25 @@ public class USBFlashDisk : ViewModelBase
                         //itemVolume.ErrorDescription = ejectResult.Exception.Message;
                     }
                 }
+                successfullyFinisedVolumes.Add(itemVolume);
             }
+            EndOfVolumeTask:
+            itemVolume.FormatChanged -= Volume_FormatChanged;
+            itemVolume.CopyFileFinished -= Volume_CopyFileFinished;
             volumeIndex++;
         }
+
         if (mainViewModel.Configuration.Eject)
         {
             foreach (DiskDriveInterface itemDiskDrive in USBFlashDevice)
             {
                 Win32ResponseDataStruct ejectResult = StorageInterfaceHelpers.EjectDiskDrive(itemDiskDrive);
             }
+        }
+
+        if (Volumes.Count==successfullyFinisedVolumes.Count)
+        {
+            OnTasksFinishedSuccessfully(new EventArgs());
         }
     }
 

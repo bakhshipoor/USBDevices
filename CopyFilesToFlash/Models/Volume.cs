@@ -15,6 +15,7 @@ public class Volume : DiskLogicalInterface
 {
     private readonly MainViewModel mainViewModel;
     public event EventHandler<FormatEventArgs>? FormatChanged;
+    public event EventHandler<CopyEventArgs>? CopyFileFinished;
 
     public Volume(MainViewModel _MainViewModel, DiskLogicalInterface usbVolume)
     {
@@ -82,6 +83,11 @@ public class Volume : DiskLogicalInterface
         FormatChanged?.Invoke(this, e);
     }
 
+    internal virtual void OnCopyFileFinished(CopyEventArgs e)
+    {
+        CopyFileFinished?.Invoke(this, e);
+    }
+
 
     public void CheckVolumeIsValid()
     {
@@ -145,26 +151,28 @@ public class Volume : DiskLogicalInterface
         return StorageInterfaceHelpers.SetVolumeLabel(Name, VolumeLabel).Status;
     }
 
-    public async Task<List<string>> CopyFiles()
+    public async Task CopyFiles()
     {
         List<string> bResponse = [];
         List<Task> copyFilesTasks = [];
         foreach (FileToCopy itemFile in mainViewModel.Files)
         {
-            copyFilesTasks.Add(
+            copyFilesTasks.Add
+                (
                 Task.Run(() =>
                 {
                     try
                     {
                         File.Copy(itemFile.FilePath, Name + itemFile.FileName, true);
+                        OnCopyFileFinished(new CopyEventArgs(this, itemFile, true));
                     }
                     catch (Exception ex)
                     {
-                        bResponse.Add(itemFile.FileName + " -- " + ex.Message);
+                        OnCopyFileFinished(new CopyEventArgs(this, itemFile, false, ex));
                     }
-                }));
+                })
+                );
         }
         await Task.WhenAll(copyFilesTasks);
-        return bResponse;
     }
 }

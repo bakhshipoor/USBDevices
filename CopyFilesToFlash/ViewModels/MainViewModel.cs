@@ -3,9 +3,12 @@ using CopyFilesToFlash.Models;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Windows.Input;
+using System.Windows.Threading;
 using USBDevicesLibrary;
+using USBDevicesLibrary.Events;
 using USBDevicesLibrary.Interfaces.Storage;
 using USBDevicesLibrary.USBDevices;
+using static USBDevicesLibrary.Events.EventTypesEnum;
 
 namespace CopyFilesToFlash.ViewModels;
 
@@ -61,12 +64,43 @@ public class MainViewModel : ViewModelBase
 
     private void USBDevices_DeviceChanged(object? sender, USBDevicesLibrary.Events.USBDevicesEventArgs e)
     {
-        USBFlashDisks.Clear();
-        foreach (USBDevice itemUSBDevice in USBDevices.USBDevices)
+        if (sender!=null)
         {
-            USBFlashDisk usbFlashDisk = new(this, itemUSBDevice);
+            if (e.EventType== EventTypeEnum.Connected)
+            {
+                USBFlashDisk newUSBFlashDevice= new(this, e.Device);
+                newUSBFlashDevice.TasksFinishedSuccessfully += NewUSBFlashDevice_TasksFinishedSuccessfully;
+                USBFlashDisks.Add(newUSBFlashDevice);
+                if (StartStatus)
+                {
+                    Task.Run(newUSBFlashDevice.StartTasks);
+                }
+            }
+            else if (e.EventType == EventTypeEnum.Disconnected)
+            {
+                USBFlashDisk? usbFlashDiskToRemove = null;
+                foreach (USBFlashDisk itemFlashDisk in USBFlashDisks)
+                {
+                    if (itemFlashDisk.USBFlashDevice.BaseDeviceProperties.Device_InstanceId.Equals(e.Device.BaseDeviceProperties.Device_InstanceId,StringComparison.OrdinalIgnoreCase))
+                    {
+                        usbFlashDiskToRemove = itemFlashDisk;
+                        break;
+                    }
+                }
+                if ( usbFlashDiskToRemove != null)
+                    USBFlashDisks.Remove(usbFlashDiskToRemove);
+            }
+        }
+    }
+
+    private void NewUSBFlashDevice_TasksFinishedSuccessfully(object? sender, EventArgs e)
+    {
+        if (sender!=null && sender is USBFlashDisk)
+        {
+            USBFlashDisk usbFlashDiskToRemove = (USBFlashDisk)sender;
+            usbFlashDiskToRemove.TasksFinishedSuccessfully -= NewUSBFlashDevice_TasksFinishedSuccessfully;
+            //await Task.Run(() => { USBFlashDisks.Remove(usbFlashDiskToRemove); });
             
-            USBFlashDisks.Add(usbFlashDisk);
         }
     }
 
