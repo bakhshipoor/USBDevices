@@ -62,7 +62,7 @@ This Library List And Event USB Devices and Filter them
 ### This Library have two examples of usage of this library.
 
 1. `USBDevicesDemo` a very simple `WPF` example to view properties of devices.
-2. `CopyFilesToFlash` a simple `WPF` `MVVM` example to work with sorage interface. This example copy batch of files to usb flash disk automatically. This examples not prepared to publish just for undrestanding how to work.  
+2. `CopyFilesToFlash` a simple `WPF` `MVVM` example to work with storage interface. This example copy batch of files to usb flash disk automatically. This examples not prepared to publish just for undrestanding how to work.  
 
 ![USBDevicesDemo-1](https://github.com/bakhshipoor/USBDevices/assets/2270529/0b873117-bf46-4962-bb34-6ecd9cfd1d1d)
 
