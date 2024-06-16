@@ -59,7 +59,7 @@ This Library List And Event USB Devices and Filter them
 
 6. `USBDevicesList` have property `ObservableCollection<USBDevice> USBDevices` you can access list of usb device can enumrate this observable collection.
 
-### This Library have two example of usage of this library.
+### This Library have two examples of usage of this library.
 
 1. `USBDevicesDemo` a very simple `WPF` example to view properties of devices.
 2. `CopyFilesToFlash` a simple `WPF` `MVVM` example to work with sorage interface. This example copy batch of files to usb flash disk automatically. This examples not prepared to publish just for undrestanding how to work.  
