@@ -99,8 +99,9 @@ public class MainViewModel : ViewModelBase
         {
             USBFlashDisk usbFlashDiskToRemove = (USBFlashDisk)sender;
             usbFlashDiskToRemove.TasksFinishedSuccessfully -= NewUSBFlashDevice_TasksFinishedSuccessfully;
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.DataBind, () => USBFlashDisks.Remove(usbFlashDiskToRemove));
             //await Task.Run(() => { USBFlashDisks.Remove(usbFlashDiskToRemove); });
-            
+
         }
     }
 
@@ -156,6 +157,7 @@ public class MainViewModel : ViewModelBase
                 if (itemVolume.IsValid)
                     itemFlashDisks.VolumeCount++;
             }
+            itemFlashDisks.MaxProgressValue = itemFlashDisks.TaskTotal * itemFlashDisks.VolumeCount;
         }
     }
 

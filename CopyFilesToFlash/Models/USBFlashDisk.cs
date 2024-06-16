@@ -1,6 +1,8 @@
 ﻿using CopyFilesToFlash.Events;
 using CopyFilesToFlash.ViewModels;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Threading;
 using USBDevicesLibrary.Interfaces.Storage;
 using USBDevicesLibrary.USBDevices;
 using USBDevicesLibrary.Win32API;
@@ -44,6 +46,7 @@ public class USBFlashDisk : ViewModelBase
             }
         }
         _TaskDescription = taskStopped;
+        _MaxProgressValue = _TaskTotal * _VolumeCount;
     }
 
     private string _VID;
@@ -95,12 +98,20 @@ public class USBFlashDisk : ViewModelBase
         set { _TaskCurrent = value; OnPropertyChanged(nameof(TaskCurrent)); }
     }
 
-    private int _TaskPrecentage;
-    public int TaskPrecentage
+    private int _TaskPercentage;
+    public int TaskPercentage
     {
-        get { return _TaskPrecentage; }
-        set { _TaskPrecentage = value; OnPropertyChanged(nameof(TaskPrecentage)); }
+        get { return _TaskPercentage; }
+        set { _TaskPercentage = value; OnPropertyChanged(nameof(TaskPercentage)); }
     }
+
+    private uint _MaxProgressValue;
+    public uint MaxProgressValue
+    {
+        get { return _MaxProgressValue; }
+        set { _MaxProgressValue = value; OnPropertyChanged(nameof(MaxProgressValue)); }
+    }
+
 
     private string _TaskDescription;
     public string TaskDescription
@@ -114,6 +125,13 @@ public class USBFlashDisk : ViewModelBase
     {
         get { return _IsSelected; }
         set { _IsSelected = value; OnPropertyChanged(nameof(IsSelected)); }
+    }
+
+    private byte _TasksStatus;
+    public byte TasksStatus
+    {
+        get { return _TasksStatus; }
+        set { _TasksStatus = value; OnPropertyChanged(nameof(TasksStatus)); }
     }
 
     public ObservableCollection<Volume> Volumes {  get; set; }
@@ -145,7 +163,7 @@ public class USBFlashDisk : ViewModelBase
         }
     }
 
-    private void Volume_CopyFileFinished(object? sender, Events.CopyEventArgs e)
+    private void Volume_CopyFileFinished(object? sender, CopyEventArgs e)
     {
         
         TaskDescription = $"Copy File {e.FileToCopy.FileName}";
@@ -154,7 +172,8 @@ public class USBFlashDisk : ViewModelBase
             e.Volume.TasksStatus = 2;
             e.Volume.ErrorDescription += $" Error While Copyng File {e.FileToCopy.FileName}, Error: {e.FileException.Message},   ";
         }
-        TaskCurrent++;
+        Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Normal, ()=> TaskCurrent++);
+        Dispatcher.CurrentDispatcher.Invoke(DispatcherPriority.Normal, () => TaskPercentage++);
     }
 
     internal virtual void OnTasksFinishedSuccessfully(EventArgs e)
@@ -165,6 +184,8 @@ public class USBFlashDisk : ViewModelBase
     public async void StartTasks()
     {
         uint volumeIndex = 1;
+        TasksStatus = 0;
+        TaskPercentage = 0;
         List<Volume> successfullyFinisedVolumes = [];
         foreach (Volume itemVolume in Volumes)
         {
@@ -172,6 +193,7 @@ public class USBFlashDisk : ViewModelBase
             if (itemVolume.IsValid)
             {
                 TaskCurrent = 1;
+                TaskPercentage++;
                 // Format
                 if (mainViewModel.Configuration.Format)
                 {
@@ -204,6 +226,7 @@ public class USBFlashDisk : ViewModelBase
                 if (mainViewModel.Configuration.Eject)
                 {
                     TaskCurrent++;
+                    TaskPercentage++;
                     TaskDescription = $"Eject Volume {itemVolume.Name}";
                     Win32ResponseDataStruct ejectResult = StorageInterfaceHelpers.EjectVolume(itemVolume);
                     // Try Again
@@ -233,7 +256,14 @@ public class USBFlashDisk : ViewModelBase
 
         if (Volumes.Count==successfullyFinisedVolumes.Count)
         {
+            TasksStatus = 1;
             OnTasksFinishedSuccessfully(new EventArgs());
+        }
+        else
+        {
+            TaskCurrent = 0;
+            TaskPercentage = 0;
+            TasksStatus = 2;
         }
     }
 

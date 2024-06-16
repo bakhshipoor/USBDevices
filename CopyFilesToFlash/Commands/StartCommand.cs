@@ -25,7 +25,8 @@ public class StartCommand : AsyncCommandBase
         List<Task> tasks = [];
         foreach (USBFlashDisk itemFlashDisk in mainViewModel.USBFlashDisks)
         {
-            tasks.Add(Task.Run(itemFlashDisk.StartTasks));
+            if (itemFlashDisk.TaskCurrent==0)
+                tasks.Add(Task.Run(itemFlashDisk.StartTasks));
         }
         await Task.WhenAll(tasks);
     }
