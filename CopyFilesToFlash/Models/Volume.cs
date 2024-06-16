@@ -153,26 +153,22 @@ public class Volume : DiskLogicalInterface
 
     public async Task CopyFiles()
     {
-        List<string> bResponse = [];
-        List<Task> copyFilesTasks = [];
-        foreach (FileToCopy itemFile in mainViewModel.Files)
+        await Task.Run(() =>
         {
-            copyFilesTasks.Add
-                (
-                Task.Run(() =>
+            foreach (FileToCopy itemFile in mainViewModel.Files)
+            {
+
+                try
                 {
-                    try
-                    {
-                        File.Copy(itemFile.FilePath, Name + itemFile.FileName, true);
-                        OnCopyFileFinished(new CopyEventArgs(this, itemFile, true));
-                    }
-                    catch (Exception ex)
-                    {
-                        OnCopyFileFinished(new CopyEventArgs(this, itemFile, false, ex));
-                    }
-                })
-                );
-        }
-        await Task.WhenAll(copyFilesTasks);
+                    File.Copy(itemFile.FilePath, Name + itemFile.FileName, true);
+                    OnCopyFileFinished(new CopyEventArgs(this, itemFile, true));
+                }
+                catch (Exception ex)
+                {
+                    OnCopyFileFinished(new CopyEventArgs(this, itemFile, false, ex));
+                }
+
+            }
+        });
     }
 }
