@@ -99,9 +99,6 @@ public class MainViewModel : ViewModelBase
         {
             USBFlashDisk usbFlashDiskToRemove = (USBFlashDisk)sender;
             usbFlashDiskToRemove.TasksFinishedSuccessfully -= NewUSBFlashDevice_TasksFinishedSuccessfully;
-            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.DataBind, () => USBFlashDisks.Remove(usbFlashDiskToRemove));
-            //await Task.Run(() => { USBFlashDisks.Remove(usbFlashDiskToRemove); });
-
         }
     }
 
