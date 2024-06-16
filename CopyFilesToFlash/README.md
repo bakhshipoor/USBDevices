@@ -1,8 +1,8 @@
 # Copy Batch Of Files To USB Flash Disk
 
-`CopyFilesToFlash` a simple `WPF` `MVVM` example to work with sorage interface. This example copy batch of files to usb flash disk automatically. This examples not prepared to publish just for undrestanding how to work.
+`CopyFilesToFlash` a simple `WPF` `MVVM` example to work with storage interface. This example copy batch of files to usb flash disk automatically. This example not prepared to publish just for undrestanding the `USBDevicesLibrary` how to work.
 
-`I use this app for copy MP3 files to DY-SV17F. I set the VID to E2B7 then press the Start button. And then just disconnect and connect new DY-SV17F voice module.`
+#### `I use this app for copy MP3 files to DY-SV17F. I set the VID to E2B7 then press the Start button. Then just disconnect and connect other DY-SV17F voice module.`
 
 https://youtu.be/uao04V-H0tY
 
