@@ -4,6 +4,8 @@
 
 https://youtu.be/uao04V-H0tY
 
-![CopyFilesToFlash-1](https://github.com/bakhshipoor/USBDevices/assets/2270529/b13acff8-07c9-4e8f-89b8-f67e2617e5d1)
+![CopyFilesToFlash-01](https://github.com/bakhshipoor/USBDevices/assets/2270529/cb0eee43-8f86-46d6-9704-fe72637f6572)
 
-![CopyFilesToFlash-2](https://github.com/bakhshipoor/USBDevices/assets/2270529/8c228998-5d3e-40bf-a078-226b94f9059d)
+![CopyFilesToFlash-02](https://github.com/bakhshipoor/USBDevices/assets/2270529/43556ce1-7ef8-46b7-ad26-886d6c83e5d6)
+
+
