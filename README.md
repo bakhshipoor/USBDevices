@@ -2,7 +2,7 @@
 This Library List And Event USB Devices and Filter them
 
 
-- This library based on C++ codes. Using Windows IOCTL and C++ header files. So you can easily convert this library to C++.
+- This library based on C++ codes. Using Windows IOCTL and C++ header files. 
 - Using `setupapi.dll`, `kernel32.dll` and `fmifs.dll` files.
 - .Net Core 8.0
 - Windows Desktop 
