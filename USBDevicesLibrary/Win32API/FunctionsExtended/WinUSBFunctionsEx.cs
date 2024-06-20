@@ -12,7 +12,8 @@ public static partial class WinUSBFunctions
     public static Win32ResponseDataStruct WinUsbInitialize(SafeFileHandle deviceHandle)
     {
         Win32ResponseDataStruct bResponse = new();
-        bool isSuccess = WinUsb_Initialize(deviceHandle, out SafeFileHandle interfaceHandle);
+        SafeFileHandle interfaceHandle = new();
+        bool isSuccess = WinUsb_Initialize(deviceHandle, out interfaceHandle);
         if (isSuccess)
         {
             bResponse.Status = true;

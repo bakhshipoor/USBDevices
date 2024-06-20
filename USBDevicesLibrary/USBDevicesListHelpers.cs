@@ -507,9 +507,13 @@ public static class USBDevicesListHelpers
             }
             usbDevice.ConfigurationDescriptors.Add(configurationDescriptor);
         }
-        if (CheckInterfacesStatus && usbDevice.BaseDeviceProperties.Device_Service.Contains("USBSTOR",StringComparison.OrdinalIgnoreCase))
+        if (CheckInterfacesStatus && usbDevice.BaseDeviceProperties.Device_Service.Contains("USBSTOR", StringComparison.OrdinalIgnoreCase))
         {
             GetDiskDriveInterface(usbDevice);
+        }
+        else if (CheckInterfacesStatus && usbDevice.BaseDeviceProperties.Device_Service.Contains("USBCCGP", StringComparison.OrdinalIgnoreCase))
+        {
+            GetCompositeInterface(usbDevice);
         }
         return usbDevice;
     }
@@ -611,5 +615,32 @@ public static class USBDevicesListHelpers
         }
 
         usbDevice.Add(diskDrive);
+    }
+
+    public static void GetCompositeInterface(USBDevice usbDevice)
+    {
+        // Checking for WINUSB interface Class
+        uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
+        Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_WINUSB];
+        ObservableCollection<Device> winUSBDevicesFromSetupAPI = DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags);
+        bool findWinUSBDevice = false;
+        Device winUSBDevice=new();
+        foreach (Device itemDevice in winUSBDevicesFromSetupAPI)
+        {
+            if (itemDevice.DeviceProperties.Device_Parent.Equals(usbDevice.BaseDeviceProperties.Device_InstanceId,StringComparison.OrdinalIgnoreCase))
+            {
+                findWinUSBDevice = true;
+                winUSBDevice = itemDevice;
+                break;
+            }
+        }
+        if (findWinUSBDevice)
+        {
+            Win32ResponseDataStruct compositeDeviceFileHandle = Kernel32Functions.CreateDeviceHandle(winUSBDevice.DevicePath);
+            if (compositeDeviceFileHandle.Status)
+            {
+                Win32ResponseDataStruct winUSBInitialize = WinUSBFunctions.WinUsbInitialize((SafeFileHandle)compositeDeviceFileHandle.Data);
+            }
+        }
     }
 }

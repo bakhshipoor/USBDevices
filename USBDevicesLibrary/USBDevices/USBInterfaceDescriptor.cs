@@ -13,7 +13,7 @@ public class USBInterfaceDescriptor
 {
     public USBInterfaceDescriptor()
     {
-        Description = string.Empty;
+        InterfaceName = string.Empty;
         Pipes = [];
     }
 
@@ -25,7 +25,7 @@ public class USBInterfaceDescriptor
         InterfaceClass = usbInterfaceDescriptor.bInterfaceClass;
         InterfaceSubClass = usbInterfaceDescriptor.bInterfaceSubClass;
         InterfaceProtocol = usbInterfaceDescriptor.bInterfaceProtocol;
-        IInterface = usbInterfaceDescriptor.iInterface;
+        IndexOfInterfaceName = usbInterfaceDescriptor.iInterface;
     }
 
     // Number of this interface. Zero-based value identifying the index in the array of concurrent interfaces supported by this configuration.
@@ -49,9 +49,9 @@ public class USBInterfaceDescriptor
     // protocol on this interface. If this field is set to FFH, the device uses a vendor-specific protocol for this interface.
     public byte InterfaceProtocol { get; set; }
     // Index of string descriptor describing this interface
-    public byte IInterface { get; set; }
-
-    public string  Description {  get; set; }
+    public byte IndexOfInterfaceName { get; set; }
+    // Get From Interface Descriptor by IndexOfInterfaceName
+    public string  InterfaceName {  get; set; }
 
     public ObservableCollection<USBPipeDescriptor> Pipes {  get; set; }
 

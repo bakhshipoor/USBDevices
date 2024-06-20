@@ -13,4 +13,8 @@ Filter USB Devices</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Interfaces\Composite\" />
+  </ItemGroup>
+
 </Project>
