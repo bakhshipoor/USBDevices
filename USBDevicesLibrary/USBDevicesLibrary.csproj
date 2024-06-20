@@ -14,7 +14,7 @@ Filter USB Devices</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\Composite\" />
+    <Folder Include="Interfaces\CompositeWinUSB\" />
   </ItemGroup>
 
 </Project>

@@ -35,7 +35,7 @@ public static partial class Kernel32Functions
                 (uint)FilesAccessRights.FILE_ATTRIBUTE_NORMAL | (uint)FileFlags.FILE_FLAG_OVERLAPPED,
                 IntPtr.Zero);
         }
-        if (deviceHandle.DangerousGetHandle()!=-1)
+        if (!deviceHandle.IsInvalid)
         {
             bResponse.Status = true;
             bResponse.Data = deviceHandle;

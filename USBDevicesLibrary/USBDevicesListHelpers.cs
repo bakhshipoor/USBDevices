@@ -341,6 +341,7 @@ public static class USBDevicesListHelpers
             {
                 bResponse = (USB_NODE_INFORMATION)decviceIOControl.Data;
             }
+            ((SafeFileHandle)nodeInformationHandle.Data).Close();
         }
         return bResponse;
     }
@@ -619,15 +620,17 @@ public static class USBDevicesListHelpers
 
     public static void GetCompositeInterface(USBDevice usbDevice)
     {
-        // Checking for WINUSB interface Class
+        //Checking for WinUSB Class
+
         uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
         Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_WINUSB];
         ObservableCollection<Device> winUSBDevicesFromSetupAPI = DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags);
-        bool findWinUSBDevice = false;
-        Device winUSBDevice=new();
+        bool findWinUSBDevice = true;
+        Device winUSBDevice = new();
+        List<IntPtr> winUSBInterfaceHandles = [];
         foreach (Device itemDevice in winUSBDevicesFromSetupAPI)
         {
-            if (itemDevice.DeviceProperties.Device_Parent.Equals(usbDevice.BaseDeviceProperties.Device_InstanceId,StringComparison.OrdinalIgnoreCase))
+            if (itemDevice.DeviceProperties.Device_Parent.Equals(usbDevice.BaseDeviceProperties.Device_InstanceId, StringComparison.OrdinalIgnoreCase))
             {
                 findWinUSBDevice = true;
                 winUSBDevice = itemDevice;
@@ -636,11 +639,28 @@ public static class USBDevicesListHelpers
         }
         if (findWinUSBDevice)
         {
-            Win32ResponseDataStruct compositeDeviceFileHandle = Kernel32Functions.CreateDeviceHandle(winUSBDevice.DevicePath);
-            if (compositeDeviceFileHandle.Status)
+            Win32ResponseDataStruct winUSBDeviceFileHandle = Kernel32Functions.CreateDeviceHandle(winUSBDevice.DevicePath);
+            if (winUSBDeviceFileHandle.Status)
             {
-                Win32ResponseDataStruct winUSBInitialize = WinUSBFunctions.WinUsbInitialize((SafeFileHandle)compositeDeviceFileHandle.Data);
+                Win32ResponseDataStruct winUSBInitialize = WinUSBFunctions.WinUsbInitialize((SafeFileHandle)winUSBDeviceFileHandle.Data);
+                if (winUSBInitialize.Status)
+                {
+
+                    winUSBInterfaceHandles.Add((IntPtr)winUSBInitialize.Data);
+                    for (int i = 0; i < usbDevice.BaseDeviceProperties.Device_Children.Count; i++)
+                    {
+                        string interfacePath = $"\\\\?\\{usbDevice.BaseDeviceProperties.Device_Children[i].Replace("\\","#").ToLower()}#{{dee824ef-729b-4a0e-9c14-b7117d33a817}}";
+                        //Win32ResponseDataStruct winUSBInterfaceHandle = Kernel32Functions.CreateDeviceHandle(interfacePath);
+                        Win32ResponseDataStruct winUSBInterfaceInitialize = WinUSBFunctions.GetAssociatedInterface((IntPtr)winUSBInitialize.Data,4);
+                        winUSBInterfaceHandles.Add((IntPtr)winUSBInterfaceInitialize.Data);
+                    }
+                }
+
+                var xx = WinUSBFunctions.WinUsb_Free((IntPtr)winUSBInitialize.Data);
+                ((SafeFileHandle)winUSBDeviceFileHandle.Data).Close();
             }
         }
+
+
     }
 }

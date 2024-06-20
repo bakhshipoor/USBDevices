@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace USBDevicesLibrary.Win32API;
 
-public static partial class WinUSBFunctions
+public static unsafe partial class WinUSBFunctions
 {
     private const string _DLLName = "winusb.dll";
     private const bool _LastErrorStatus = true;
@@ -13,7 +13,7 @@ public static partial class WinUSBFunctions
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
     private static extern bool
-        WinUsb_ControlTransfer 
+        WinUsb_ControlTransfer
         (
         [In] SafeFileHandle InterfaceHandle,
         [In] WinUSBData.WINUSB_SETUP_PACKET SetupPacket,
@@ -23,13 +23,13 @@ public static partial class WinUSBFunctions
         [In, Optional] IntPtr Overlapped
         );
 
-    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    private static extern bool 
+    [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, EntryPoint = "WinUsb_GetAssociatedInterface", CharSet = _CharSet)]
+    private static extern bool
         WinUsb_GetAssociatedInterface
         (
-        [In] SafeFileHandle InterfaceHandle,
+        [In] IntPtr InterfaceHandle,
         [In] byte AssociatedInterfaceIndex,
-        [Out] out SafeFileHandle AssociatedInterfaceHandle
+        [Out] out IntPtr AssociatedInterfaceHandle
         );
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
@@ -72,10 +72,10 @@ public static partial class WinUSBFunctions
         );
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    private static extern bool 
+    public static extern bool 
         WinUsb_Free
         (
-        [In] SafeFileHandle InterfaceHandle
+        [In] IntPtr InterfaceHandle
         );
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
@@ -83,7 +83,7 @@ public static partial class WinUSBFunctions
         WinUsb_Initialize
         (
         [In] SafeFileHandle DeviceHandle,
-        [Out] out SafeFileHandle InterfaceHandle
+        out IntPtr InterfaceHandle
         );
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]

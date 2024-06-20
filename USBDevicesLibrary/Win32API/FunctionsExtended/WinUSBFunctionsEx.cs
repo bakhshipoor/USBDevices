@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using USBDevicesLibrary.USBDevices;
 using static USBDevicesLibrary.Win32API.USBSpec;
 using static USBDevicesLibrary.Win32API.WinUSBData;
 using static USBDevicesLibrary.Win32API.WinUSBIO;
@@ -12,8 +13,8 @@ public static partial class WinUSBFunctions
     public static Win32ResponseDataStruct WinUsbInitialize(SafeFileHandle deviceHandle)
     {
         Win32ResponseDataStruct bResponse = new();
-        SafeFileHandle interfaceHandle = new();
-        bool isSuccess = WinUsb_Initialize(deviceHandle, out interfaceHandle);
+        IntPtr interfaceHandle = new();
+        bool isSuccess = WinUsb_Initialize( deviceHandle, out interfaceHandle);
         if (isSuccess)
         {
             bResponse.Status = true;
@@ -392,6 +393,35 @@ public static partial class WinUSBFunctions
             bResponse.Status = false;
             bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
             bResponse.ErrorFunctionName = $"WinUsb_ReadPipe [{pipeID}]";
+        }
+        return bResponse;
+    }
+
+    public static Win32ResponseDataStruct GetAssociatedInterface(IntPtr interfaceHandle, byte numberOfInterfaces)
+    {
+        Win32ResponseDataStruct bResponse = new();
+        bool isSuccess = false;
+        List<IntPtr> winUSB_MI_Handles = [];
+        winUSB_MI_Handles.Add(interfaceHandle);
+        //for (byte i = 1; i < numberOfInterfaces; i++)
+        //{
+            byte idx = 0;
+            isSuccess = WinUsb_GetAssociatedInterface(interfaceHandle, idx, out IntPtr associatedInterfaceHandle);
+            if (isSuccess)
+                winUSB_MI_Handles.Add(associatedInterfaceHandle);
+            //else
+            //    break;
+        //}
+        if (isSuccess)
+        {
+            bResponse.Status = true;
+            bResponse.Data = winUSB_MI_Handles;
+        }
+        else
+        {
+            bResponse.Status = false;
+            bResponse.Exception = new Win32Exception(Marshal.GetLastWin32Error());
+            bResponse.ErrorFunctionName = $"GetAssociatedInterface [{winUSB_MI_Handles.Count}]";
         }
         return bResponse;
     }
