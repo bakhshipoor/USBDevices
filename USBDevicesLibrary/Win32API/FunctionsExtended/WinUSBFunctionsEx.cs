@@ -29,7 +29,7 @@ public static partial class WinUSBFunctions
         return bResponse;
     }
 
-    public static Win32ResponseDataStruct GetDeviceDescriptor(SafeFileHandle interfaceHandle, byte index, ushort languageID)
+    public static Win32ResponseDataStruct GetDeviceDescriptor(IntPtr interfaceHandle, byte index, ushort languageID)
     {
         Win32ResponseDataStruct bResponse = new();
         uint bufferLength = (uint)Marshal.SizeOf(typeof(USB_DEVICE_DESCRIPTOR));
@@ -89,7 +89,7 @@ public static partial class WinUSBFunctions
         return bResponse;
     }
 
-    public static Win32ResponseDataStruct GetDeviceSpeed(SafeFileHandle interfaceHandle)
+    public static Win32ResponseDataStruct GetDeviceSpeed(IntPtr interfaceHandle)
     {
         Win32ResponseDataStruct bResponse = new();
         uint BufferLength = 1;
@@ -403,15 +403,15 @@ public static partial class WinUSBFunctions
         bool isSuccess = false;
         List<IntPtr> winUSB_MI_Handles = [];
         winUSB_MI_Handles.Add(interfaceHandle);
-        //for (byte i = 1; i < numberOfInterfaces; i++)
-        //{
-            byte idx = 0;
-            isSuccess = WinUsb_GetAssociatedInterface(interfaceHandle, idx, out IntPtr associatedInterfaceHandle);
+        for (byte i = 0; i < numberOfInterfaces; i++)
+        {
+            bool issss = WinUSBFunctions.WinUsb_QueryInterfaceSettings(interfaceHandle, i, out USBSpec.USB_INTERFACE_DESCRIPTOR UsbAltInterfaceDescriptor);
+            isSuccess = WinUsb_GetAssociatedInterface(interfaceHandle, 4, out IntPtr associatedInterfaceHandle);
             if (isSuccess)
                 winUSB_MI_Handles.Add(associatedInterfaceHandle);
-            //else
-            //    break;
-        //}
+            else
+                break;
+        }
         if (isSuccess)
         {
             bResponse.Status = true;

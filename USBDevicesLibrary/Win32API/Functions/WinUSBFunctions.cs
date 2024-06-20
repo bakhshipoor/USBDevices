@@ -33,10 +33,10 @@ public static unsafe partial class WinUSBFunctions
         );
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    private static extern bool 
+    public static extern bool 
         WinUsb_GetDescriptor
         (
-        [In] SafeFileHandle InterfaceHandle,
+        [In] IntPtr InterfaceHandle,
         [In] byte DescriptorType,
         [In] byte Index,
         [In] ushort LanguageID,
@@ -90,17 +90,17 @@ public static unsafe partial class WinUSBFunctions
     private static extern bool 
         WinUsb_QueryDeviceInformation
         (
-        [In] SafeFileHandle InterfaceHandle,
+        [In] IntPtr InterfaceHandle,
         [In] uint InformationType,
         [In, Out] ref uint BufferLength,
         [Out] out byte Buffer
         );
 
     [DllImport(dllName: _DLLName, SetLastError = _LastErrorStatus, CharSet = _CharSet)]
-    private static extern bool 
+    public static extern bool 
         WinUsb_QueryInterfaceSettings
         (
-        [In] SafeFileHandle InterfaceHandle,
+        [In] IntPtr InterfaceHandle,
         [In] byte AlternateInterfaceNumber,
         [Out] out USBSpec.USB_INTERFACE_DESCRIPTOR UsbAltInterfaceDescriptor
         );

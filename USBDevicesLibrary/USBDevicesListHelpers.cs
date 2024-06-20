@@ -267,14 +267,14 @@ public static class USBDevicesListHelpers
             // https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid
             // https://winprotocoldoc.blob.core.windows.net/productionwindowsarchives/MS-LCID/%5bMS-LCID%5d.pdf
             // Page 14 : 0x0409 en-US
-            Index = 0, 
+            Index = 0,
             Length = 0xFF,
         };
         byte[] requestedDescriptor = GetNodeConnectionDescriptor(devicePath, connectionIndex, setupPacket);
         if (requestedDescriptor == null || requestedDescriptor.Length < 5) return bResponse;
         numberOfLanguages = (ushort)((requestedDescriptor[0] - 2) / 2);
-        if (numberOfLanguages<1) return bResponse;
-        for (int indexofLangID=2; indexofLangID < requestedDescriptor[0]; indexofLangID++)
+        if (numberOfLanguages < 1) return bResponse;
+        for (int indexofLangID = 2; indexofLangID < requestedDescriptor[0]; indexofLangID++)
         {
             ushort langID = requestedDescriptor[indexofLangID];
             indexofLangID++;
@@ -598,7 +598,7 @@ public static class USBDevicesListHelpers
         if (driveLayoutInformationEx.Status)
         {
             DRIVE_LAYOUT_INFORMATION_EX driveLayoutInfoEx = (DRIVE_LAYOUT_INFORMATION_EX)driveLayoutInformationEx.Data;
-            if (driveLayoutInfoEx.PartitionStyle==PARTITION_STYLE.PARTITION_STYLE_GPT)
+            if (driveLayoutInfoEx.PartitionStyle == PARTITION_STYLE.PARTITION_STYLE_GPT)
             {
                 diskDrive.GPT_MaxPartitionCount = driveLayoutInfoEx.DriveInfo.GPT_MaxPartitionCount;
                 diskDrive.GPT_StartingUsableOffset = driveLayoutInfoEx.DriveInfo.GPT_StartingUsableOffset;
@@ -606,7 +606,7 @@ public static class USBDevicesListHelpers
             }
 
             ObservableCollection<DiskPartitionInterface> partitions = StorageInterfaceHelpers.GetDiskDrivePartitions(driveLayoutInfoEx, diskDrive);
-            if (partitions.Count>0)
+            if (partitions.Count > 0)
             {
                 foreach (DiskPartitionInterface itemPartition in partitions)
                 {
@@ -645,22 +645,22 @@ public static class USBDevicesListHelpers
                 Win32ResponseDataStruct winUSBInitialize = WinUSBFunctions.WinUsbInitialize((SafeFileHandle)winUSBDeviceFileHandle.Data);
                 if (winUSBInitialize.Status)
                 {
+                    bool ssss = WinUSBFunctions.WinUsb_GetDescriptor((IntPtr)winUSBInitialize.Data, (byte)USBDescriptorTypes.DEVICE, 0, 0, out USBSpec.USB_DEVICE_DESCRIPTOR deviceDesc, 1024, out uint lt);
+                    var xxx = WinUSBFunctions.GetDeviceSpeed((IntPtr)winUSBInitialize.Data);
+                    //Win32ResponseDataStruct winUSBInterfaceInitialize = WinUSBFunctions.GetAssociatedInterface((IntPtr)winUSBInitialize.Data, usbDevice.ConfigurationDescriptors[0].NumberOfInterfaces);
+                    bool issss = WinUSBFunctions.WinUsb_QueryInterfaceSettings((IntPtr)winUSBInitialize.Data, 0, out USB_INTERFACE_DESCRIPTOR UsbAltInterfaceDescriptor);
+                    bool issss1 = WinUSBFunctions.WinUsb_QueryInterfaceSettings((IntPtr)winUSBInitialize.Data, 1, out USB_INTERFACE_DESCRIPTOR UsbAltInterfaceDescriptor1);
 
-                    winUSBInterfaceHandles.Add((IntPtr)winUSBInitialize.Data);
-                    for (int i = 0; i < usbDevice.BaseDeviceProperties.Device_Children.Count; i++)
-                    {
-                        string interfacePath = $"\\\\?\\{usbDevice.BaseDeviceProperties.Device_Children[i].Replace("\\","#").ToLower()}#{{dee824ef-729b-4a0e-9c14-b7117d33a817}}";
-                        //Win32ResponseDataStruct winUSBInterfaceHandle = Kernel32Functions.CreateDeviceHandle(interfacePath);
-                        Win32ResponseDataStruct winUSBInterfaceInitialize = WinUSBFunctions.GetAssociatedInterface((IntPtr)winUSBInitialize.Data,4);
-                        winUSBInterfaceHandles.Add((IntPtr)winUSBInterfaceInitialize.Data);
-                    }
+                    var xx = WinUSBFunctions.WinUsb_Free((IntPtr)winUSBInitialize.Data);
                 }
 
-                var xx = WinUSBFunctions.WinUsb_Free((IntPtr)winUSBInitialize.Data);
                 ((SafeFileHandle)winUSBDeviceFileHandle.Data).Close();
             }
+
+
+
         }
-
-
     }
+
+
 }
