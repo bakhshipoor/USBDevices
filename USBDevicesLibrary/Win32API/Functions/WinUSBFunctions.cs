@@ -15,7 +15,7 @@ public static unsafe partial class WinUSBFunctions
     private static extern bool
         WinUsb_ControlTransfer
         (
-        [In] SafeFileHandle InterfaceHandle,
+        [In] IntPtr InterfaceHandle,
         [In] WinUSBData.WINUSB_SETUP_PACKET SetupPacket,
         [Out] byte[] Buffer,
         [In] uint BufferLength,
@@ -49,7 +49,7 @@ public static unsafe partial class WinUSBFunctions
     private static extern bool 
         WinUsb_GetDescriptor
         (
-        [In] SafeFileHandle InterfaceHandle,
+        [In] IntPtr InterfaceHandle,
         [In] byte DescriptorType,
         [In] byte Index,
         [In] ushort LanguageID,
@@ -62,7 +62,7 @@ public static unsafe partial class WinUSBFunctions
     private static extern bool 
         WinUsb_GetDescriptor
         (
-        [In] SafeFileHandle InterfaceHandle,
+        [In] IntPtr InterfaceHandle,
         [In] byte DescriptorType,
         [In] byte Index,
         [In] ushort LanguageID,

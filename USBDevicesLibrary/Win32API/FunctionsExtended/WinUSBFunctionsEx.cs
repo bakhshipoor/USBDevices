@@ -49,7 +49,7 @@ public static partial class WinUSBFunctions
         return bResponse;
     }
 
-    public static Win32ResponseDataStruct GetConfigurationDescriptor(SafeFileHandle interfaceHandle, byte index, ushort languageID)
+    public static Win32ResponseDataStruct GetConfigurationDescriptor(IntPtr interfaceHandle, byte index, ushort languageID)
     {
         Win32ResponseDataStruct bResponse = new();
         uint bufferLength = (uint)Marshal.SizeOf(typeof(USB_CONFIGURATION_DESCRIPTOR));
@@ -69,7 +69,7 @@ public static partial class WinUSBFunctions
         return bResponse;
     }
 
-    public static Win32ResponseDataStruct GetStringDescriptor(SafeFileHandle interfaceHandle, byte index, ushort languageID)
+    public static Win32ResponseDataStruct GetStringDescriptor(IntPtr interfaceHandle, byte index, ushort languageID)
     {
         Win32ResponseDataStruct bResponse = new();
         uint bufferLength = 256;
@@ -301,7 +301,7 @@ public static partial class WinUSBFunctions
         return bResponse;
     }
 
-    public static Win32ResponseDataStruct SendDatatoDefaultEndpoint(SafeFileHandle interfaceHandle, byte requestType, byte request, ushort value, ushort index, ushort length)
+    public static Win32ResponseDataStruct SendDatatoDefaultEndpoint(IntPtr interfaceHandle, byte request, byte requestType, ushort value, ushort index, ushort length)
     {
         Win32ResponseDataStruct bResponse = new();
 

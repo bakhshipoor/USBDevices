@@ -12,6 +12,7 @@ using static USBDevicesLibrary.Win32API.Kernel32Data;
 using static USBDevicesLibrary.Win32API.NTDDDiskData;
 using static USBDevicesLibrary.Win32API.NTDDStorData;
 using static USBDevicesLibrary.Win32API.SetupAPIData;
+using static USBDevicesLibrary.Win32API.USB;
 using static USBDevicesLibrary.Win32API.USBIOCtl;
 using static USBDevicesLibrary.Win32API.USBSpec;
 using static USBDevicesLibrary.Win32API.WinUSBData;
@@ -512,10 +513,6 @@ public static class USBDevicesListHelpers
         {
             GetDiskDriveInterface(usbDevice);
         }
-        else if (CheckInterfacesStatus && usbDevice.BaseDeviceProperties.Device_Service.Contains("USBCCGP", StringComparison.OrdinalIgnoreCase))
-        {
-            GetCompositeInterface(usbDevice);
-        }
         return usbDevice;
     }
 
@@ -618,49 +615,6 @@ public static class USBDevicesListHelpers
         usbDevice.Add(diskDrive);
     }
 
-    public static void GetCompositeInterface(USBDevice usbDevice)
-    {
-        //Checking for WinUSB Class
-
-        uint flags = (uint)(DIGCF.DIGCF_PRESENT | DIGCF.DIGCF_DEVICEINTERFACE);
-        Guid deviceClassGuid = ClassGuid[GUID_DEVCLASS.GUID_DEVINTERFACE_WINUSB];
-        ObservableCollection<Device> winUSBDevicesFromSetupAPI = DeviceHelpers.GetClassDevicesWithProperties(deviceClassGuid, string.Empty, flags);
-        bool findWinUSBDevice = true;
-        Device winUSBDevice = new();
-        List<IntPtr> winUSBInterfaceHandles = [];
-        foreach (Device itemDevice in winUSBDevicesFromSetupAPI)
-        {
-            if (itemDevice.DeviceProperties.Device_Parent.Equals(usbDevice.BaseDeviceProperties.Device_InstanceId, StringComparison.OrdinalIgnoreCase))
-            {
-                findWinUSBDevice = true;
-                winUSBDevice = itemDevice;
-                break;
-            }
-        }
-        if (findWinUSBDevice)
-        {
-            Win32ResponseDataStruct winUSBDeviceFileHandle = Kernel32Functions.CreateDeviceHandle(winUSBDevice.DevicePath);
-            if (winUSBDeviceFileHandle.Status)
-            {
-                Win32ResponseDataStruct winUSBInitialize = WinUSBFunctions.WinUsbInitialize((SafeFileHandle)winUSBDeviceFileHandle.Data);
-                if (winUSBInitialize.Status)
-                {
-                    bool ssss = WinUSBFunctions.WinUsb_GetDescriptor((IntPtr)winUSBInitialize.Data, (byte)USBDescriptorTypes.DEVICE, 0, 0, out USBSpec.USB_DEVICE_DESCRIPTOR deviceDesc, 1024, out uint lt);
-                    var xxx = WinUSBFunctions.GetDeviceSpeed((IntPtr)winUSBInitialize.Data);
-                    //Win32ResponseDataStruct winUSBInterfaceInitialize = WinUSBFunctions.GetAssociatedInterface((IntPtr)winUSBInitialize.Data, usbDevice.ConfigurationDescriptors[0].NumberOfInterfaces);
-                    bool issss = WinUSBFunctions.WinUsb_QueryInterfaceSettings((IntPtr)winUSBInitialize.Data, 0, out USB_INTERFACE_DESCRIPTOR UsbAltInterfaceDescriptor);
-                    bool issss1 = WinUSBFunctions.WinUsb_QueryInterfaceSettings((IntPtr)winUSBInitialize.Data, 1, out USB_INTERFACE_DESCRIPTOR UsbAltInterfaceDescriptor1);
-
-                    var xx = WinUSBFunctions.WinUsb_Free((IntPtr)winUSBInitialize.Data);
-                }
-
-                ((SafeFileHandle)winUSBDeviceFileHandle.Data).Close();
-            }
-
-
-
-        }
-    }
-
+    
 
 }
