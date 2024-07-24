@@ -53,7 +53,7 @@ cd USBDevices/CopyFilesToFlash
 
 
 
-![Settings Panel After Start](../Images/CopyFilesToFlash-01.jpg)
+![Settings Panel After Start](../Images/CopyFilesToFlash-02.jpg)
 
 
 
