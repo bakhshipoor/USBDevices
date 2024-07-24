@@ -87,12 +87,12 @@ This library includes two example projects:
 
 ## Screenshots
 
-![USBDevicesDemo-1](images/USBDevicesDemo-1.png)
-![USBDevicesDemo-2](images/USBDevicesDemo-2.png)
-![USBDevicesDemo-3](images/USBDevicesDemo-3.png)
-![USBDevicesDemo-4](images/USBDevicesDemo-4.png)
-![CopyFilesToFlash-1](images/CopyFilesToFlash-1.png)
-![CopyFilesToFlash-2](images/CopyFilesToFlash-2.png)
+![USBDevicesDemo-1](Images/USBDevicesDemo-1.jpg)
+![USBDevicesDemo-2](Images/USBDevicesDemo-2.jpg)
+![USBDevicesDemo-3](Images/USBDevicesDemo-3.jpg)
+![USBDevicesDemo-4](Images/USBDevicesDemo-4.jpg)
+![CopyFilesToFlash-1](Images/CopyFilesToFlash-01.jpg)
+![CopyFilesToFlash-2](Images/CopyFilesToFlash-02.jpg)
 
 ## License
 
