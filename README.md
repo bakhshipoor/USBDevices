@@ -1,83 +1,111 @@
+
 # USB Devices Library
-This Library List And Event USB Devices and Filter them
 
+This library provides functionalities to list USB devices on Windows and handle events for device changes. It is based on C++ code and utilizes Windows IOCTL, `setupapi.dll`, `kernel32.dll`, and `fmifs.dll`.
 
-- This library based on C++ codes. Using Windows IOCTL and C++ header files. 
-- Using `setupapi.dll`, `kernel32.dll` and `fmifs.dll` files.
+## Features
+
+- List all connected USB devices
+- Monitor USB device connection and disconnection events
+- Filter USB devices by VID, PID, and Service
+
+## Requirements
+
 - .Net Core 8.0
-- Windows Desktop 
-- List of USB Devices in pc
-- Supported interfaces:
-  - Disk Drive
-  - Disk Partition
-  - Logical Disk
+- Windows Desktop
 
-- Event Types:
-  - Connected
-  - Disconnected
+## Supported Interfaces
+
+- Disk Drive
+- Disk Partition
+- Logical Disk
+
+## Event Types
+
+- Connected
+- Disconnected
+
+## Installation
+
+To install this library, clone the repository and build the solution using Visual Studio.
+
+```bash
+git clone https://github.com/bakhshipoor/USBDevices.git
+cd USBDevices
+```
 
 ## Usage
- 1. Create new instance of class `USBDevicesList`
-    ```sh
-    public USBDevicesList USBDevicesCollection { get; set; }
-    ```
 
-    ```sh
-    USBDevicesCollection = new();
-    ```
+1. Create a new instance of the `USBDevicesList` class:
 
-2. By default Connected and Disconnected events are enabled if you want you can disable each of them by:
-    ```sh
-   USBDevicesCollection.ConnectedEventStatus = false;;
-   USBDevicesCollection.DisconnectedEventStatus = true;
-   ```
+```csharp
+public USBDevicesList USBDevicesCollection { get; set; }
 
-3. You can set filter to monitor usb devices. In this case you should enable the filter status by: 
-   ```sh
-   USBDevicesCollection.EnableFilterDevice();
-   ```
-   you can diable filter status by:
-   ```sh
-   USBDevicesCollection.FilterDeviceStatus = true;
-   ```
-   after enabling, set VID, PID or Service to filter. You can fillter by any of VID, PID, Service. Such as `SetDeviceToFilter("xxxx", "yyyy", "Service Name")`. The VID value cant be null any other nullable. `Service Name` such as a `USBSTOR`.
-   ```sh
-   USBDevicesCollection.SetDeviceToFilter("xxxx", "yyyy", "Service Name");
-   ```
-   
+USBDevicesCollection = new USBDevicesList();
+```
 
-4. Add Events :
-   ```sh
-   USBDevicesCollection.InitialCollectionsComplete += USBDevicesCollections_InitialCollectionsComplete;
-   USBDevicesCollection.DeviceChanged += USBDevicesCollections_DeviceChanged;
-   ```
+2. Enable or disable connection and disconnection events as needed:
 
-5. After initial `USBDevices` class you should start the monitiring by `Start()`:
-   ```sh
-   USBDevicesCollection.Start();
-   ```
+```csharp
+USBDevicesCollection.ConnectedEventStatus = false;
+USBDevicesCollection.DisconnectedEventStatus = true;
+```
 
-6. `USBDevicesList` have property `ObservableCollection<USBDevice> USBDevices` you can access list of usb device can enumrate this observable collection.
+3. Enable device filtering and set filters:
 
-### This Library have two examples of usage of this library.
+```csharp
+USBDevicesCollection.EnableFilterDevice();
+USBDevicesCollection.FilterDeviceStatus = true;
+USBDevicesCollection.SetDeviceToFilter("xxxx", "yyyy", "Service Name");
+```
 
-1. `USBDevicesDemo` a very simple `WPF` example to view properties of devices.
-2. `CopyFilesToFlash` a simple `WPF` `MVVM` example to work with storage interface. This example copy batch of files to usb flash disk automatically. This examples not prepared to publish just for undrestanding how to work.  
+4. Add event handlers for initial collection completion and device changes:
 
-![USBDevicesDemo-1](https://github.com/bakhshipoor/USBDevices/assets/2270529/0b873117-bf46-4962-bb34-6ecd9cfd1d1d)
+```csharp
+USBDevicesCollection.InitialCollectionsComplete += USBDevicesCollections_InitialCollectionsComplete;
+USBDevicesCollection.DeviceChanged += USBDevicesCollections_DeviceChanged;
+```
 
-![USBDevicesDemo-2](https://github.com/bakhshipoor/USBDevices/assets/2270529/3c2f4b65-bc51-49db-af03-b87e48fb7605)
+5. Start monitoring USB devices:
 
-![USBDevicesDemo-3](https://github.com/bakhshipoor/USBDevices/assets/2270529/059dc2db-2c80-4772-a1e8-9885403dbda2)
+```csharp
+USBDevicesCollection.Start();
+```
 
-![USBDevicesDemo-4](https://github.com/bakhshipoor/USBDevices/assets/2270529/c09e81ab-59dd-4a22-9622-dee38b414f92)
+6. Access the list of USB devices:
 
-![CopyFilesToFlash-1](https://github.com/bakhshipoor/USBDevices/assets/2270529/bd04ac13-bc25-4e69-b69e-e45ce0874791)
+```csharp
+ObservableCollection<USBDevice> devices = USBDevicesCollection.USBDevices;
+```
 
-![CopyFilesToFlash-2](https://github.com/bakhshipoor/USBDevices/assets/2270529/c9992ad0-4086-4190-814a-3577da294708)
+## Examples
 
+This library includes two example projects:
 
+1. `USBDevicesDemo`: A simple WPF application to view properties of connected USB devices.
+2. `CopyFilesToFlash`: A WPF MVVM application that automatically copies files to a USB flash drive.
 
+## Screenshots
 
+![USBDevicesDemo-1](images/USBDevicesDemo-1.png)
+![USBDevicesDemo-2](images/USBDevicesDemo-2.png)
+![USBDevicesDemo-3](images/USBDevicesDemo-3.png)
+![USBDevicesDemo-4](images/USBDevicesDemo-4.png)
+![CopyFilesToFlash-1](images/CopyFilesToFlash-1.png)
+![CopyFilesToFlash-2](images/CopyFilesToFlash-2.png)
 
+## License
 
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) file for details.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request.
+
+## Acknowledgements
+
+Thanks to all contributors and supporters.
+
+---
+
+Feel free to check the repository at [USBDevices](https://github.com/bakhshipoor/USBDevices).
