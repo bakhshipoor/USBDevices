@@ -34,32 +34,73 @@ cd USBDevices/CopyFilesToFlash
 ## Usage
 
 1. **Launch the Application:** Open the CopyFilesToFlash project in Visual Studio and run the application.
+
 2. **Filter USB Devices:** 
-   - Enter the VID and PID for the USB devices you want to filter.
+   - Enter the VID (Vendor ID) and PID (Product ID) for the USB devices you want to filter in the Filter section.
+
 3. **Configure Settings:**
-   - Select options to format the flash drive, change the file system format, modify the volume label, and choose whether to eject the flash drive after copying.
+   - **Format Flash Disk (Quick):** Check this option to format the flash disk quickly.
+   - **File System Name:** Select the desired file system format (e.g., FAT) from the dropdown menu.
+   - **Volume Label:** Enter a new label for the volume.
+   - **Eject Flash To Safe Remove:** Check this option to eject the flash disk safely after the copying process is complete.
+
 4. **Manage Files:**
-   - Use the 'Add' button to select and add files to the list.
-   - Use the 'Remove' button to delete files from the list.
+   - Use the **Add Files** button to select and add files to the list.
+   - Use the **Remove Files** button to delete files from the list.
+   - The list box displays all selected files with their paths, sizes, and details. The total size of all selected files is shown at the top of the list.
+
 5. **Start Copying:**
-   - Click the 'Start' button to begin the copying process.
-   - Monitor the copying process in the right panel. Any errors will be displayed in red.
+   - Click the **Start** button to begin the copying process.
+   - The right panel displays the connected USB flash drives and their volumes, showing details such as path, capacity, free space, file system, new label, and any errors.
+
 6. **Stop Copying:**
-   - Click the 'Stop' button to halt the copying process at any time.
+   - Click the **Stop** button to halt the copying process at any time.
+
+## User Interface Breakdown
+
+### Filter Section
+- **USB Vendor ID (VID) (Hex):** Input field for the USB vendor ID in hexadecimal.
+- **USB Product ID (PID) (Hex):** Input field for the USB product ID in hexadecimal.
+
+### Settings Section
+- **Format Flash Disk (Quick):** Checkbox for quickly formatting the flash disk.
+- **File System Name:** Dropdown menu to select the file system format (e.g., FAT, NTFS).
+- **Volume Label:** Input field for setting the new volume label.
+- **Eject Flash To Safe Remove:** Checkbox to eject the flash disk safely after copying.
+
+### Files Section
+- **Add Files:** Button to add files to the list.
+- **Remove Files:** Button to remove selected files from the list.
+- **File List Display:** 
+  - Displays added files with their paths and sizes.
+  - Shows the total size of all selected files at the top.
+
+### Right Panel
+- **Start Button:** Begins the file copying process.
+- **Stop Button:** Stops the file copying process.
+- **USB Drives List:** 
+  - Displays all connected USB flash drives and their volumes.
+  - Shows details such as VID, PID, path, capacity, free space, file system, new label, and errors.
+  - Errors are highlighted in red for easy identification.
+
+### Status and Progress
+- **Task Status:** Displays the number of tasks and their statuses.
+- **Error Handling:** Errors encountered during the copying process are displayed in red within the USB drives list.
 
 ## Screenshots
 
 ![Main Interface Before Start](../Images/CopyFilesToFlash-01.jpg)
 
+*Main Interface before statr.*
 
 
 ![Settings Panel After Start](../Images/CopyFilesToFlash-02.jpg)
 
-
+*Main Interface after statr.*
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](../LICENSE.txt) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) file for details.
 
 ## Contributing
 
