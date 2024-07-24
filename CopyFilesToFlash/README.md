@@ -49,10 +49,10 @@ cd USBDevices/CopyFilesToFlash
 
 ## Screenshots
 
-![Main Interface Before Start](images/CopyFilesToFlash-MainInterface.png)
+![Main Interface Before Start](../Images/CopyFilesToFlash-01.jpg)
 *Main Interface showing file management and USB device monitoring.*
 
-![Settings Panel After Start](images/CopyFilesToFlash-SettingsPanel.png)
+![Settings Panel After Start](../Images/CopyFilesToFlash-01.jpg)
 *Settings Panel for configuring format and other options.*
 
 ## License
